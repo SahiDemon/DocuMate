@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DocuMate - Welcome</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#3E63DD",
+            "background-dark": "#121212",
+            "surface-dark": "#1E1E1E",
+            "primary-accent": "#5E81F3",
+          },
+          fontFamily: {
+            "display": ["Manrope", "sans-serif"]
+          },
+          borderRadius: {
+            "DEFAULT": "0.5rem",
+            "lg": "0.75rem",
+            "xl": "1rem",
+            "2xl": "1.5rem",
+            "full": "9999px"
+          },
+        },
+      },
+    }
+  </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+      background-color: #121212;
+    }
+    .material-symbols-outlined {
+      font-variation-settings:
+        'FILL' 0,
+        'wght' 300,
+        'GRAD' 0,
+        'opsz' 24
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-dark font-display text-white">
+<div class="relative flex h-full min-h-screen w-full flex-col group/design-root overflow-hidden p-6">
+<main class="flex flex-1 flex-col items-center justify-center pt-8">
+<div class="flex w-full flex-1 flex-col items-center justify-center">
+<div class="relative mb-8 flex h-48 w-48 items-center justify-center">
+<div class="absolute inset-0 z-0 scale-90 rounded-full bg-primary opacity-20 blur-3xl"></div>
+<div class="absolute inset-0 animate-[spin_12s_linear_infinite] rounded-full [background:conic-gradient(from_90deg_at_50%_50%,#5E81F3_0%,transparent_30%,transparent_70%,#5E81F3_100%)]"></div>
+<div class="absolute inset-2 rounded-full bg-background-dark"></div>
+<div class="absolute inset-4 rounded-full border border-dashed border-white/10"></div>
+<div class="relative z-10 flex flex-col items-center justify-center">
+<span class="material-symbols-outlined text-7xl text-primary-accent" style="font-variation-settings: 'wght' 200, 'opsz' 48;">
+              shield_lock
+            </span>
+</div>
+</div>
+<div class="w-full max-w-sm space-y-4 text-center">
+<h1 class="text-4xl font-extrabold tracking-tighter text-white sm:text-5xl">
+            DocuMate
+          </h1>
+<p class="mx-auto max-w-xs text-base leading-relaxed text-white/60">
+            Your ultimate solution for managing and organizing important documents.
+          </p>
+</div>
+</div>
+</main>
+<footer class="shrink-0 space-y-6 pb-4 pt-6">
+<button class="flex w-full cursor-pointer items-center justify-center gap-3 overflow-hidden rounded-xl bg-primary-accent px-5 py-3.5 text-base font-bold leading-normal tracking-wide text-white shadow-[0_4px_14px_rgba(62,99,221,0.3)] transition-transform active:scale-95">
+        Get Started
+      </button>
+</footer>
+</div>
+
+</body></html>

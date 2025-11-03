@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DocuMate - Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#3E63DD",
+            "background-dark": "#121212",
+            "surface-dark": "#1E1E1E",
+            "primary-accent": "#5E81F3",
+          },
+          fontFamily: {
+            "display": ["Manrope", "sans-serif"]
+          },
+          borderRadius: {
+            "DEFAULT": "0.5rem",
+            "lg": "0.75rem",
+            "xl": "1rem",
+            "2xl": "1.5rem",
+            "full": "9999px"
+          },
+        },
+      },
+    }
+  </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+      background-color: #121212;
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-dark font-display text-white">
+<div class="relative flex h-full min-h-screen w-full flex-col group/design-root overflow-hidden p-4">
+<header class="flex shrink-0 items-center justify-between pb-6 pt-2">
+<div class="flex items-center gap-3">
+<img alt="User avatar" class="size-10 rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDrAgnvYw5UAc0mX6ywBLXf_qzsVHIvEVeRIOY6FjhDwEP7fYqXelRAs6zF0kdgs61ZwlrQWbBP1ys5caS46iEld8JaKcY9FbtJlOSLlK1K5QyFT9py8T4GxVVjVKH0RbnEHiTYKaWh-6NEiYi24t-LTDY0zhmdS_cEVGicLEyXE1lqVkraFgQfOCf-AO13MZ0o-OTbKZWJaYthajqKKo5Mc3ndpdVbDskF6TeU2mG3rO9ZPqCzQaiQJtlGLGv6D73obnYg1I8cdDw"/>
+<div>
+<p class="text-sm font-medium text-white/60">Welcome back,</p>
+<h1 class="text-lg font-bold leading-tight tracking-[-0.015em] text-white">Jane Doe</h1>
+</div>
+</div>
+<button class="flex size-10 items-center justify-center rounded-full bg-surface-dark text-white/90 transition-colors hover:bg-white/10">
+<span class="material-symbols-outlined text-2xl">notifications</span>
+</button>
+</header>
+<main class="flex flex-1 flex-col space-y-6">
+<div class="relative">
+<span class="material-symbols-outlined pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40">search</span>
+<input class="w-full rounded-xl border-none bg-surface-dark py-3.5 pl-11 pr-4 text-sm font-medium text-white placeholder:text-white/40" placeholder="Search documents..." type="text"/>
+</div>
+<div class="space-y-4">
+<div class="flex items-center justify-between">
+<h2 class="text-lg font-bold">Recently Added</h2>
+<a class="text-sm font-semibold text-primary-accent" href="#">See All</a>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="flex flex-col gap-2.5 rounded-2xl bg-surface-dark p-4">
+<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20">
+<span class="material-symbols-outlined text-primary-accent">description</span>
+</div>
+<div class="space-y-1">
+<h3 class="font-bold leading-tight text-white">Passport</h3>
+<p class="text-xs text-white/50">Added 2 days ago</p>
+</div>
+</div>
+<div class="flex flex-col gap-2.5 rounded-2xl bg-surface-dark p-4">
+<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-yellow-500/20">
+<span class="material-symbols-outlined text-yellow-400">receipt_long</span>
+</div>
+<div class="space-y-1">
+<h3 class="font-bold leading-tight text-white">Utility Bill</h3>
+<p class="text-xs text-white/50">Added 5 days ago</p>
+</div>
+</div>
+</div>
+</div>
+<div class="space-y-4">
+<h2 class="text-lg font-bold">Categories</h2>
+<div class="space-y-3">
+<div class="flex items-center gap-4 rounded-xl bg-surface-dark p-4">
+<div class="flex size-12 items-center justify-center rounded-lg bg-primary-accent/10">
+<span class="material-symbols-outlined text-3xl text-primary-accent">badge</span>
+</div>
+<div class="flex-1">
+<h3 class="font-bold text-white">Identification</h3>
+<p class="text-sm text-white/50">3 documents</p>
+</div>
+<span class="material-symbols-outlined text-white/50">chevron_right</span>
+</div>
+<div class="flex items-center gap-4 rounded-xl bg-surface-dark p-4">
+<div class="flex size-12 items-center justify-center rounded-lg bg-green-500/10">
+<span class="material-symbols-outlined text-3xl text-green-400">account_balance</span>
+</div>
+<div class="flex-1">
+<h3 class="font-bold text-white">Financial</h3>
+<p class="text-sm text-white/50">8 documents</p>
+</div>
+<span class="material-symbols-outlined text-white/50">chevron_right</span>
+</div>
+<div class="flex items-center gap-4 rounded-xl bg-surface-dark p-4">
+<div class="flex size-12 items-center justify-center rounded-lg bg-orange-500/10">
+<span class="material-symbols-outlined text-3xl text-orange-400">gavel</span>
+</div>
+<div class="flex-1">
+<h3 class="font-bold text-white">Legal</h3>
+<p class="text-sm text-white/50">2 documents</p>
+</div>
+<span class="material-symbols-outlined text-white/50">chevron_right</span>
+</div>
+</div>
+</div>
+<div class="rounded-xl bg-primary-accent/10 p-4">
+<div class="flex items-start justify-between">
+<div>
+<h3 class="font-bold text-white">Expiring Soon</h3>
+<p class="mt-1 text-sm text-white/60">Driver's License expires in 12 days.</p>
+</div>
+<span class="material-symbols-outlined mt-1 text-red-500">error</span>
+</div>
+<button class="mt-4 w-full cursor-pointer rounded-lg bg-primary-accent py-2.5 text-sm font-bold text-white shadow-[0_4px_14px_rgba(62,99,221,0.3)] transition-transform active:scale-95">Renew Now</button>
+</div>
+</main>
+<footer class="shrink-0 pt-4">
+<div class="flex rounded-full bg-surface-dark p-2">
+<a class="flex flex-1 flex-col items-center justify-end gap-1 rounded-full bg-primary-accent py-2 text-white" href="#">
+<span class="material-symbols-outlined text-2xl !font-normal" style="font-variation-settings: 'FILL' 1, 'wght' 400;">home</span>
+<p class="text-[11px] font-bold leading-none">Home</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-end gap-1.5 rounded-full py-2 text-white/50" href="#">
+<span class="material-symbols-outlined text-2xl">search</span>
+<p class="text-[11px] font-medium leading-none">Search</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-end gap-1.5 rounded-full py-2 text-white/50" href="#">
+<span class="material-symbols-outlined text-2xl">add_circle</span>
+<p class="text-[11px] font-medium leading-none">Add</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-end gap-1.5 rounded-full py-2 text-white/50" href="#">
+<span class="material-symbols-outlined text-2xl">person</span>
+<p class="text-[11px] font-medium leading-none">Profile</p>
+</a>
+</div>
+</footer>
+</div>
+
+</body></html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DocuMate - Search</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#3E63DD",
+            "background-dark": "#121212",
+            "surface-dark": "#1E1E1E",
+            "primary-accent": "#5E81F3",
+          },
+          fontFamily: {
+            "display": ["Manrope", "sans-serif"]
+          },
+          borderRadius: {"DEFAULT": "0.5rem", "lg": "0.75rem", "xl": "1rem", "2xl": "1.5rem", "full": "9999px"},
+        },
+      },
+    }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+      background-color: #121212;
+    }
+    .material-symbols-outlined {
+      font-variation-settings:
+      'FILL' 0,
+      'wght' 300,
+      'GRAD' 0,
+      'opsz' 24
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-dark font-display text-white">
+<div class="relative flex h-full min-h-screen w-full flex-col group/design-root overflow-hidden p-4">
+<header class="flex shrink-0 items-center justify-between pb-6 pt-2">
+<button class="flex size-10 items-center justify-center rounded-full bg-surface-dark text-white/90 transition-colors hover:bg-white/10">
+<span class="material-symbols-outlined text-2xl">arrow_back</span>
+</button>
+<h1 class="text-lg font-bold leading-tight tracking-[-0.015em] text-white">Search Documents</h1>
+<button class="flex size-10 items-center justify-center rounded-full bg-surface-dark text-white/90 transition-colors hover:bg-white/10">
+<span class="material-symbols-outlined text-2xl">more_vert</span>
+</button>
+</header>
+<main class="flex flex-1 flex-col space-y-6">
+<div class="relative">
+<span class="material-symbols-outlined pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-white/40">search</span>
+<input class="w-full rounded-xl border-none bg-surface-dark h-14 pl-12 pr-4 text-base text-white placeholder:text-white/40 focus:ring-2 focus:ring-primary-accent" placeholder="Search for documents..." type="text"/>
+</div>
+<div class="space-y-4">
+<h2 class="text-sm font-semibold uppercase tracking-wider text-white/40">Recent Searches</h2>
+<div class="flex flex-wrap gap-3">
+<button class="flex items-center gap-2 rounded-full bg-surface-dark px-4 py-2 text-sm text-white/80 transition-transform active:scale-95">
+<span>Project Proposal Q3</span>
+<span class="material-symbols-outlined text-lg !font-normal">close</span>
+</button>
+<button class="flex items-center gap-2 rounded-full bg-surface-dark px-4 py-2 text-sm text-white/80 transition-transform active:scale-95">
+<span>Tax Invoice 2023</span>
+<span class="material-symbols-outlined text-lg !font-normal">close</span>
+</button>
+<button class="flex items-center gap-2 rounded-full bg-surface-dark px-4 py-2 text-sm text-white/80 transition-transform active:scale-95">
+<span>Passport Scan</span>
+<span class="material-symbols-outlined text-lg !font-normal">close</span>
+</button>
+</div>
+</div>
+<div class="space-y-4 pt-2">
+<h2 class="text-sm font-semibold uppercase tracking-wider text-white/40">Search Results</h2>
+<div class="flex flex-col gap-4">
+<div class="flex items-center gap-4 rounded-xl bg-surface-dark p-4">
+<div class="flex size-12 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+<span class="material-symbols-outlined text-3xl text-primary-accent">description</span>
+</div>
+<div class="flex-1">
+<p class="font-bold text-white">Project Proposal Q3.pdf</p>
+<p class="text-xs text-white/50">Updated 2 days ago • 1.2MB</p>
+</div>
+<button class="text-white/50">
+<span class="material-symbols-outlined text-2xl">more_vert</span>
+</button>
+</div>
+<div class="flex items-center gap-4 rounded-xl bg-surface-dark p-4">
+<div class="flex size-12 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+<span class="material-symbols-outlined text-3xl text-primary-accent">image</span>
+</div>
+<div class="flex-1">
+<p class="font-bold text-white">New_Brand_Proposal.png</p>
+<p class="text-xs text-white/50">Updated 5 days ago • 3.5MB</p>
+</div>
+<button class="text-white/50">
+<span class="material-symbols-outlined text-2xl">more_vert</span>
+</button>
+</div>
+<div class="flex items-center gap-4 rounded-xl bg-surface-dark p-4">
+<div class="flex size-12 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+<span class="material-symbols-outlined text-3xl text-primary-accent">description</span>
+</div>
+<div class="flex-1">
+<p class="font-bold text-white">Client_Contract_Proposal.docx</p>
+<p class="text-xs text-white/50">Updated 1 week ago • 256KB</p>
+</div>
+<button class="text-white/50">
+<span class="material-symbols-outlined text-2xl">more_vert</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<footer class="shrink-0 pt-4">
+<div class="flex rounded-full bg-surface-dark p-2">
+<a class="flex flex-1 flex-col items-center justify-end gap-1.5 rounded-full py-2 text-white/50" href="#">
+<span class="material-symbols-outlined text-2xl">home</span>
+<p class="text-[11px] font-medium leading-none">Home</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-end gap-1.5 rounded-full bg-primary-accent py-2 text-white" href="#">
+<span class="material-symbols-outlined text-2xl !font-normal" style="font-variation-settings: 'FILL' 1, 'wght' 400;">search</span>
+<p class="text-[11px] font-bold leading-none">Search</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-end gap-1.5 rounded-full py-2 text-white/50" href="#">
+<span class="material-symbols-outlined text-2xl">add_circle</span>
+<p class="text-[11px] font-medium leading-none">Add</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-end gap-1.5 rounded-full py-2 text-white/50" href="#">
+<span class="material-symbols-outlined text-2xl">person</span>
+<p class="text-[11px] font-medium leading-none">Profile</p>
+</a>
+</div>
+</footer>
+</div>
+
+</body></html>

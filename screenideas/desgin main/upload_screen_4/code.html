@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DocuMate - Profile</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#3E63DD",
+            "background-dark": "#121212",
+            "surface-dark": "#1E1E1E",
+            "primary-accent": "#5E81F3",
+          },
+          fontFamily: {
+            "display": ["Manrope", "sans-serif"]
+          },
+          borderRadius: {"DEFAULT": "0.5rem", "lg": "0.75rem", "xl": "1rem", "2xl": "1.5rem", "full": "9999px"},
+        },
+      },
+    }
+  </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+      background-color: #121212;
+    }
+    .material-symbols-outlined {
+      font-variation-settings:
+      'FILL' 0,
+      'wght' 300,
+      'GRAD' 0,
+      'opsz' 24
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-dark font-display text-white">
+<div class="relative flex h-full min-h-screen w-full flex-col group/design-root overflow-hidden p-4">
+<header class="flex shrink-0 items-center justify-between pb-6 pt-2">
+<button class="flex size-10 items-center justify-center rounded-full bg-surface-dark text-white/90 transition-colors hover:bg-white/10">
+<span class="material-symbols-outlined text-2xl">arrow_back</span>
+</button>
+<h1 class="text-lg font-bold leading-tight tracking-[-0.015em] text-white">Profile</h1>
+<button class="flex size-10 items-center justify-center rounded-full bg-surface-dark text-white/90 transition-colors hover:bg-white/10">
+<span class="material-symbols-outlined text-2xl">more_vert</span>
+</button>
+</header>
+<main class="flex flex-1 flex-col gap-8">
+<div class="flex flex-col items-center gap-4 text-center">
+<div class="relative">
+<img alt="User profile picture" class="h-24 w-24 rounded-full border-2 border-primary-accent" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAG1blUUHGFmb918rIb-eOMhPHA7YIoptaSH1o95gGfnm5l7MiIZQ1EzlGG40zblj5LIpSVdVERPOnWtyk__XNN_3Pnl3Sk2-bhk5EZ6dWW3kQm5AJWy7DoTlNqhyY1PHtL28GkLj3RQiWu41Gk2JoITn9a28M2XCYzCDw07jLiLyFkFuRnDglfW8tV2gpi5TerWqVpqUiecFhqtdfSLFR0FBB5Hjr-4LTfGRhNL8pW2C3PJsnzoQmo7VepaVRbX6Hos8I_Ki48ES0"/>
+<button class="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full border-2 border-background-dark bg-primary-accent text-white">
+<span class="material-symbols-outlined text-lg">edit</span>
+</button>
+</div>
+<div>
+<h2 class="text-2xl font-bold tracking-tight text-white">Alex Johnson</h2>
+<p class="text-sm text-white/60">alex.johnson@email.com</p>
+</div>
+</div>
+<div class="space-y-3">
+<h3 class="px-3 text-xs font-semibold uppercase tracking-wider text-white/50">Account</h3>
+<div class="flex flex-col rounded-2xl bg-surface-dark">
+<a class="flex items-center gap-4 p-4" href="#">
+<span class="material-symbols-outlined text-primary-accent">person</span>
+<span class="flex-1 font-medium text-white/90">Account Information</span>
+<span class="material-symbols-outlined text-white/40">chevron_right</span>
+</a>
+<hr class="border-white/10 ml-14"/>
+<a class="flex items-center gap-4 p-4" href="#">
+<span class="material-symbols-outlined text-primary-accent">lock</span>
+<span class="flex-1 font-medium text-white/90">Password &amp; Security</span>
+<span class="material-symbols-outlined text-white/40">chevron_right</span>
+</a>
+<hr class="border-white/10 ml-14"/>
+<a class="flex items-center gap-4 p-4" href="#">
+<span class="material-symbols-outlined text-primary-accent">credit_card</span>
+<span class="flex-1 font-medium text-white/90">Subscription</span>
+<span class="material-symbols-outlined text-white/40">chevron_right</span>
+</a>
+</div>
+</div>
+<div class="space-y-3">
+<h3 class="px-3 text-xs font-semibold uppercase tracking-wider text-white/50">Settings</h3>
+<div class="flex flex-col rounded-2xl bg-surface-dark">
+<a class="flex items-center gap-4 p-4" href="#">
+<span class="material-symbols-outlined text-primary-accent">notifications</span>
+<span class="flex-1 font-medium text-white/90">Notifications</span>
+<span class="material-symbols-outlined text-white/40">chevron_right</span>
+</a>
+<hr class="border-white/10 ml-14"/>
+<a class="flex items-center gap-4 p-4" href="#">
+<span class="material-symbols-outlined text-primary-accent">palette</span>
+<span class="flex-1 font-medium text-white/90">Appearance</span>
+<span class="material-symbols-outlined text-white/40">chevron_right</span>
+</a>
+</div>
+</div>
+<button class="mt-4 flex w-full cursor-pointer items-center justify-center gap-3 overflow-hidden rounded-xl bg-surface-dark h-14 px-5 text-base font-semibold leading-normal tracking-wide text-red-400/80 transition-transform active:scale-95">
+<span class="material-symbols-outlined">logout</span>
+<span class="truncate">Log Out</span>
+</button>
+</main>
+<footer class="shrink-0 pt-4">
+<div class="flex rounded-full bg-surface-dark p-2">
+<a class="flex flex-1 flex-col items-center justify-end gap-1.5 rounded-full py-2 text-white/50" href="#">
+<span class="material-symbols-outlined text-2xl">home</span>
+<p class="text-[11px] font-medium leading-none">Home</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-end gap-1.5 rounded-full py-2 text-white/50" href="#">
+<span class="material-symbols-outlined text-2xl">search</span>
+<p class="text-[11px] font-medium leading-none">Search</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-end gap-1.5 rounded-full py-2 text-white/50" href="#">
+<span class="material-symbols-outlined text-2xl">add_circle</span>
+<p class="text-[11px] font-medium leading-none">Add</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-end gap-1 rounded-full bg-primary-accent py-2 text-white" href="#">
+<span class="material-symbols-outlined text-2xl !font-normal" style="font-variation-settings: 'FILL' 1, 'wght' 400;">person</span>
+<p class="text-[11px] font-bold leading-none">Profile</p>
+</a>
+</div>
+</footer>
+</div>
+
+</body></html>

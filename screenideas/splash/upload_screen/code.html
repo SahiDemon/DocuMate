@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DocuMate - Splash Screen</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#3E63DD",
+            "background-dark": "#121212",
+            "surface-dark": "#1E1E1E",
+            "primary-accent": "#5E81F3",
+          },
+          fontFamily: {
+            "display": ["Manrope", "sans-serif"]
+          },
+          borderRadius: {
+            "DEFAULT": "0.5rem",
+            "lg": "0.75rem",
+            "xl": "1rem",
+            "2xl": "1.5rem",
+            "full": "9999px"
+          },
+        },
+      },
+    }
+  </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+      background-color: #121212;
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-dark font-display text-white">
+<div class="relative flex h-full min-h-screen w-full flex-col items-center justify-center overflow-hidden p-6">
+<div class="absolute inset-0 z-0 h-full w-full">
+<div class="absolute -left-1/4 top-0 h-[50%] w-[50%] rounded-full bg-primary/20 blur-3xl"></div>
+<div class="absolute -right-1/4 bottom-0 h-[50%] w-[50%] rounded-full bg-primary-accent/10 blur-3xl"></div>
+<div class="absolute inset-0 bg-[url('https://tailwindcss.com/_next/static/media/docs@tinypng.61f4d333.png')] bg-cover opacity-5"></div>
+<div class="absolute inset-0 bg-gradient-to-br from-transparent via-background-dark/50 to-background-dark"></div>
+</div>
+<div class="relative z-10 flex flex-col items-center justify-center text-center">
+<h1 class="text-5xl font-extrabold tracking-tighter text-white sm:text-6xl">
+        DocuMate
+      </h1>
+<p class="mt-4 max-w-xs text-base text-white/60">
+        Securely managing your documents.
+      </p>
+</div>
+</div>
+
+</body></html>

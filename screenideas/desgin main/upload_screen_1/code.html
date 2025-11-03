@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DocuMate - Add Document</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#3E63DD",
+            "background-dark": "#121212",
+            "surface-dark": "#1E1E1E",
+            "primary-accent": "#5E81F3",
+          },
+          fontFamily: {
+            "display": ["Manrope", "sans-serif"]
+          },
+          borderRadius: {"DEFAULT": "0.5rem", "lg": "0.75rem", "xl": "1rem", "2xl": "1.5rem", "full": "9999px"},
+        },
+      },
+    }
+  </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+      background-color: #121212;
+    }
+    .material-symbols-outlined {
+      font-variation-settings:
+      'FILL' 0,
+      'wght' 300,
+      'GRAD' 0,
+      'opsz' 24
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-dark font-display text-white">
+<div class="relative flex h-full min-h-screen w-full flex-col group/design-root overflow-hidden p-4">
+<header class="flex shrink-0 items-center justify-between pb-6 pt-2">
+<button class="flex size-10 items-center justify-center rounded-full bg-surface-dark text-white/90 transition-colors hover:bg-white/10">
+<span class="material-symbols-outlined text-2xl">arrow_back</span>
+</button>
+<h1 class="text-lg font-bold leading-tight tracking-[-0.015em] text-white">Add Document</h1>
+<button class="flex size-10 items-center justify-center rounded-full bg-surface-dark text-white/90 transition-colors hover:bg-white/10">
+<span class="material-symbols-outlined text-2xl">more_vert</span>
+</button>
+</header>
+<main class="flex flex-1 flex-col justify-center space-y-6">
+<div class="space-y-2 text-center">
+<h2 class="text-3xl font-extrabold tracking-tighter text-white">Ready to Scan</h2>
+<p class="mx-auto max-w-xs text-sm text-white/60">Choose your preferred method to add a new document to your secure vault.</p>
+</div>
+<div class="relative w-full max-w-sm mx-auto p-6 text-center">
+<div class="relative aspect-square w-full rounded-full border border-primary/20 bg-primary/5 flex items-center justify-center">
+<div class="absolute inset-0 rounded-full animate-[spin_10s_linear_infinite] [background-image:conic-gradient(from_90deg_at_50%_50%,#5E81F3_0%,#121212_50%,#5E81F3_100%)]"></div>
+<div class="absolute inset-2 rounded-full bg-background-dark"></div>
+<div class="relative z-10 flex flex-col items-center justify-center space-y-4">
+<div class="flex items-end gap-1 text-primary-accent">
+<span class="material-symbols-outlined text-5xl">document_scanner</span>
+</div>
+<p class="text-xs font-semibold uppercase tracking-widest text-white/50">Capture or Upload</p>
+</div>
+</div>
+</div>
+<div class="w-full max-w-sm space-y-4 mx-auto">
+<button class="flex w-full cursor-pointer items-center justify-center gap-3 overflow-hidden rounded-xl bg-primary-accent h-14 px-5 text-base font-bold leading-normal tracking-wide text-white shadow-[0_4px_14px_rgba(62,99,221,0.3)] transition-transform active:scale-95">
+<span class="material-symbols-outlined">photo_camera</span>
+<span class="truncate">Use Camera</span>
+</button>
+<button class="flex w-full cursor-pointer items-center justify-center gap-3 overflow-hidden rounded-xl bg-surface-dark h-14 px-5 text-base font-semibold leading-normal tracking-wide text-white/80 transition-transform active:scale-95">
+<span class="material-symbols-outlined">upload</span>
+<span class="truncate">Upload from Gallery</span>
+</button>
+</div>
+<div class="flex items-center justify-center gap-2 pt-4">
+<span class="material-symbols-outlined text-base text-white/50">lock</span>
+<p class="text-xs text-white/50">Your documents are securely encrypted.</p>
+</div>
+</main>
+<footer class="shrink-0 pt-4">
+<div class="flex rounded-full bg-surface-dark p-2">
+<a class="flex flex-1 flex-col items-center justify-end gap-1.5 rounded-full py-2 text-white/50" href="#">
+<span class="material-symbols-outlined text-2xl">home</span>
+<p class="text-[11px] font-medium leading-none">Home</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-end gap-1.5 rounded-full py-2 text-white/50" href="#">
+<span class="material-symbols-outlined text-2xl">search</span>
+<p class="text-[11px] font-medium leading-none">Search</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-end gap-1 rounded-full bg-primary-accent py-2 text-white" href="#">
+<span class="material-symbols-outlined text-2xl !font-normal" style="font-variation-settings: 'FILL' 1, 'wght' 400;">add_circle</span>
+<p class="text-[11px] font-bold leading-none">Add</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-end gap-1.5 rounded-full py-2 text-white/50" href="#">
+<span class="material-symbols-outlined text-2xl">person</span>
+<p class="text-[11px] font-medium leading-none">Profile</p>
+</a>
+</div>
+</footer>
+</div>
+
+</body></html>
