@@ -33,6 +33,10 @@ dependencies:
   camera: ^0.11.0
   shared_preferences: ^2.0.11  
   path_provider: ^2.0.11     
+  http: ^1.1.0
+  postgres: ^3.0.0
+  crypto: ^3.0.3
+  url_launcher: ^6.3.1
   
   # OCR and ML
   google_mlkit_text_recognition: ^0.13.0
@@ -40,6 +44,15 @@ dependencies:
   # Local storage
   hive: ^2.2.3
   hive_flutter: ^1.1.0
+  
+  # Encryption & Security
+  flutter_secure_storage: ^9.2.2
+  encrypt: ^5.0.3
+  
+  # Google Drive Integration
+  google_sign_in: ^6.2.1
+  googleapis: ^13.2.0
+  extension_google_sign_in_as_googleapis_auth: ^2.0.12
   
   # Notifications
   flutter_local_notifications: ^17.2.3
@@ -59,6 +72,8 @@ dependencies:
   cupertino_icons: ^1.0.6
   image_picker: ^1.1.2
   intl: ^0.19.0
+  firebase_core: ^4.2.1
+  firebase_auth: ^6.1.2
 
 dev_dependencies:
   flutter_test:

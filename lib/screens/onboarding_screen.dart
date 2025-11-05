@@ -580,7 +580,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('has_seen_welcome', true);
     if (mounted) {
-      Navigator.of(context).pushReplacementNamed('/home');
+      // After app onboarding, show privacy screen first
+      Navigator.of(context).pushReplacementNamed('/storage-privacy');
     }
   }
 }

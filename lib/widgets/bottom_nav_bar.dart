@@ -157,7 +157,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
           widget.onTap(index);
         },
         borderRadius: BorderRadius.circular(50),
-        child: Container(
+        child: SizedBox(
           height: 64,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,

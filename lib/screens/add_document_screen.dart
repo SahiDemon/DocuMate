@@ -333,15 +333,15 @@ class _AddDocumentScreenState extends State<AddDocumentScreen>
                               child: Container(
                                 width: 280,
                                 height: 280,
-                                decoration: BoxDecoration(
+                                decoration: const BoxDecoration(
                                   shape: BoxShape.circle,
                                   gradient: SweepGradient(
-                                    colors: const [
+                                    colors: [
                                       Color(0xFF5E81F3),
                                       Color(0xFF121212),
                                       Color(0xFF5E81F3),
                                     ],
-                                    stops: const [0.0, 0.5, 1.0],
+                                    stops: [0.0, 0.5, 1.0],
                                   ),
                                 ),
                               ),

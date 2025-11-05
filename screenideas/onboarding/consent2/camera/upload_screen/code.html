@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DocuMate - Privacy</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#3E63DD",
+                        "background-dark": "#121212",
+                        "surface-dark": "#1E1E1E",
+                        "primary-accent": "#5E81F3",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "0.75rem",
+                        "xl": "1rem",
+                        "2xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                    keyframes: {
+                        'soft-float': {
+                          '0%, 100%': { transform: 'translateY(0)' },
+                          '50%': { transform: 'translateY(-10px)' },
+                        },
+                      },
+                      animation: {
+                        'soft-float': 'soft-float 5s ease-in-out infinite',
+                      }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            min-height: max(884px, 100dvh);
+            background-color: #121212;
+        }
+        .material-symbols-outlined {
+            font-variation-settings:
+                'FILL' 0,
+                'wght' 300,
+                'GRAD' 0,
+                'opsz' 24
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-dark font-display text-white">
+<div class="relative flex min-h-screen w-full flex-col group/design-root overflow-hidden p-4">
+<main class="flex flex-1 flex-col justify-center pb-8 pt-12">
+<div class="flex flex-col items-center justify-center space-y-4 text-center">
+<div class="relative w-40 h-40 flex items-center justify-center animate-soft-float">
+<div class="absolute inset-0 bg-primary-accent/10 rounded-full blur-2xl"></div>
+<span class="material-symbols-outlined text-8xl text-primary-accent" style="font-variation-settings: 'FILL' 1, 'wght' 200; transform: scale(1.1);">encrypted</span>
+</div>
+<div class="space-y-2">
+<h1 class="text-3xl font-extrabold tracking-tighter text-white">Your Privacy, Our Priority</h1>
+<p class="mx-auto max-w-xs text-base text-white/60">We are committed to protecting your data.</p>
+</div>
+</div>
+<div class="mt-10 w-full max-w-sm mx-auto space-y-6">
+<div class="rounded-2xl bg-surface-dark p-5">
+<div class="flex items-center gap-3">
+<div class="flex size-10 items-center justify-center rounded-full bg-primary-accent/10">
+<span class="material-symbols-outlined text-primary-accent">no_accounts</span>
+</div>
+<div>
+<h4 class="font-bold text-white">We don't store your data</h4>
+</div>
+</div>
+<p class="mt-3 text-sm text-white/60">
+                    Your documents and personal information are stored only on your device or your chosen cloud provider. We have no access to them.
+                </p>
+</div>
+<div class="rounded-2xl bg-surface-dark p-5">
+<div class="flex items-center gap-3">
+<div class="flex size-10 items-center justify-center rounded-full bg-primary-accent/10">
+<span class="material-symbols-outlined text-primary-accent">lock</span>
+</div>
+<div>
+<h4 class="font-bold text-white">End-to-End Encryption</h4>
+</div>
+</div>
+<p class="mt-3 text-sm text-white/60">
+                    Everything you store is encrypted with a key that only you hold. This ensures that no one, not even us, can access your files.
+                </p>
+</div>
+</div>
+<div class="mt-auto pt-8">
+<div class="flex flex-col items-center space-y-4">
+<button class="flex w-full max-w-sm cursor-pointer items-center justify-center gap-3 overflow-hidden rounded-xl bg-primary-accent h-14 px-5 text-base font-bold leading-normal tracking-wide text-white shadow-[0_4px_14px_rgba(62,99,221,0.3)] transition-transform active:scale-95">
+<span class="truncate">Continue</span>
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</div>
+</main>
+</div>
+
+</body></html>

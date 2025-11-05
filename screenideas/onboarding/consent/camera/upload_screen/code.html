@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DocuMate - Data Storage Setup</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#3E63DD",
+                        "background-dark": "#121212",
+                        "surface-dark": "#1E1E1E",
+                        "primary-accent": "#5E81F3",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "0.75rem",
+                        "xl": "1rem",
+                        "2xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                    keyframes: {
+                        'soft-float': {
+                          '0%, 100%': { transform: 'translateY(0)' },
+                          '50%': { transform: 'translateY(-10px)' },
+                        },
+                      },
+                      animation: {
+                        'soft-float': 'soft-float 5s ease-in-out infinite',
+                      }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            min-height: max(884px, 100dvh);
+            background-color: #121212;
+        }
+        .material-symbols-outlined {
+            font-variation-settings:
+                'FILL' 0,
+                'wght' 300,
+                'GRAD' 0,
+                'opsz' 24
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-dark font-display text-white">
+<div class="relative flex min-h-screen w-full flex-col group/design-root overflow-hidden p-4">
+<main class="flex flex-1 flex-col justify-center pb-8 pt-12">
+<div class="flex flex-col items-center justify-center space-y-4 text-center">
+<div class="relative w-40 h-40 flex items-center justify-center animate-soft-float">
+<div class="absolute inset-0 bg-primary-accent/10 rounded-full blur-2xl"></div>
+<span class="material-symbols-outlined text-8xl text-primary-accent" style="font-variation-settings: 'FILL' 1, 'wght' 200; transform: scale(1.1);">cloud_done</span>
+</div>
+<div class="space-y-2">
+<h1 class="text-3xl font-extrabold tracking-tighter text-white">Where do you want to store your data?</h1>
+<p class="mx-auto max-w-xs text-base text-white/60">Choose an option to get started.</p>
+</div>
+</div>
+<div class="mt-10 w-full max-w-sm mx-auto space-y-4">
+<div class="relative cursor-pointer rounded-2xl border-2 border-primary-accent bg-primary-accent/10 p-5 text-left transition-all duration-300">
+<div class="absolute right-4 top-4 flex size-5 items-center justify-center rounded-full border-2 border-primary-accent bg-background-dark">
+<div class="size-2.5 rounded-full bg-primary-accent"></div>
+</div>
+<div class="flex items-start gap-4">
+<div class="flex size-12 items-center justify-center rounded-xl bg-primary-accent/10">
+<span class="material-symbols-outlined text-3xl text-primary-accent">smartphone</span>
+</div>
+<div>
+<h3 class="font-bold text-white">Local Only</h3>
+<p class="text-sm text-white/60 mt-1">Keep your documents stored exclusively on this device.</p>
+</div>
+</div>
+</div>
+<div class="relative cursor-pointer rounded-2xl border border-white/20 bg-surface-dark p-5 text-left transition-all duration-300 hover:border-white/40">
+<div class="absolute right-4 top-4 flex size-5 items-center justify-center rounded-full border border-white/40"></div>
+<div class="flex items-start gap-4">
+<div class="flex size-12 items-center justify-center rounded-xl bg-white/10">
+<img alt="Google Drive icon" class="w-7 h-7" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDkfSxmm6VGtRH18uYZWgM3JHuO17UEoEYt-nDrDj2lNr626lACEca1cmj_qcRJHqLIPItC2r4h7T6JphPV7htdB3WN70Ou2paGmRuseBgoCWZG3hwSXP7n5uKcKAHKQyT2K-B5wRULcbSceZbeuyAzMTl6vR94Gy_ciqt9D-zLXPFIzDjCihi96sY8SXkwrGIX04oZ9z4MyTkACF_Q8jbf5U3D4H37WS3_nr8FXHiEucdbHjY2t0ffAOYkcnEJikSJTUGlgTnYP-U"/>
+</div>
+<div>
+<h3 class="font-bold text-white/80">Local + Backup to Google Drive</h3>
+<p class="text-sm text-white/50 mt-1">Store on device and securely back up to your cloud storage.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-8 w-full max-w-sm mx-auto rounded-2xl bg-surface-dark p-5">
+<div class="flex items-center gap-3">
+<div class="flex size-10 items-center justify-center rounded-full bg-primary-accent/10">
+<span class="material-symbols-outlined text-primary-accent">security</span>
+</div>
+<div>
+<h4 class="font-bold text-white">Your Privacy, Our Priority</h4>
+</div>
+</div>
+<p class="mt-3 text-sm text-white/60">
+                Your documents are always end-to-end encrypted, whether stored locally or backed up. This means only you can access them. We can't see your data, and neither can anyone else.
+            </p>
+</div>
+<div class="mt-auto pt-8">
+<div class="flex flex-col items-center space-y-4">
+<button class="flex w-full max-w-sm cursor-pointer items-center justify-center gap-3 overflow-hidden rounded-xl bg-primary-accent h-14 px-5 text-base font-bold leading-normal tracking-wide text-white shadow-[0_4px_14px_rgba(62,99,221,0.3)] transition-transform active:scale-95">
+<span class="truncate">Continue</span>
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</div>
+</main>
+</div>
+
+</body></html>

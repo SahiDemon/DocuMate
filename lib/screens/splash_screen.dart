@@ -3,6 +3,9 @@ import 'dart:math' as math;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:documate/screens/onboarding_screen.dart';
 import 'package:documate/screens/new_home_screen.dart';
+import 'package:documate/main.dart' show storageService;
+import 'package:documate/services/firebase_auth_service.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -40,7 +43,31 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
 
+    // Pre-warm GoogleSignIn silently to speed up cold-start login.
+    _prewarmAuth();
+
     _navigateToNext();
+  }
+
+  void _prewarmAuth() {
+    // Fire-and-forget: do not block splash navigation
+    Future(() async {
+      try {
+        final start = DateTime.now().millisecondsSinceEpoch;
+        // Lightweight instance without Drive scopes (Drive handled elsewhere)
+        final googleSignIn = GoogleSignIn();
+        await googleSignIn
+            .signInSilently()
+            .timeout(const Duration(seconds: 3), onTimeout: () => null);
+        final elapsed = DateTime.now().millisecondsSinceEpoch - start;
+        // Helpful for measuring cold-start improvements
+        // ignore: avoid_print
+        print('⚡ Prewarmed GoogleSignIn in ${elapsed}ms');
+      } catch (e) {
+        // ignore: avoid_print
+        print('⚠ Prewarm GoogleSignIn failed: $e');
+      }
+    });
   }
 
   Future<void> _navigateToNext() async {
@@ -50,13 +77,40 @@ class _SplashScreenState extends State<SplashScreen>
     final prefs = await SharedPreferences.getInstance();
     final hasSeenOnboarding = prefs.getBool('has_seen_welcome') ?? false;
 
+    // Check if storage onboarding is complete
+    final storageOnboardingComplete = await storageService.getSetting(
+      'storage_onboarding_complete',
+      defaultValue: false,
+    ) as bool;
+
+    // Check if user is already authenticated (returning user)
+    final firebaseAuth = FirebaseAuthService();
+    final isLoggedIn = await firebaseAuth.isLoggedIn();
+    final currentUser = firebaseAuth.getCurrentUser();
+
     if (mounted) {
+      Widget nextScreen;
+
+      if (!hasSeenOnboarding) {
+        // First time user - show app onboarding
+        nextScreen = const OnboardingScreen();
+      } else if (!storageOnboardingComplete) {
+        // Has seen app onboarding but not storage onboarding
+        nextScreen =
+            const OnboardingScreen(); // This will redirect to storage onboarding
+      } else if (isLoggedIn && currentUser != null) {
+        // Returning user who is already logged in - go directly to home
+        print('✓ Returning user: ${currentUser.email ?? "Anonymous"}');
+        nextScreen = const NewHomeScreen();
+      } else {
+        // User completed onboarding but not logged in - show login screen
+        Navigator.of(context).pushReplacementNamed('/login');
+        return;
+      }
+
       Navigator.of(context).pushReplacement(
         PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) =>
-              hasSeenOnboarding
-                  ? const NewHomeScreen()
-                  : const OnboardingScreen(),
+          pageBuilder: (context, animation, secondaryAnimation) => nextScreen,
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return FadeTransition(opacity: animation, child: child);
           },
@@ -224,6 +278,16 @@ class _SplashScreenState extends State<SplashScreen>
                         color: Colors.white.withOpacity(0.6),
                       ),
                     ),
+                  const SizedBox(height: 24),
+                  // Show an immediate spinner so users see progress during pre-warm/startup
+                  const SizedBox(
+                    height: 24,
+                    width: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.4,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white70),
+                    ),
+                  ),
                   ],
                 ),
               ),
