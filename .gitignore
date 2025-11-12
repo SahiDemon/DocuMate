@@ -61,3 +61,9 @@ app.*.map.json
 
 # Large documentation files (if recreated)
 *.md.backup
+
+# Firebase/Google Services config files 
+**/google-services.json
+**/GoogleService-Info.plist
+**/firebase_options.dart
+*.json.backup
