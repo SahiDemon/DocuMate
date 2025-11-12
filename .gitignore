@@ -48,3 +48,16 @@ app.*.map.json
 /android/key.properties
 /android/app/*.jks
 /android/app/*.keystore
+
+# Heap dump files (large debug files)
+*.hprof
+/android/*.hprof
+/android/app/*.hprof
+
+# APK/AAB build outputs (too large for Git)
+*.apk
+*.aab
+/build/app/outputs/
+
+# Large documentation files (if recreated)
+*.md.backup
