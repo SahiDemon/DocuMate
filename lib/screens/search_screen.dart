@@ -14,13 +14,22 @@ class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
   List<String> _recentSearches = [];
   List<DocumentModel> _searchResults = [];
+  List<DocumentModel> _allSearchResults = [];
+  List<DocumentModel> _recentDocuments = [];
   bool _isSearching = false;
   bool _hasSearched = false;
+  String? _selectedCategory;
+  String _sortBy = 'date'; // date, name, category
+  
+  // Debouncing for auto-search
+  DateTime? _lastSearchTime;
+  String _lastSearchQuery = '';
 
   @override
   void initState() {
     super.initState();
     _loadRecentSearches();
+    _loadRecentDocuments();
     _searchController.addListener(_onSearchChanged);
   }
 
@@ -35,13 +44,51 @@ class _SearchScreenState extends State<SearchScreen> {
     });
   }
 
+  Future<void> _loadRecentDocuments() async {
+    try {
+      final docsMap = await main_app.storageService.getAllDocuments();
+      final docs = docsMap.values.toList();
+
+      // Sort by createdAt (most recent first)
+      docs.sort((a, b) {
+        final aDate = DateTime.parse(a['createdAt'] as String);
+        final bDate = DateTime.parse(b['createdAt'] as String);
+        return bDate.compareTo(aDate);
+      });
+
+      // Get top 10 recent documents
+      final recentDocs = docs.take(10).map((doc) => DocumentModel.fromJson(doc)).toList();
+
+      setState(() {
+        _recentDocuments = recentDocs;
+      });
+    } catch (e) {
+      print('Error loading recent documents: $e');
+    }
+  }
+
   void _onSearchChanged() {
-    if (_searchController.text.isEmpty) {
+    final query = _searchController.text.trim();
+    
+    if (query.isEmpty) {
       setState(() {
         _searchResults = [];
         _hasSearched = false;
       });
+      return;
     }
+
+    // Auto-search with debouncing (wait 500ms after user stops typing)
+    _lastSearchTime = DateTime.now();
+    _lastSearchQuery = query;
+    
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (_lastSearchQuery == query && 
+          _lastSearchTime != null &&
+          DateTime.now().difference(_lastSearchTime!).inMilliseconds >= 500) {
+        _performSearch(query);
+      }
+    });
   }
 
   Future<void> _performSearch(String query) async {
@@ -86,7 +133,8 @@ class _SearchScreenState extends State<SearchScreen> {
       }
 
       setState(() {
-        _searchResults = results;
+        _allSearchResults = results;
+        _applyFilters();
         _isSearching = false;
       });
     } catch (e) {
@@ -105,6 +153,33 @@ class _SearchScreenState extends State<SearchScreen> {
       'recent_searches',
       _recentSearches,
     );
+  }
+
+  void _applyFilters() {
+    var filtered = List<DocumentModel>.from(_allSearchResults);
+
+    // Apply category filter
+    if (_selectedCategory != null) {
+      filtered = filtered.where((doc) => doc.category == _selectedCategory).toList();
+    }
+
+    // Apply sorting
+    switch (_sortBy) {
+      case 'name':
+        filtered.sort((a, b) => a.name.compareTo(b.name));
+        break;
+      case 'category':
+        filtered.sort((a, b) => a.category.compareTo(b.category));
+        break;
+      case 'date':
+      default:
+        filtered.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        break;
+    }
+
+    setState(() {
+      _searchResults = filtered;
+    });
   }
 
   @override
@@ -131,7 +206,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     child: IconButton(
                       icon: const Icon(Icons.arrow_back, size: 20),
                       color: const Color(0xFFE5E5E5),
-                      onPressed: () {},
+                      onPressed: () => Navigator.of(context).pushReplacementNamed('/home'),
                       padding: EdgeInsets.zero,
                     ),
                   ),
@@ -201,7 +276,134 @@ class _SearchScreenState extends State<SearchScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
+
+              // Filters & Sort (when searching)
+              if (_hasSearched) ...[
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      // Category Filter
+                      _buildFilterChip(
+                        'All',
+                        _selectedCategory == null,
+                        () {
+                          setState(() {
+                            _selectedCategory = null;
+                            _applyFilters();
+                          });
+                        },
+                      ),
+                      const SizedBox(width: 8),
+                      _buildFilterChip(
+                        'Identity',
+                        _selectedCategory == 'Identity',
+                        () {
+                          setState(() {
+                            _selectedCategory = _selectedCategory == 'Identity' ? null : 'Identity';
+                            _applyFilters();
+                          });
+                        },
+                      ),
+                      const SizedBox(width: 8),
+                      _buildFilterChip(
+                        'Bills',
+                        _selectedCategory == 'Bills',
+                        () {
+                          setState(() {
+                            _selectedCategory = _selectedCategory == 'Bills' ? null : 'Bills';
+                            _applyFilters();
+                          });
+                        },
+                      ),
+                      const SizedBox(width: 8),
+                      _buildFilterChip(
+                        'Medical',
+                        _selectedCategory == 'Medical',
+                        () {
+                          setState(() {
+                            _selectedCategory = _selectedCategory == 'Medical' ? null : 'Medical';
+                            _applyFilters();
+                          });
+                        },
+                      ),
+                      const SizedBox(width: 8),
+                      _buildFilterChip(
+                        'Insurance',
+                        _selectedCategory == 'Insurance',
+                        () {
+                          setState(() {
+                            _selectedCategory = _selectedCategory == 'Insurance' ? null : 'Insurance';
+                            _applyFilters();
+                          });
+                        },
+                      ),
+                      const SizedBox(width: 8),
+                      _buildFilterChip(
+                        'Legal',
+                        _selectedCategory == 'Legal',
+                        () {
+                          setState(() {
+                            _selectedCategory = _selectedCategory == 'Legal' ? null : 'Legal';
+                            _applyFilters();
+                          });
+                        },
+                      ),
+                      const SizedBox(width: 16),
+                      // Sort Button
+                      Container(
+                        height: 36,
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1E1E1E),
+                          borderRadius: BorderRadius.circular(18),
+                          border: Border.all(color: const Color(0xFF5E81F3)),
+                        ),
+                        child: PopupMenuButton<String>(
+                          onSelected: (value) {
+                            setState(() {
+                              _sortBy = value;
+                              _applyFilters();
+                            });
+                          },
+                          color: const Color(0xFF1E1E1E),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.sort, color: Color(0xFF5E81F3), size: 18),
+                              const SizedBox(width: 6),
+                              Text(
+                                _sortBy == 'date' ? 'Date' : _sortBy == 'name' ? 'Name' : 'Category',
+                                style: const TextStyle(
+                                  color: Color(0xFF5E81F3),
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                          itemBuilder: (context) => [
+                            const PopupMenuItem(
+                              value: 'date',
+                              child: Text('Sort by Date', style: TextStyle(color: Colors.white)),
+                            ),
+                            const PopupMenuItem(
+                              value: 'name',
+                              child: Text('Sort by Name', style: TextStyle(color: Colors.white)),
+                            ),
+                            const PopupMenuItem(
+                              value: 'category',
+                              child: Text('Sort by Category', style: TextStyle(color: Colors.white)),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
 
               Expanded(
                 child: SingleChildScrollView(
@@ -228,6 +430,23 @@ class _SearchScreenState extends State<SearchScreen> {
                               .toList(),
                         ),
                         const SizedBox(height: 32),
+                      ],
+
+                      // Recent Documents (when no search)
+                      if (!_hasSearched && _recentDocuments.isNotEmpty) ...[
+                        Text(
+                          'RECENT DOCUMENTS',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 1.2,
+                            color: Colors.white.withOpacity(0.4),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        ..._recentDocuments
+                            .map((doc) => _buildResultItem(doc))
+                            .toList(),
                       ],
 
                       // Search Results
@@ -273,6 +492,31 @@ class _SearchScreenState extends State<SearchScreen> {
                 ),
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFilterChip(String label, bool isSelected, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        height: 36,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFF5E81F3) : const Color(0xFF1E1E1E),
+          borderRadius: BorderRadius.circular(18),
+          border: isSelected ? null : Border.all(color: Colors.grey[800]!),
+        ),
+        child: Center(
+          child: Text(
+            label,
+            style: TextStyle(
+              color: isSelected ? Colors.white : Colors.white.withOpacity(0.7),
+              fontSize: 13,
+              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+            ),
           ),
         ),
       ),

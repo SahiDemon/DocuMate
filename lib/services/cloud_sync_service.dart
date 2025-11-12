@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'dart:typed_data';
+import 'package:path/path.dart' as path;
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis/drive/v3.dart' as drive;
 import 'package:extension_google_sign_in_as_googleapis_auth/extension_google_sign_in_as_googleapis_auth.dart';
@@ -13,10 +15,12 @@ import 'package:documate/config/auth_config.dart';
 /// - User data remains encrypted, Google cannot read the contents
 class CloudSyncService {
   static const String _backupFileName = 'documate_backup.bin';
+  static const String _imagesFolderName = 'DocuMate_Images';
 
   final GoogleSignIn _googleSignIn = GoogleSignIn(
     scopes: [
-      drive.DriveApi.driveAppdataScope, // AppData folder - hidden from user
+      drive.DriveApi.driveAppdataScope, // AppData folder for backup file
+      drive.DriveApi.driveFileScope, // File access for document images
     ],
     // Helps reliably fetch idToken on Android when also signing into Firebase
     serverClientId: kGoogleServerClientId.isEmpty ? null : kGoogleServerClientId,
@@ -155,6 +159,9 @@ class CloudSyncService {
         print('✓ Backup created successfully (${backupData.length} bytes)');
       }
 
+      // NEW: Sync all document images after metadata backup
+      await _syncAllDocumentImages();
+
       _isSyncing = false;
       return true;
     } catch (e) {
@@ -164,9 +171,69 @@ class CloudSyncService {
     }
   }
 
+  /// Sync all document images to Google Drive
+  Future<void> _syncAllDocumentImages() async {
+    try {
+      print('🖼️  Starting image sync...');
+      
+      // Get all documents
+      final allDocs = await _storageService.getAllDocuments();
+      print('📦 Found ${allDocs.length} documents to check for images');
+      
+      int totalImages = 0;
+      int syncedImages = 0;
+      int skippedImages = 0;
+
+      for (final entry in allDocs.entries) {
+        final docId = entry.key;
+        final docData = entry.value;
+        final docName = docData['name'] ?? 'Unknown';
+
+        print('📄 Processing document: $docName (ID: $docId)');
+
+        // Count images in this document
+        final imagePaths = docData['imagePaths'] as List?;
+        if (imagePaths != null && imagePaths.isNotEmpty) {
+          totalImages += imagePaths.length;
+          print('   Found ${imagePaths.length} images');
+        }
+
+        // Sync images for this document
+        final updatedFileIds = await syncDocumentImages(docData);
+        
+        if (updatedFileIds.isNotEmpty) {
+          print('   ✓ Synced ${updatedFileIds.length} images to Drive');
+          
+          // Update document with Drive file IDs
+          docData['driveFileIds'] = updatedFileIds;
+          await _storageService.saveDocument(docId, docData);
+          
+          syncedImages += updatedFileIds.length;
+        } else {
+          print('   ⏭️ No new images to sync');
+          skippedImages += (imagePaths?.length ?? 0);
+        }
+      }
+
+      print('✓ Image sync complete:');
+      print('  - Total documents: ${allDocs.length}');
+      print('  - Total images: $totalImages');
+      print('  - Newly synced: $syncedImages');
+      print('  - Already synced: $skippedImages');
+    } catch (e, stackTrace) {
+      print('❌ Image sync error: $e');
+      print('Stack trace: $stackTrace');
+      rethrow;
+    }
+  }
+
   /// Download backup from Google Drive and merge with local data
   /// This runs in background and never blocks UI
-  Future<bool> downloadBackup({bool overwrite = false}) async {
+  Future<bool> downloadBackup({
+    bool overwrite = false,
+    Function(String)? onStatusUpdate,
+    Function(int, int)? onImageProgress,
+  }) async {
     if (_isSyncing) {
       print('⚠ Sync already in progress');
       return false;
@@ -180,6 +247,7 @@ class CloudSyncService {
     _isSyncing = true;
 
     try {
+      onStatusUpdate?.call('Downloading backup...');
       print('📥 Starting backup download...');
 
       // Find backup file in Drive AppData
@@ -209,17 +277,109 @@ class CloudSyncService {
 
       final backupData = Uint8List.fromList(dataBytes);
 
+      onStatusUpdate?.call('Restoring documents...');
+
       // Import into local storage
       await _storageService.importEncryptedBackup(backupData,
           overwrite: overwrite);
 
       print('✓ Backup downloaded and merged (${backupData.length} bytes)');
+
+      onStatusUpdate?.call('Downloading images...');
+
+      // NEW: Download all document images after metadata restore
+      await _downloadAllDocumentImages(onImageProgress: onImageProgress);
+
       _isSyncing = false;
       return true;
     } catch (e) {
       print('⚠ Backup download failed: $e');
       _isSyncing = false;
       return false;
+    }
+  }
+
+  /// Download all document images from Google Drive
+  Future<void> _downloadAllDocumentImages({Function(int, int)? onImageProgress}) async {
+    try {
+      print('🖼️  Starting image download...');
+      
+      // Get all documents
+      final allDocs = await _storageService.getAllDocuments();
+      print('📦 Found ${allDocs.length} documents to check for images');
+      
+      // First, count total images
+      int totalImages = 0;
+      for (final entry in allDocs.entries) {
+        final docData = entry.value;
+        final driveFileIds = docData['driveFileIds'] as Map<String, dynamic>?;
+        if (driveFileIds != null) {
+          totalImages += driveFileIds.length;
+        }
+      }
+
+      if (totalImages == 0) {
+        print('ℹ️ No images to download (no driveFileIds found in documents)');
+        return;
+      }
+
+      print('📥 Found $totalImages images to download');
+      int downloadedImages = 0;
+      int skippedImages = 0;
+      int failedImages = 0;
+
+      for (final entry in allDocs.entries) {
+        final docData = entry.value;
+        final docName = docData['name'] ?? 'Unknown';
+        final driveFileIds = docData['driveFileIds'] as Map<String, dynamic>?;
+
+        if (driveFileIds == null || driveFileIds.isEmpty) {
+          continue;
+        }
+
+        print('📄 Processing document: $docName');
+        print('   Images in Drive: ${driveFileIds.length}');
+
+        // Download each image
+        for (final mapEntry in driveFileIds.entries) {
+          final localPath = mapEntry.key;
+          final driveFileId = mapEntry.value;
+
+          print('   📥 Checking: ${path.basename(localPath)}');
+
+          // Check if file already exists locally
+          final file = File(localPath);
+          if (await file.exists()) {
+            print('      ⏭️ Already exists locally');
+            skippedImages++;
+            downloadedImages++;
+            onImageProgress?.call(downloadedImages, totalImages);
+            continue;
+          }
+
+          // Download from Drive
+          print('      🔽 Downloading from Drive (ID: ${driveFileId.substring(0, 10)}...)');
+          final success = await downloadImage(driveFileId, localPath);
+          if (success) {
+            print('      ✅ Downloaded successfully');
+            downloadedImages++;
+            onImageProgress?.call(downloadedImages, totalImages);
+          } else {
+            print('      ❌ Download failed');
+            failedImages++;
+          }
+        }
+      }
+
+      print('✓ Image download complete:');
+      print('  - Total images: $totalImages');
+      print('  - Downloaded: ${downloadedImages - skippedImages}');
+      print('  - Already existed: $skippedImages');
+      print('  - Failed: $failedImages');
+    } catch (e, stackTrace) {
+      print('❌ Image download error: $e');
+      print('Stack trace: $stackTrace');
+      rethrow; // Re-throw to let caller handle it
     }
   }
 
@@ -332,4 +492,214 @@ class CloudSyncService {
       await signOut();
     }
   }
+
+  // ==================== IMAGE SYNC ====================
+
+  /// Find or create DocuMate_Images folder in Google Drive
+  Future<String?> _findOrCreateImagesFolder() async {
+    if (_driveApi == null) return null;
+
+    try {
+      // Search for existing folder
+      final query = "name='$_imagesFolderName' and mimeType='application/vnd.google-apps.folder' and trashed=false";
+      final fileList = await _driveApi!.files.list(
+        q: query,
+        spaces: 'drive',
+        $fields: 'files(id, name)',
+      );
+
+      if (fileList.files != null && fileList.files!.isNotEmpty) {
+        print('✓ Found existing images folder: ${fileList.files!.first.id}');
+        return fileList.files!.first.id;
+      }
+
+      // Create new folder
+      final folderMetadata = drive.File()
+        ..name = _imagesFolderName
+        ..mimeType = 'application/vnd.google-apps.folder';
+
+      final folder = await _driveApi!.files.create(folderMetadata);
+      print('✓ Created images folder: ${folder.id}');
+      return folder.id;
+    } catch (e) {
+      print('⚠ Error finding/creating images folder: $e');
+      return null;
+    }
+  }
+
+  /// Upload a single image file to Google Drive (encrypted)
+  Future<String?> uploadImage(String localFilePath, {Function(double)? onProgress}) async {
+    if (_driveApi == null) {
+      print('⚠ Drive API not initialized');
+      return null;
+    }
+
+    try {
+      final file = File(localFilePath);
+      if (!await file.exists()) {
+        print('⚠ Image file not found: $localFilePath');
+        return null;
+      }
+
+      // Get or create images folder
+      final folderId = await _findOrCreateImagesFolder();
+      if (folderId == null) {
+        print('⚠ Failed to get images folder');
+        return null;
+      }
+
+      final fileName = path.basename(localFilePath);
+      final fileBytes = await file.readAsBytes();
+
+      // 🔐 ENCRYPT THE IMAGE BEFORE UPLOADING
+      final encryptedBytes = await _storageService.encryptData(fileBytes);
+
+      final driveFile = drive.File()
+        ..name = '$fileName.enc' // Add .enc extension to indicate encryption
+        ..parents = [folderId];
+
+      final media = drive.Media(
+        Stream.value(encryptedBytes),
+        encryptedBytes.length,
+      );
+
+      print('📤 Uploading encrypted image: $fileName (${fileBytes.length} -> ${encryptedBytes.length} bytes)');
+      
+      final uploadedFile = await _driveApi!.files.create(
+        driveFile,
+        uploadMedia: media,
+      );
+
+      print('✓ Encrypted image uploaded: ${uploadedFile.id}');
+      return uploadedFile.id;
+    } catch (e) {
+      print('⚠ Error uploading image: $e');
+      return null;
+    }
+  }
+
+  /// Upload multiple images with progress tracking
+  Future<Map<String, String>> uploadImages(
+    List<String> imagePaths, {
+    Function(int current, int total)? onProgress,
+  }) async {
+    final fileIdMap = <String, String>{}; // localPath -> driveFileId
+
+    for (int i = 0; i < imagePaths.length; i++) {
+      final imagePath = imagePaths[i];
+      
+      onProgress?.call(i + 1, imagePaths.length);
+
+      final fileId = await uploadImage(imagePath);
+      if (fileId != null) {
+        fileIdMap[imagePath] = fileId;
+      }
+    }
+
+    return fileIdMap;
+  }
+
+  /// Download a single image from Google Drive (decrypt)
+  Future<bool> downloadImage(String driveFileId, String localFilePath, {Function(double)? onProgress}) async {
+    if (_driveApi == null) {
+      print('⚠ Drive API not initialized');
+      return false;
+    }
+
+    try {
+      print('📥 Downloading encrypted image: $driveFileId');
+
+      final media = await _driveApi!.files.get(
+        driveFileId,
+        downloadOptions: drive.DownloadOptions.fullMedia,
+      ) as drive.Media;
+
+      // Collect all encrypted bytes
+      final List<int> encryptedBytes = [];
+      await media.stream.forEach((chunk) {
+        encryptedBytes.addAll(chunk);
+      });
+
+      print('🔓 Decrypting image...');
+
+      // 🔐 DECRYPT THE IMAGE AFTER DOWNLOADING
+      final decryptedBytes = await _storageService.decryptData(Uint8List.fromList(encryptedBytes));
+
+      final file = File(localFilePath);
+      final directory = file.parent;
+      if (!await directory.exists()) {
+        await directory.create(recursive: true);
+      }
+
+      // Write decrypted bytes to file
+      await file.writeAsBytes(decryptedBytes);
+
+      print('✓ Image downloaded and decrypted: $localFilePath');
+      return true;
+    } catch (e) {
+      print('⚠ Error downloading image: $e');
+      return false;
+    }
+  }
+
+  /// Download multiple images with progress tracking
+  Future<int> downloadImages(
+    Map<String, String> fileIdMap, // localPath -> driveFileId
+    {Function(int current, int total)? onProgress}
+  ) async {
+    int successCount = 0;
+    final entries = fileIdMap.entries.toList();
+
+    for (int i = 0; i < entries.length; i++) {
+      final entry = entries[i];
+      
+      onProgress?.call(i + 1, entries.length);
+
+      final success = await downloadImage(entry.value, entry.key);
+      if (success) {
+        successCount++;
+      }
+    }
+
+    return successCount;
+  }
+
+  /// Sync document images (upload missing ones to Drive)
+  Future<Map<String, String>> syncDocumentImages(Map<String, dynamic> documentData) async {
+    final imagePaths = <String>[];
+    
+    // Collect all image paths from document
+    if (documentData['imagePath'] != null) {
+      imagePaths.add(documentData['imagePath'] as String);
+    }
+    if (documentData['imagePaths'] != null) {
+      final paths = documentData['imagePaths'] as List;
+      imagePaths.addAll(paths.cast<String>());
+    }
+
+    // Check which images need uploading
+    final driveFileIds = documentData['driveFileIds'] as Map<String, dynamic>? ?? {};
+    final imagesToUpload = <String>[];
+
+    for (final imagePath in imagePaths) {
+      if (!driveFileIds.containsKey(imagePath)) {
+        imagesToUpload.add(imagePath);
+      }
+    }
+
+    if (imagesToUpload.isEmpty) {
+      print('✓ All images already synced');
+      return driveFileIds.cast<String, String>();
+    }
+
+    // Upload new images
+    print('📤 Uploading ${imagesToUpload.length} new images...');
+    final newFileIds = await uploadImages(imagesToUpload);
+    
+    // Merge with existing file IDs
+    final updatedFileIds = <String, String>{...driveFileIds.cast<String, String>(), ...newFileIds};
+    
+    return updatedFileIds;
+  }
 }
+

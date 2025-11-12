@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:documate/services/firebase_auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:documate/screens/auth/login_screen.dart';
+import 'package:documate/screens/category_management_screen.dart';
 import 'package:documate/utils/transitions.dart';
+import 'package:documate/main.dart' as main_app;
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -238,6 +240,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         child: Column(
                           children: [
                             _buildMenuItem(
+                              icon: Icons.category,
+                              title: 'Manage Categories',
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => CategoryManagementScreen(
+                                      storageService: main_app.storageService,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                            _buildDivider(),
+                            _buildMenuItem(
                               icon: Icons.notifications,
                               title: 'Notification Settings',
                               onTap: () => Navigator.pushNamed(
@@ -255,6 +271,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               icon: Icons.palette,
                               title: 'Appearance',
                               onTap: () {},
+                            ),
+                            _buildDivider(),
+                            _buildMenuItem(
+                              icon: Icons.key,
+                              title: 'Encryption Key Info',
+                              onTap: _showEncryptionKeyInfo,
                               isLast: true,
                             ),
                           ],
@@ -338,6 +360,150 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Future<void> _showEncryptionKeyInfo() async {
+    final key = await main_app.storageService.getCurrentEncryptionKey();
+    
+    if (!mounted) return;
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1E1E1E),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: const Color(0xFF5E81F3).withOpacity(0.2),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(
+                Icons.key,
+                color: Color(0xFF5E81F3),
+                size: 28,
+              ),
+            ),
+            const SizedBox(width: 16),
+            const Text(
+              'Encryption Key',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Your device is secured with AES-256 encryption.',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.7),
+                fontSize: 14,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: const Color(0xFF5E81F3).withOpacity(0.3),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.check_circle,
+                        color: Colors.green,
+                        size: 16,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Key Status: Active',
+                        style: TextStyle(
+                          color: Colors.green,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Key Preview:',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.5),
+                      fontSize: 11,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    key != null ? '${key.substring(0, 16)}...' : 'Not available',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontFamily: 'monospace',
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFF5E81F3).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.info_outline,
+                    color: Color(0xFF5E81F3),
+                    size: 20,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'This key is synced via Google Drive and follows you across devices.',
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.7),
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              'Close',
+              style: TextStyle(
+                color: Color(0xFF5E81F3),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

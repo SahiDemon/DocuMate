@@ -65,7 +65,7 @@ void main() async {
 
   // Initialize notification service
   notificationService = NotificationService();
-  await notificationService.initialize();
+  await notificationService.initialize(storageService: storageService);
   print('✓ NotificationService initialized');
 
   // Initialize search index service

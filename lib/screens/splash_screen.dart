@@ -5,7 +5,9 @@ import 'package:documate/screens/onboarding_screen.dart';
 import 'package:documate/screens/new_home_screen.dart';
 import 'package:documate/main.dart' show storageService, notificationService;
 import 'package:documate/services/firebase_auth_service.dart';
+import 'package:documate/services/cloud_sync_service.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:intl/intl.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -118,6 +120,10 @@ class _SplashScreenState extends State<SplashScreen>
       } else if (isLoggedIn && currentUser != null) {
         // Returning user who is already logged in - go directly to home
         print('✓ Returning user: ${currentUser.email ?? "Anonymous"}');
+        
+        // CHECK FOR BACKUP AND OFFER TO RESTORE
+        // Restore check is now handled in StorageOnboardingScreen
+        
         nextScreen = const NewHomeScreen();
       } else {
         // User completed onboarding but not logged in - show login screen

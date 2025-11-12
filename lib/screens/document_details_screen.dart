@@ -4,6 +4,7 @@ import 'package:documate/models/document_model.dart';
 import 'package:documate/services/storage_service.dart';
 import 'package:documate/services/notification_service.dart';
 import 'package:documate/theme/app_theme.dart';
+import 'package:documate/widgets/document_edit_dialog.dart';
 
 class DocumentDetailsScreen extends StatefulWidget {
   final DocumentModel document;
@@ -50,12 +51,13 @@ class _DocumentDetailsScreenState extends State<DocumentDetailsScreen> {
   }
 
   List<String> get _allImages {
-    final images = <String>[_document.imagePath];
-
-    // Add additional images if available
+    // If imagePaths is available, use it directly (it contains all images including front)
     if (_document.imagePaths != null && _document.imagePaths!.isNotEmpty) {
-      images.addAll(_document.imagePaths!);
+      return _document.imagePaths!;
     }
+
+    // Fallback: use imagePath + linked document
+    final images = <String>[_document.imagePath];
 
     // Add linked document image (back side)
     if (_linkedDocument != null) {
@@ -120,19 +122,22 @@ class _DocumentDetailsScreenState extends State<DocumentDetailsScreen> {
           },
           itemCount: images.length,
           itemBuilder: (context, index) {
-            return InteractiveViewer(
-              minScale: 0.5,
-              maxScale: 4.0,
-              child: Center(
-                child: Image.file(
-                  File(images[index]),
-                  fit: BoxFit.contain,
-                  errorBuilder: (context, error, stackTrace) {
-                    return const Center(
-                      child: Icon(Icons.broken_image,
-                          size: 64, color: Colors.grey),
-                    );
-                  },
+            return GestureDetector(
+              onTap: () => _openFullScreenViewer(images, index),
+              child: InteractiveViewer(
+                minScale: 0.5,
+                maxScale: 4.0,
+                child: Center(
+                  child: Image.file(
+                    File(images[index]),
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) {
+                      return const Center(
+                        child: Icon(Icons.broken_image,
+                            size: 64, color: Colors.grey),
+                      );
+                    },
+                  ),
                 ),
               ),
             );
@@ -366,10 +371,28 @@ class _DocumentDetailsScreenState extends State<DocumentDetailsScreen> {
   }
 
   Future<void> _editDocument() async {
-    // TODO: Navigate to edit screen
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Edit functionality coming soon')),
+    // Navigate to edit dialog
+    final result = await showDialog<DocumentModel>(
+      context: context,
+      builder: (context) => DocumentEditDialog(
+        document: _document,
+        storageService: widget.storageService,
+      ),
     );
+
+    if (result != null) {
+      setState(() => _document = result);
+      
+      // Show success message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Document updated successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    }
   }
 
   Future<void> _deleteDocument() async {
@@ -410,5 +433,201 @@ class _DocumentDetailsScreenState extends State<DocumentDetailsScreen> {
         );
       }
     }
+  }
+
+  void _openFullScreenViewer(List<String> images, int initialIndex) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => _FullScreenImageViewer(
+          images: images,
+          initialIndex: initialIndex,
+          documentName: _document.name,
+        ),
+      ),
+    );
+  }
+}
+
+class _FullScreenImageViewer extends StatefulWidget {
+  final List<String> images;
+  final int initialIndex;
+  final String documentName;
+
+  const _FullScreenImageViewer({
+    required this.images,
+    required this.initialIndex,
+    required this.documentName,
+  });
+
+  @override
+  State<_FullScreenImageViewer> createState() => _FullScreenImageViewerState();
+}
+
+class _FullScreenImageViewerState extends State<_FullScreenImageViewer> {
+  late PageController _pageController;
+  late int _currentIndex;
+  bool _showUI = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex;
+    _pageController = PageController(initialPage: widget.initialIndex);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _toggleUI() {
+    setState(() => _showUI = !_showUI);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: GestureDetector(
+        onTap: _toggleUI,
+        child: Stack(
+          children: [
+            // Image viewer
+            PageView.builder(
+              controller: _pageController,
+              onPageChanged: (index) {
+                setState(() => _currentIndex = index);
+              },
+              itemCount: widget.images.length,
+              itemBuilder: (context, index) {
+                return InteractiveViewer(
+                  minScale: 0.5,
+                  maxScale: 5.0,
+                  child: Center(
+                    child: Hero(
+                      tag: 'document_image_$index',
+                      child: Image.file(
+                        File(widget.images[index]),
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) {
+                          return const Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.broken_image,
+                                    size: 64, color: Colors.grey),
+                                SizedBox(height: 16),
+                                Text(
+                                  'Image not found',
+                                  style: TextStyle(color: Colors.grey),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+
+            // Top app bar
+            AnimatedOpacity(
+              opacity: _showUI ? 1.0 : 0.0,
+              duration: const Duration(milliseconds: 200),
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.black.withOpacity(0.7),
+                      Colors.transparent,
+                    ],
+                  ),
+                ),
+                child: SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                    child: Row(
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.close, color: Colors.white),
+                          onPressed: () => Navigator.of(context).pop(),
+                        ),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                widget.documentName,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              if (widget.images.length > 1)
+                                Text(
+                                  'Page ${_currentIndex + 1} of ${widget.images.length}',
+                                  style: TextStyle(
+                                    color: Colors.white.withOpacity(0.7),
+                                    fontSize: 12,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            // Bottom indicator
+            if (widget.images.length > 1)
+              AnimatedOpacity(
+                opacity: _showUI ? 1.0 : 0.0,
+                duration: const Duration(milliseconds: 200),
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Container(
+                    margin: const EdgeInsets.only(bottom: 32),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.6),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: List.generate(
+                        widget.images.length,
+                        (index) => Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 4),
+                          width: _currentIndex == index ? 24 : 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: _currentIndex == index
+                                ? const Color(0xFF5E81F3)
+                                : Colors.white.withOpacity(0.5),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
   }
 }

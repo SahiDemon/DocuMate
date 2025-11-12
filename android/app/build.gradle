@@ -24,6 +24,13 @@ if (flutterVersionName == null) {
     flutterVersionName = "1.0"
 }
 
+// Load keystore properties
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('key.properties')
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
 android {
     namespace = "com.sahidemon.documate"
     compileSdk = flutter.compileSdkVersion
@@ -50,11 +57,21 @@ android {
         versionName = flutterVersionName
     }
 
+    signingConfigs {
+        release {
+            // Use debug signing for now (change to production keys later)
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+            storeFile file(System.getProperty('user.home') + '/.android/debug.keystore')
+            storePassword 'android'
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.debug
+            signingConfig signingConfigs.release
+            shrinkResources false
+            minifyEnabled false
         }
     }
 }

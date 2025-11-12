@@ -15,11 +15,14 @@ class NotificationService {
   final FlutterLocalNotificationsPlugin _notifications =
       FlutterLocalNotificationsPlugin();
   bool _initialized = false;
-  final StorageService _storageService = StorageService();
+  StorageService? _storageService;
 
   /// Initialize notification service
-  Future<void> initialize() async {
+  Future<void> initialize({StorageService? storageService}) async {
     if (_initialized) return;
+    
+    // Set storage service if provided
+    _storageService ??= storageService;
 
     // Initialize timezones
     tz.initializeTimeZones();
@@ -277,12 +280,14 @@ class NotificationService {
 
   /// Get reminder intervals from settings
   Future<List<int>> _getReminderIntervals(String category) async {
-    // Try to load from settings
-    final settingsKey = 'reminder_intervals_$category';
-    final intervals = await _storageService.getSetting(settingsKey);
+    // Try to load from settings if storage service is available
+    if (_storageService != null) {
+      final settingsKey = 'reminder_intervals_$category';
+      final intervals = await _storageService!.getSetting(settingsKey);
 
-    if (intervals is List) {
-      return intervals.cast<int>();
+      if (intervals is List) {
+        return intervals.cast<int>();
+      }
     }
 
     // Return category defaults
@@ -303,12 +308,17 @@ class NotificationService {
 
   /// Get notification time from settings
   Future<TimeOfDay> _getNotificationTime() async {
-    final hour = await _storageService.getSetting(
+    // Use default time if storage service not available
+    if (_storageService == null) {
+      return const TimeOfDay(hour: 9, minute: 0);
+    }
+
+    final hour = await _storageService!.getSetting(
       'notification_hour',
       defaultValue: 9,
     ) as int;
 
-    final minute = await _storageService.getSetting(
+    final minute = await _storageService!.getSetting(
       'notification_minute',
       defaultValue: 0,
     ) as int;

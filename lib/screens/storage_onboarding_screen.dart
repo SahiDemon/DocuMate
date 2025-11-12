@@ -109,17 +109,41 @@ class _StorageOnboardingScreenState extends State<StorageOnboardingScreen>
           return;
         }
 
-        // 3. Enable backup and upload initial backup
+        // 3. Enable backup
         await widget.cloudSyncService.setBackupEnabled(true);
-        await widget.cloudSyncService.uploadBackup();
 
-        // 4. Mark storage onboarding as complete
+        // 4. Check for existing backup
+        final backupInfo = await widget.cloudSyncService.getBackupInfo();
+        
+        setState(() => _isLoading = false);
+
+        if (backupInfo != null && backupInfo['exists'] == true && mounted) {
+          // Show restore dialog if backup exists
+          final shouldRestore = await _showRestoreDialog(backupInfo);
+          
+          if (shouldRestore == true) {
+            // Restore with animation
+            final restored = await _showRestoreAnimation();
+            
+            if (!restored && mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Failed to restore backup'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+          }
+        } else {
+          // No backup found, upload initial backup
+          await widget.cloudSyncService.uploadBackup();
+        }
+
+        // 5. Mark storage onboarding as complete
         await widget.storageService
             .saveSetting('storage_onboarding_complete', true);
 
-        setState(() => _isLoading = false);
-
-        // 5. Navigate directly to home with success message
+        // 6. Navigate directly to home with success message
         if (mounted) {
           Navigator.of(context).pushReplacementNamed('/home');
 
@@ -465,6 +489,352 @@ class _StorageOnboardingScreenState extends State<StorageOnboardingScreen>
                   : null,
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Future<bool?> _showRestoreDialog(Map<String, dynamic> backupInfo) async {
+    final lastModified = backupInfo['lastModified'] != null
+        ? DateTime.parse(backupInfo['lastModified']).toString().split('.')[0]
+        : 'Unknown';
+
+    return showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1E1E1E),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFF5E81F3).withOpacity(0.2),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(
+                Icons.cloud_download,
+                color: Color(0xFF5E81F3),
+                size: 28,
+              ),
+            ),
+            const SizedBox(width: 16),
+            const Expanded(
+              child: Text(
+                'Backup Found!',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'We found a previous backup in your Google Drive.',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.8),
+                fontSize: 15,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFF5E81F3).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: const Color(0xFF5E81F3).withOpacity(0.3),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.access_time, color: Color(0xFF5E81F3), size: 16),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Last backup:',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.6),
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    lastModified,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.green.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: Colors.green.withOpacity(0.3),
+                ),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.check_circle, color: Colors.green, size: 18),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Your documents, settings, and images will be restored from Google Drive.',
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.8),
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Would you like to restore your documents and settings?',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.8),
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(
+              'Skip',
+              style: TextStyle(color: Colors.white.withOpacity(0.6)),
+            ),
+          ),
+          ElevatedButton.icon(
+            onPressed: () => Navigator.of(context).pop(true),
+            icon: const Icon(Icons.cloud_download, size: 20),
+            label: const Text('Restore Now'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF5E81F3),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<bool> _showRestoreAnimation() async {
+    return await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => _RestoreAnimationDialog(
+        cloudSyncService: widget.cloudSyncService,
+      ),
+    ) ?? false;
+  }
+}
+
+class _RestoreAnimationDialog extends StatefulWidget {
+  final CloudSyncService cloudSyncService;
+
+  const _RestoreAnimationDialog({
+    required this.cloudSyncService,
+  });
+
+  @override
+  State<_RestoreAnimationDialog> createState() => _RestoreAnimationDialogState();
+}
+
+class _RestoreAnimationDialogState extends State<_RestoreAnimationDialog>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _fadeAnimation;
+  String _statusMessage = 'Downloading backup...';
+  bool _isComplete = false;
+  bool _hasError = false;
+  int _currentImage = 0;
+  int _totalImages = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    );
+
+    _scaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.elasticOut),
+    );
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeIn),
+    );
+
+    _controller.forward();
+    _performRestore();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _performRestore() async {
+    try {
+      await Future.delayed(const Duration(milliseconds: 800));
+
+      final success = await widget.cloudSyncService.downloadBackup(
+        overwrite: false,
+        onStatusUpdate: (status) {
+          if (mounted) {
+            setState(() => _statusMessage = status);
+          }
+        },
+        onImageProgress: (current, total) {
+          if (mounted) {
+            setState(() {
+              _currentImage = current;
+              _totalImages = total;
+              _statusMessage = 'Downloading images ($current/$total)...';
+            });
+          }
+        },
+      );
+
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      if (success) {
+        if (mounted) {
+          setState(() {
+            _statusMessage = 'Restore completed!';
+            _isComplete = true;
+          });
+        }
+
+        await Future.delayed(const Duration(milliseconds: 1200));
+        if (mounted) {
+          Navigator.of(context).pop(true);
+        }
+      } else {
+        if (mounted) {
+          setState(() {
+            _statusMessage = 'Restore failed';
+            _hasError = true;
+          });
+        }
+        await Future.delayed(const Duration(milliseconds: 1500));
+        if (mounted) {
+          Navigator.of(context).pop(false);
+        }
+      }
+    } catch (e) {
+      print('Error restoring: $e');
+      if (mounted) {
+        setState(() {
+          _statusMessage = 'Error: $e';
+          _hasError = true;
+        });
+      }
+      await Future.delayed(const Duration(milliseconds: 1500));
+      if (mounted) {
+        Navigator.of(context).pop(false);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      child: ScaleTransition(
+        scale: _scaleAnimation,
+        child: Container(
+          padding: const EdgeInsets.all(32),
+          decoration: BoxDecoration(
+            color: const Color(0xFF1E1E1E),
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              FadeTransition(
+                opacity: _fadeAnimation,
+                child: Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: _hasError
+                        ? const Color(0xFFEF4444).withOpacity(0.2)
+                        : _isComplete
+                            ? const Color(0xFF10B981).withOpacity(0.2)
+                            : const Color(0xFF5E81F3).withOpacity(0.2),
+                    shape: BoxShape.circle,
+                  ),
+                  child: _hasError
+                      ? const Icon(Icons.error, color: Color(0xFFEF4444), size: 40)
+                      : _isComplete
+                          ? const Icon(Icons.check_circle, color: Color(0xFF10B981), size: 40)
+                          : const CircularProgressIndicator(
+                              color: Color(0xFF5E81F3),
+                              strokeWidth: 3,
+                            ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                _statusMessage,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              // Show progress bar for image download
+              if (_totalImages > 0 && !_isComplete && !_hasError) ...[
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: 200,
+                  child: LinearProgressIndicator(
+                    value: _currentImage / _totalImages,
+                    backgroundColor: Colors.white.withOpacity(0.1),
+                    valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF5E81F3)),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '$_currentImage / $_totalImages images',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.6),
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ],
+          ),
         ),
       ),
     );
