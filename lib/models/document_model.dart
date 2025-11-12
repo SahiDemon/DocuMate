@@ -32,22 +32,28 @@ class DocumentModel extends HiveObject {
   DateTime? expiryDate;
 
   @HiveField(9)
-  bool hasReminder;
+  DateTime? dueDate;
 
   @HiveField(10)
-  DateTime? reminderDate;
+  bool hasReminder;
 
   @HiveField(11)
-  int? reminderDaysBefore;
+  DateTime? reminderDate;
 
   @HiveField(12)
-  Map<String, dynamic>? metadata;
+  int? reminderDaysBefore;
 
   @HiveField(13)
-  List<String>? tags;
+  Map<String, dynamic>? metadata;
 
   @HiveField(14)
+  List<String>? tags;
+
+  @HiveField(15)
   bool isFavorite;
+
+  @HiveField(16)
+  List<String>? imagePaths;
 
   DocumentModel({
     required this.id,
@@ -59,12 +65,14 @@ class DocumentModel extends HiveObject {
     required this.createdAt,
     this.issueDate,
     this.expiryDate,
+    this.dueDate,
     this.hasReminder = false,
     this.reminderDate,
     this.reminderDaysBefore,
     this.metadata,
     this.tags,
     this.isFavorite = false,
+    this.imagePaths,
   });
 
   // Check if document is expired
@@ -85,6 +93,24 @@ class DocumentModel extends HiveObject {
     if (expiryDate == null) return null;
     return expiryDate!.difference(DateTime.now()).inDays;
   }
+
+  // Check if this document has a linked document (front/back)
+  bool get hasLinkedDocument =>
+      metadata != null &&
+      (metadata!.containsKey('linkedFrontId') ||
+          metadata!.containsKey('linkedBackId'));
+
+  // Get linked document ID
+  String? get linkedDocumentId {
+    if (metadata == null) return null;
+    return metadata!['linkedFrontId'] ?? metadata!['linkedBackId'];
+  }
+
+  // Check if this is front or back side
+  String? get documentSide => metadata?['side'];
+
+  // Check if document has multiple images
+  bool get hasMultipleImages => imagePaths != null && imagePaths!.length > 1;
 
   // Get formatted expiry status
   String get expiryStatus {
@@ -107,12 +133,14 @@ class DocumentModel extends HiveObject {
     DateTime? createdAt,
     DateTime? issueDate,
     DateTime? expiryDate,
+    DateTime? dueDate,
     bool? hasReminder,
     DateTime? reminderDate,
     int? reminderDaysBefore,
     Map<String, dynamic>? metadata,
     List<String>? tags,
     bool? isFavorite,
+    List<String>? imagePaths,
   }) {
     return DocumentModel(
       id: id ?? this.id,
@@ -124,12 +152,14 @@ class DocumentModel extends HiveObject {
       createdAt: createdAt ?? this.createdAt,
       issueDate: issueDate ?? this.issueDate,
       expiryDate: expiryDate ?? this.expiryDate,
+      dueDate: dueDate ?? this.dueDate,
       hasReminder: hasReminder ?? this.hasReminder,
       reminderDate: reminderDate ?? this.reminderDate,
       reminderDaysBefore: reminderDaysBefore ?? this.reminderDaysBefore,
       metadata: metadata ?? this.metadata,
       tags: tags ?? this.tags,
       isFavorite: isFavorite ?? this.isFavorite,
+      imagePaths: imagePaths ?? this.imagePaths,
     );
   }
 
@@ -145,12 +175,14 @@ class DocumentModel extends HiveObject {
       'createdAt': createdAt.toIso8601String(),
       'issueDate': issueDate?.toIso8601String(),
       'expiryDate': expiryDate?.toIso8601String(),
+      'dueDate': dueDate?.toIso8601String(),
       'hasReminder': hasReminder,
       'reminderDate': reminderDate?.toIso8601String(),
       'reminderDaysBefore': reminderDaysBefore,
       'metadata': metadata,
       'tags': tags,
       'isFavorite': isFavorite,
+      'imagePaths': imagePaths,
     };
   }
 
@@ -169,6 +201,7 @@ class DocumentModel extends HiveObject {
       expiryDate: json['expiryDate'] != null
           ? DateTime.parse(json['expiryDate'])
           : null,
+      dueDate: json['dueDate'] != null ? DateTime.parse(json['dueDate']) : null,
       hasReminder: json['hasReminder'] ?? false,
       reminderDate: json['reminderDate'] != null
           ? DateTime.parse(json['reminderDate'])
@@ -177,6 +210,9 @@ class DocumentModel extends HiveObject {
       metadata: json['metadata'],
       tags: json['tags'] != null ? List<String>.from(json['tags']) : null,
       isFavorite: json['isFavorite'] ?? false,
+      imagePaths: json['imagePaths'] != null
+          ? List<String>.from(json['imagePaths'])
+          : null,
     );
   }
 }

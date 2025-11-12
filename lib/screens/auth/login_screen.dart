@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:documate/services/firebase_auth_service.dart';
+import 'package:documate/screens/new_home_screen.dart';
+import 'package:documate/utils/transitions.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -41,7 +43,8 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       if (user != null && mounted) {
-        Navigator.of(context).pushReplacementNamed('/home');
+        Navigator.of(context).pushReplacement(
+            subtleScaleSlideRoute(page: const NewHomeScreen()));
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -51,31 +54,82 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       }
     } catch (e) {
-      if (mounted) {
-        final errorMessage = e.toString().replaceAll('Exception: ', '');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                const Icon(Icons.error_outline, color: Colors.white),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    errorMessage,
-                    style: const TextStyle(fontSize: 14),
-                  ),
-                ),
-              ],
-            ),
-            backgroundColor: Colors.red.shade700,
-            behavior: SnackBarBehavior.floating,
-            duration: const Duration(seconds: 4),
+      if (!mounted) return;
+
+      final errorMessage = e.toString().replaceAll('Exception: ', '');
+
+      // Check if error suggests the account exists with a different provider
+      final isProviderMismatch =
+          errorMessage.contains('different sign-in method') ||
+              errorMessage.contains('account exists') ||
+              errorMessage.contains('invalid-credential');
+
+      if (isProviderMismatch) {
+        // Show dialog suggesting user try Google sign-in
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            backgroundColor: const Color(0xFF1E1E1E),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(20),
             ),
+            title: const Text(
+              'Different sign-in method',
+              style: TextStyle(color: Colors.white),
+            ),
+            content: const Text(
+              'This account may have been created using Google Sign-In or another method. Please try signing in with Google or reset your password.',
+              style: TextStyle(color: Color(0xFF9CA3AF)),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  _handleGoogleLogin();
+                },
+                child: const Text(
+                  'Use Google',
+                  style: TextStyle(color: Color(0xFF5E81F3)),
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pushNamed('/forgot-password');
+                },
+                child: const Text(
+                  'Reset Password',
+                  style: TextStyle(color: Color(0xFF5E81F3)),
+                ),
+              ),
+            ],
           ),
         );
+        return;
       }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.error_outline, color: Colors.white),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  errorMessage,
+                  style: const TextStyle(fontSize: 14),
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: Colors.red.shade700,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 4),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      );
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);

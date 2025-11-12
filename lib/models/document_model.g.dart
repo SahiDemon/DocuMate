@@ -26,19 +26,21 @@ class DocumentModelAdapter extends TypeAdapter<DocumentModel> {
       createdAt: fields[6] as DateTime,
       issueDate: fields[7] as DateTime?,
       expiryDate: fields[8] as DateTime?,
-      hasReminder: fields[9] as bool,
-      reminderDate: fields[10] as DateTime?,
-      reminderDaysBefore: fields[11] as int?,
-      metadata: (fields[12] as Map?)?.cast<String, dynamic>(),
-      tags: (fields[13] as List?)?.cast<String>(),
-      isFavorite: fields[14] as bool,
+      dueDate: fields[9] as DateTime?,
+      hasReminder: fields[10] as bool,
+      reminderDate: fields[11] as DateTime?,
+      reminderDaysBefore: fields[12] as int?,
+      metadata: (fields[13] as Map?)?.cast<String, dynamic>(),
+      tags: (fields[14] as List?)?.cast<String>(),
+      isFavorite: fields[15] as bool,
+      imagePaths: (fields[16] as List?)?.cast<String>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, DocumentModel obj) {
     writer
-      ..writeByte(15)
+      ..writeByte(17)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -58,17 +60,21 @@ class DocumentModelAdapter extends TypeAdapter<DocumentModel> {
       ..writeByte(8)
       ..write(obj.expiryDate)
       ..writeByte(9)
-      ..write(obj.hasReminder)
+      ..write(obj.dueDate)
       ..writeByte(10)
-      ..write(obj.reminderDate)
+      ..write(obj.hasReminder)
       ..writeByte(11)
-      ..write(obj.reminderDaysBefore)
+      ..write(obj.reminderDate)
       ..writeByte(12)
-      ..write(obj.metadata)
+      ..write(obj.reminderDaysBefore)
       ..writeByte(13)
-      ..write(obj.tags)
+      ..write(obj.metadata)
       ..writeByte(14)
-      ..write(obj.isFavorite);
+      ..write(obj.tags)
+      ..writeByte(15)
+      ..write(obj.isFavorite)
+      ..writeByte(16)
+      ..write(obj.imagePaths);
   }
 
   @override

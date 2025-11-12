@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:documate/screens/onboarding_screen.dart';
 import 'package:documate/screens/new_home_screen.dart';
-import 'package:documate/main.dart' show storageService;
+import 'package:documate/main.dart' show storageService, notificationService;
 import 'package:documate/services/firebase_auth_service.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -82,6 +82,23 @@ class _SplashScreenState extends State<SplashScreen>
       'storage_onboarding_complete',
       defaultValue: false,
     ) as bool;
+
+    // Request notification permission on first launch (after onboarding)
+    if (hasSeenOnboarding && storageOnboardingComplete) {
+      final permissionRequested = await storageService.getSetting(
+        'notification_permission_requested',
+        defaultValue: false,
+      ) as bool;
+
+      if (!permissionRequested) {
+        final granted = await notificationService.requestPermission();
+        await storageService.saveSetting(
+            'notification_permission_requested', true);
+        print(granted
+            ? '✓ Notification permission granted'
+            : '⚠️ Notification permission denied');
+      }
+    }
 
     // Check if user is already authenticated (returning user)
     final firebaseAuth = FirebaseAuthService();
@@ -278,16 +295,17 @@ class _SplashScreenState extends State<SplashScreen>
                         color: Colors.white.withOpacity(0.6),
                       ),
                     ),
-                  const SizedBox(height: 24),
-                  // Show an immediate spinner so users see progress during pre-warm/startup
-                  const SizedBox(
-                    height: 24,
-                    width: 24,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2.4,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white70),
+                    const SizedBox(height: 24),
+                    // Show an immediate spinner so users see progress during pre-warm/startup
+                    const SizedBox(
+                      height: 24,
+                      width: 24,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.4,
+                        valueColor:
+                            AlwaysStoppedAnimation<Color>(Colors.white70),
+                      ),
                     ),
-                  ),
                   ],
                 ),
               ),

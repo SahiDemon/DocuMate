@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import 'package:image_picker/image_picker.dart';
 import 'package:camera/camera.dart';
-import 'package:documate/main.dart';
+import 'package:documate/main.dart' as main_app;
+import 'package:documate/screens/smart_capture_flow_screen.dart';
 
 class AddDocumentScreen extends StatefulWidget {
   const AddDocumentScreen({super.key});
@@ -36,35 +37,16 @@ class _AddDocumentScreenState extends State<AddDocumentScreen>
   }
 
   Future<void> _initializeCamera() async {
-    if (cameras == null || cameras!.isEmpty) {
-      _showError('No camera found on this device');
-      return;
-    }
-
-    setState(() {
-      _isCameraMode = true;
-    });
-
-    try {
-      _cameraController = CameraController(
-        cameras![0],
-        ResolutionPreset.high,
-        enableAudio: false,
-      );
-
-      await _cameraController!.initialize();
-
-      if (mounted) {
-        setState(() {
-          _isCameraInitialized = true;
-        });
-      }
-    } catch (e) {
-      _showError('Failed to initialize camera: $e');
-      setState(() {
-        _isCameraMode = false;
-      });
-    }
+    // Navigate to smart capture flow
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SmartCaptureFlowScreen(
+          storageService: main_app.storageService,
+          cloudSyncService: main_app.cloudSyncService,
+        ),
+      ),
+    );
   }
 
   Future<void> _captureImage() async {

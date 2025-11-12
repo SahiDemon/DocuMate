@@ -41,6 +41,9 @@ dependencies:
   # OCR and ML
   google_mlkit_text_recognition: ^0.13.0
   
+  # Document scanning
+  edge_detection: ^1.1.0
+  
   # Local storage
   hive: ^2.2.3
   hive_flutter: ^1.1.0

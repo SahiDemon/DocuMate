@@ -1,10 +1,52 @@
 import 'package:flutter/material.dart';
+import 'package:documate/services/firebase_auth_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:documate/screens/auth/login_screen.dart';
+import 'package:documate/utils/transitions.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
   @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  final FirebaseAuthService _authService = FirebaseAuthService();
+  User? _user;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUser();
+  }
+
+  void _loadUser() {
+    setState(() {
+      _user = _authService.getCurrentUser();
+    });
+  }
+
+  Future<void> _logout() async {
+    try {
+      await _authService.logout();
+      if (!mounted) return;
+      Navigator.of(context)
+          .pushReplacement(subtleScaleSlideRoute(page: const LoginScreen()));
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Logout failed: $e')),
+      );
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final displayName = _user?.displayName ?? 'Your Name';
+    final email = _user?.email ?? 'you@example.com';
+    final photo = _user?.photoURL;
+
     return Scaffold(
       backgroundColor: const Color(0xFF121212),
       body: SafeArea(
@@ -26,7 +68,7 @@ class ProfileScreen extends StatelessWidget {
                     child: IconButton(
                       icon: const Icon(Icons.arrow_back, size: 20),
                       color: const Color(0xFFE5E5E5),
-                      onPressed: () {},
+                      onPressed: () => Navigator.of(context).pop(),
                       padding: EdgeInsets.zero,
                     ),
                   ),
@@ -65,22 +107,23 @@ class ProfileScreen extends StatelessWidget {
                       Stack(
                         alignment: Alignment.bottomRight,
                         children: [
-                          Container(
-                            width: 96,
-                            height: 96,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: const Color(0xFF5E81F3),
-                                width: 2,
-                              ),
-                              color: const Color(0xFF5E81F3).withOpacity(0.2),
-                            ),
-                            child: const Icon(
-                              Icons.person,
-                              size: 48,
-                              color: Color(0xFF5E81F3),
-                            ),
+                          CircleAvatar(
+                            radius: 48,
+                            backgroundColor:
+                                const Color(0xFF5E81F3).withOpacity(0.2),
+                            backgroundImage:
+                                photo != null ? NetworkImage(photo) : null,
+                            child: photo == null
+                                ? Text(
+                                    displayName.isNotEmpty
+                                        ? displayName[0]
+                                        : 'U',
+                                    style: const TextStyle(
+                                      fontSize: 40,
+                                      color: Color(0xFF5E81F3),
+                                    ),
+                                  )
+                                : null,
                           ),
                           Positioned(
                             right: 0,
@@ -106,9 +149,9 @@ class ProfileScreen extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 16),
-                      const Text(
-                        'Alex Johnson',
-                        style: TextStyle(
+                      Text(
+                        displayName,
+                        style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
@@ -117,7 +160,7 @@ class ProfileScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'alex.johnson@email.com',
+                        email,
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.white.withOpacity(0.6),
@@ -196,8 +239,16 @@ class ProfileScreen extends StatelessWidget {
                           children: [
                             _buildMenuItem(
                               icon: Icons.notifications,
-                              title: 'Notifications',
-                              onTap: () {},
+                              title: 'Notification Settings',
+                              onTap: () => Navigator.pushNamed(
+                                  context, '/notification-settings'),
+                            ),
+                            _buildDivider(),
+                            _buildMenuItem(
+                              icon: Icons.cloud,
+                              title: 'Storage & Backup',
+                              onTap: () => Navigator.pushNamed(
+                                  context, '/storage-settings'),
                             ),
                             _buildDivider(),
                             _buildMenuItem(
@@ -216,7 +267,7 @@ class ProfileScreen extends StatelessWidget {
                         width: double.infinity,
                         height: 56,
                         child: ElevatedButton(
-                          onPressed: () {},
+                          onPressed: _logout,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF1E1E1E),
                             foregroundColor: const Color(0xFFEF4444),

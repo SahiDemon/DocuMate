@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:documate/services/firebase_auth_service.dart';
+import 'package:documate/screens/new_home_screen.dart';
+import 'package:documate/utils/transitions.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -47,7 +49,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
       );
 
       if (user != null && mounted) {
-        Navigator.of(context).pushReplacementNamed('/home');
+        Navigator.of(context).pushReplacement(
+            subtleScaleSlideRoute(page: const NewHomeScreen()));
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -99,7 +102,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     try {
       final user = await _authService.signInWithGoogle();
       if (user != null && mounted) {
-        Navigator.of(context).pushReplacementNamed('/home');
+        Navigator.of(context).pushReplacement(
+            subtleScaleSlideRoute(page: const NewHomeScreen()));
       }
     } catch (e) {
       if (mounted) {
@@ -144,7 +148,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     try {
       final user = await _authService.signInWithGitHub();
       if (user != null && mounted) {
-        Navigator.of(context).pushReplacementNamed('/home');
+        Navigator.of(context).pushReplacement(
+            subtleScaleSlideRoute(page: const NewHomeScreen()));
       }
     } catch (e) {
       if (mounted) {

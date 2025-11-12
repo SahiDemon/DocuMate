@@ -17,16 +17,22 @@ import 'package:documate/screens/auth/forgot_password_screen.dart';
 import 'package:documate/screens/storage_onboarding_screen.dart';
 import 'package:documate/screens/storage_privacy_screen.dart';
 import 'package:documate/screens/storage_settings_screen.dart';
+import 'package:documate/screens/notification_settings_screen.dart';
+import 'package:documate/screens/smart_capture_flow_screen.dart';
 import 'package:documate/models/document_model.dart';
 import 'package:documate/services/storage_service.dart';
 import 'package:documate/services/cloud_sync_service.dart';
 import 'package:documate/services/firebase_auth_service.dart';
+import 'package:documate/services/notification_service.dart';
+import 'package:documate/services/search_index_service.dart';
 
 List<CameraDescription>? cameras;
 
 // Global storage services - initialized once at app startup
 late StorageService storageService;
 late CloudSyncService cloudSyncService;
+late NotificationService notificationService;
+late SearchIndexService searchIndexService;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,7 +40,7 @@ void main() async {
   // Initialize Firebase
   await Firebase.initializeApp();
   print('✓ Firebase initialized');
-  
+
   // Disable Firebase App Check for development (speeds up auth)
   // WARNING: Re-enable for production!
   await FirebaseAuth.instance.setSettings(
@@ -56,6 +62,19 @@ void main() async {
   // Initialize cloud sync service
   cloudSyncService = CloudSyncService(storageService);
   print('✓ CloudSyncService initialized');
+
+  // Initialize notification service
+  notificationService = NotificationService();
+  await notificationService.initialize();
+  print('✓ NotificationService initialized');
+
+  // Initialize search index service
+  searchIndexService = SearchIndexService();
+  await searchIndexService.initialize();
+  print('✓ SearchIndexService initialized');
+
+  // Note: Search index will be rebuilt automatically when first search is performed
+  // This avoids blocking app startup with heavy index operations
 
   // ==================== AUTO-SYNC ON STARTUP ====================
   // If backup is enabled, automatically download and merge from Google Drive
@@ -126,6 +145,13 @@ class MyApp extends StatelessWidget {
             ),
         '/storage-privacy': (context) => const StoragePrivacyScreen(),
         '/storage-settings': (context) => StorageSettingsScreen(
+              storageService: storageService,
+              cloudSyncService: cloudSyncService,
+            ),
+        '/notification-settings': (context) => NotificationSettingsScreen(
+              storageService: storageService,
+            ),
+        '/smart-capture': (context) => SmartCaptureFlowScreen(
               storageService: storageService,
               cloudSyncService: cloudSyncService,
             ),
