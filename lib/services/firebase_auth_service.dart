@@ -265,4 +265,22 @@ class FirebaseAuthService {
       throw Exception('Account deletion failed: $e');
     }
   }
+
+  /// Send password reset email
+  Future<void> sendPasswordReset(String email) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email);
+    } on FirebaseAuthException catch (e) {
+      switch (e.code) {
+        case 'user-not-found':
+          throw Exception('No account found with this email.');
+        case 'invalid-email':
+          throw Exception('Invalid email address.');
+        default:
+          throw Exception('Failed to send reset email: ${e.message}');
+      }
+    } catch (e) {
+      throw Exception('Failed to send reset email: $e');
+    }
+  }
 }

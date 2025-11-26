@@ -3,6 +3,11 @@ import 'package:documate/services/firebase_auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:documate/screens/auth/login_screen.dart';
 import 'package:documate/screens/category_management_screen.dart';
+import 'package:documate/screens/account_information_screen.dart';
+import 'package:documate/screens/password_security_screen.dart';
+import 'package:documate/screens/subscription_screen.dart';
+import 'package:documate/screens/appearance_screen.dart';
+import 'package:documate/screens/support_developer_screen.dart';
 import 'package:documate/utils/transitions.dart';
 import 'package:documate/main.dart' as main_app;
 
@@ -196,19 +201,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             _buildMenuItem(
                               icon: Icons.person,
                               title: 'Account Information',
-                              onTap: () {},
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const AccountInformationScreen(),
+                                  ),
+                                );
+                              },
                             ),
                             _buildDivider(),
                             _buildMenuItem(
                               icon: Icons.lock,
                               title: 'Password & Security',
-                              onTap: () {},
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const PasswordSecurityScreen(),
+                                  ),
+                                );
+                              },
                             ),
                             _buildDivider(),
                             _buildMenuItem(
                               icon: Icons.credit_card,
                               title: 'Subscription',
-                              onTap: () {},
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const SubscriptionScreen(),
+                                  ),
+                                );
+                              },
                               isLast: true,
                             ),
                           ],
@@ -245,7 +271,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               onTap: () {
                                 Navigator.of(context).push(
                                   MaterialPageRoute(
-                                    builder: (context) => CategoryManagementScreen(
+                                    builder: (context) =>
+                                        CategoryManagementScreen(
                                       storageService: main_app.storageService,
                                     ),
                                   ),
@@ -270,13 +297,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             _buildMenuItem(
                               icon: Icons.palette,
                               title: 'Appearance',
-                              onTap: () {},
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const AppearanceScreen(),
+                                  ),
+                                );
+                              },
                             ),
                             _buildDivider(),
                             _buildMenuItem(
                               icon: Icons.key,
                               title: 'Encryption Key Info',
                               onTap: _showEncryptionKeyInfo,
+                            ),
+                            _buildDivider(),
+                            _buildMenuItem(
+                              icon: Icons.favorite,
+                              title: 'Support Developer',
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const SupportDeveloperScreen(),
+                                  ),
+                                );
+                              },
                               isLast: true,
                             ),
                           ],
@@ -366,9 +413,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _showEncryptionKeyInfo() async {
     final key = await main_app.storageService.getCurrentEncryptionKey();
-    
+
     if (!mounted) return;
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -425,14 +472,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
+                  const Row(
                     children: [
                       Icon(
                         Icons.check_circle,
                         color: Colors.green,
                         size: 16,
                       ),
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8),
                       Text(
                         'Key Status: Active',
                         style: TextStyle(
@@ -453,8 +500,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    key != null ? '${key.substring(0, 16)}...' : 'Not available',
-                    style: TextStyle(
+                    key != null
+                        ? '${key.substring(0, 16)}...'
+                        : 'Not available',
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 12,
                       fontFamily: 'monospace',
@@ -472,7 +521,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               child: Row(
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.info_outline,
                     color: Color(0xFF5E81F3),
                     size: 20,

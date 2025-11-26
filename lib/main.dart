@@ -28,6 +28,9 @@ import 'package:documate/services/search_index_service.dart';
 
 List<CameraDescription>? cameras;
 
+// Global navigator key for handling navigation from notifications
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 // Global storage services - initialized once at app startup
 late StorageService storageService;
 late CloudSyncService cloudSyncService;
@@ -73,8 +76,21 @@ void main() async {
   await searchIndexService.initialize();
   print('✓ SearchIndexService initialized');
 
-  // Note: Search index will be rebuilt automatically when first search is performed
-  // This avoids blocking app startup with heavy index operations
+  // Rebuild index if empty (first launch)
+  // This runs in background to avoid blocking app startup
+  final stats = searchIndexService.getStats();
+  if (stats['totalWords'] == 0) {
+    print('🔄 Scheduling search index rebuild...');
+    // Run index rebuild in background after a delay to ensure storage is ready
+    Future.delayed(const Duration(seconds: 2), () async {
+      try {
+        await searchIndexService.rebuildIndex();
+        print('✓ Search index rebuilt');
+      } catch (e) {
+        print('⚠️ Search index rebuild error (will retry later): $e');
+      }
+    });
+  }
 
   // ==================== AUTO-SYNC ON STARTUP ====================
   // If backup is enabled, automatically download and merge from Google Drive
@@ -127,6 +143,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: navigatorKey,
       title: 'DocuMate',
       debugShowCheckedModeBanner: false,
       theme: DocuMateTheme.darkTheme,

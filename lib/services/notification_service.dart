@@ -5,6 +5,8 @@ import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:documate/models/document_model.dart';
 import 'package:documate/services/storage_service.dart';
+import 'package:documate/main.dart' as main_app;
+import 'package:documate/screens/document_details_screen.dart';
 
 /// Notification service for scheduling document reminders
 class NotificationService {
@@ -20,7 +22,7 @@ class NotificationService {
   /// Initialize notification service
   Future<void> initialize({StorageService? storageService}) async {
     if (_initialized) return;
-    
+
     // Set storage service if provided
     _storageService ??= storageService;
 
@@ -53,12 +55,35 @@ class NotificationService {
   }
 
   /// Handle notification tap
-  void _onNotificationTapped(NotificationResponse response) {
+  void _onNotificationTapped(NotificationResponse response) async {
     // Extract document ID from payload
     final documentId = response.payload;
     if (documentId != null) {
-      // TODO: Navigate to document details screen
       print('📱 Notification tapped for document: $documentId');
+
+      // Navigate to document details screen
+      try {
+        // Load document from storage
+        final documentData =
+            await main_app.storageService.getDocument(documentId);
+        if (documentData != null) {
+          final document = DocumentModel.fromJson(documentData);
+
+          // Navigate using global navigator key
+          main_app.navigatorKey.currentState?.push(
+            MaterialPageRoute(
+              builder: (context) => DocumentDetailsScreen(
+                document: document,
+                storageService: main_app.storageService,
+              ),
+            ),
+          );
+        } else {
+          print('⚠️ Document not found: $documentId');
+        }
+      } catch (e) {
+        print('❌ Error navigating to document: $e');
+      }
     }
   }
 
@@ -280,30 +305,20 @@ class NotificationService {
 
   /// Get reminder intervals from settings
   Future<List<int>> _getReminderIntervals(String category) async {
-    // Try to load from settings if storage service is available
+    // Try to load default intervals from settings if storage service is available
     if (_storageService != null) {
-      final settingsKey = 'reminder_intervals_$category';
-      final intervals = await _storageService!.getSetting(settingsKey);
+      final intervals = await _storageService!.getSetting(
+        'default_reminder_intervals',
+        defaultValue: [30, 7, 1],
+      );
 
-      if (intervals is List) {
+      if (intervals is List && intervals.isNotEmpty) {
         return intervals.cast<int>();
       }
     }
 
-    // Return category defaults
-    switch (category) {
-      case 'Identity':
-      case 'Insurance':
-        return [30, 7, 1];
-      case 'Bills':
-        return [7, 3, 1];
-      case 'Medical':
-        return [14, 7, 1];
-      case 'Legal':
-        return [30, 14, 7];
-      default:
-        return [7, 3, 1];
-    }
+    // Return default intervals
+    return [30, 7, 1];
   }
 
   /// Get notification time from settings

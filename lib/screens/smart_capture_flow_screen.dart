@@ -612,7 +612,7 @@ class _SmartCaptureFlowScreenState extends State<SmartCaptureFlowScreen> {
             ),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             child: DropdownButtonFormField<String>(
-              value: _selectedCategory,
+              initialValue: _selectedCategory,
               dropdownColor: const Color(0xFF2A2A2A),
               style: const TextStyle(
                 color: Colors.white,
@@ -636,10 +636,10 @@ class _SmartCaptureFlowScreenState extends State<SmartCaptureFlowScreen> {
                         value: cat,
                         child: Row(
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.folder,
                               size: 18,
-                              color: const Color(0xFF5E81F3),
+                              color: Color(0xFF5E81F3),
                             ),
                             const SizedBox(width: 12),
                             Text(
@@ -773,7 +773,7 @@ class _SmartCaptureFlowScreenState extends State<SmartCaptureFlowScreen> {
                 onChanged: hasRelevantDate
                     ? (value) => setState(() => _enableReminders = value)
                     : null,
-                activeColor: const Color(0xFF5E81F3),
+                activeThumbColor: const Color(0xFF5E81F3),
               ),
             ],
           ),

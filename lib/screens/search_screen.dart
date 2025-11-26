@@ -446,7 +446,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         const SizedBox(height: 16),
                         ..._recentDocuments
                             .map((doc) => _buildResultItem(doc))
-                            .toList(),
+                            ,
                       ],
 
                       // Search Results
@@ -485,7 +485,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         else
                           ..._searchResults
                               .map((result) => _buildResultItem(result))
-                              .toList(),
+                              ,
                       ],
                     ],
                   ),

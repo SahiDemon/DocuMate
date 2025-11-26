@@ -62,7 +62,7 @@ class StorageService {
       if (existingKey != null) {
         return existingKey;
       }
-
+    
       // Generate new 256-bit AES key
       final key = encrypt_lib.Key.fromSecureRandom(32); // 32 bytes = 256 bits
       final keyBase64 = key.base64;

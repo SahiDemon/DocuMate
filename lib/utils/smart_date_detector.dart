@@ -269,7 +269,7 @@ class _DateSelectionDialogState extends State<_DateSelectionDialog> {
               final index = entry.key;
               final detectedDate = entry.value;
               return _buildDateItem(index, detectedDate);
-            }).toList(),
+            }),
           ],
         ),
       ),
@@ -344,7 +344,7 @@ class _DateSelectionDialogState extends State<_DateSelectionDialog> {
           ),
           const SizedBox(height: 12),
           DropdownButtonFormField<DateType>(
-            value: selectedType,
+            initialValue: selectedType,
             dropdownColor: const Color(0xFF2A2A2A),
             decoration: InputDecoration(
               labelText: 'Date Type',

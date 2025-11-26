@@ -1,6 +1,7 @@
 import 'package:hive/hive.dart';
 import 'package:documate/models/document_model.dart';
 import 'package:documate/services/storage_service.dart';
+import 'package:documate/main.dart' as main_app;
 
 /// Search index entry
 class SearchIndexEntry {
@@ -28,7 +29,8 @@ class SearchIndexService {
   factory SearchIndexService() => _instance;
   SearchIndexService._internal();
 
-  final StorageService _storageService = StorageService();
+  // Use the globally initialized storage service
+  StorageService get _storageService => main_app.storageService;
   final Map<String, Set<String>> _index = {};
   bool _initialized = false;
 

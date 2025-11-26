@@ -501,7 +501,7 @@ class CloudSyncService {
 
     try {
       // Search for existing folder
-      final query = "name='$_imagesFolderName' and mimeType='application/vnd.google-apps.folder' and trashed=false";
+      const query = "name='$_imagesFolderName' and mimeType='application/vnd.google-apps.folder' and trashed=false";
       final fileList = await _driveApi!.files.list(
         q: query,
         spaces: 'drive',

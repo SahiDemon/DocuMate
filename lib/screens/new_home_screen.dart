@@ -4,6 +4,7 @@ import 'package:documate/screens/search_screen.dart';
 import 'package:documate/screens/profile_screen.dart';
 import 'package:documate/screens/document_details_screen.dart';
 import 'package:documate/screens/all_documents_screen.dart';
+import 'package:documate/screens/notifications_center_screen.dart';
 import 'package:documate/services/firebase_auth_service.dart';
 import 'package:documate/widgets/bottom_nav_bar.dart';
 import 'package:documate/models/document_model.dart';
@@ -22,7 +23,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
   late PageController _pageController;
 
   final List<Widget> _screens = [
-    HomeContent(),
+    const HomeContent(),
     const SearchScreen(),
     const AddDocumentScreen(),
     const ProfileScreen(),
@@ -94,7 +95,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
 }
 
 class HomeContent extends StatefulWidget {
-  HomeContent({super.key});
+  const HomeContent({super.key});
 
   @override
   State<HomeContent> createState() => _HomeContentState();
@@ -116,6 +117,7 @@ class _HomeContentState extends State<HomeContent> with WidgetsBindingObserver {
     'Legal': 0,
     'Other': 0,
   };
+  int _notificationCount = 0;
 
   @override
   void initState() {
@@ -187,7 +189,7 @@ class _HomeContentState extends State<HomeContent> with WidgetsBindingObserver {
         'custom_categories',
         defaultValue: <Map<String, dynamic>>[],
       ) as List;
-      
+
       // Count documents by category (including custom categories)
       final counts = <String, int>{
         'Identity': 0,
@@ -197,7 +199,7 @@ class _HomeContentState extends State<HomeContent> with WidgetsBindingObserver {
         'Legal': 0,
         'Other': 0,
       };
-      
+
       // Add custom categories to counts
       for (final customCat in customCategories) {
         final name = customCat['name'] as String;
@@ -211,11 +213,25 @@ class _HomeContentState extends State<HomeContent> with WidgetsBindingObserver {
         counts[category] = (counts[category] ?? 0) + 1;
       }
 
+      // Calculate notification count (expiring + overdue)
+      final overdueCount = docs.where((doc) {
+        if (doc['expiryDate'] != null) {
+          try {
+            final expiryDate = DateTime.parse(doc['expiryDate'] as String);
+            return expiryDate.isBefore(now);
+          } catch (e) {
+            return false;
+          }
+        }
+        return false;
+      }).length;
+
       setState(() {
         _recentDocuments = recentDocs;
         _expiringDocuments = expiringDocs.take(3).toList();
         _documentCounts = counts;
         _customCategories = customCategories.cast<Map<String, dynamic>>();
+        _notificationCount = expiringDocs.length + overdueCount;
         _isLoading = false;
       });
     } catch (e) {
@@ -227,14 +243,16 @@ class _HomeContentState extends State<HomeContent> with WidgetsBindingObserver {
   void _openDocument(Map<String, dynamic> documentData) {
     try {
       final document = DocumentModel.fromJson(documentData);
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => DocumentDetailsScreen(
-            document: document,
-            storageService: main_app.storageService,
-          ),
-        ),
-      ).then((_) => _loadDocuments()); // Refresh on return
+      Navigator.of(context)
+          .push(
+            MaterialPageRoute(
+              builder: (context) => DocumentDetailsScreen(
+                document: document,
+                storageService: main_app.storageService,
+              ),
+            ),
+          )
+          .then((_) => _loadDocuments()); // Refresh on return
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -290,17 +308,61 @@ class _HomeContentState extends State<HomeContent> with WidgetsBindingObserver {
                     ],
                   ),
                 ),
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1E1E1E),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: const Icon(
-                    Icons.notifications_outlined,
-                    color: Color(0xFFE5E5E5),
-                    size: 22,
+                GestureDetector(
+                  onTap: () {
+                    Navigator.of(context)
+                        .push(
+                          MaterialPageRoute(
+                            builder: (context) => NotificationsCenterScreen(
+                              storageService: main_app.storageService,
+                            ),
+                          ),
+                        )
+                        .then((_) => _loadDocuments());
+                  },
+                  child: Stack(
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1E1E1E),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: const Icon(
+                          Icons.notifications_outlined,
+                          color: Color(0xFFE5E5E5),
+                          size: 22,
+                        ),
+                      ),
+                      if (_notificationCount > 0)
+                        Positioned(
+                          right: 0,
+                          top: 0,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: const BoxDecoration(
+                              color: Color(0xFFEF4444),
+                              shape: BoxShape.circle,
+                            ),
+                            constraints: const BoxConstraints(
+                              minWidth: 18,
+                              minHeight: 18,
+                            ),
+                            child: Text(
+                              _notificationCount > 99
+                                  ? '99+'
+                                  : '$_notificationCount',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               ],
@@ -308,28 +370,43 @@ class _HomeContentState extends State<HomeContent> with WidgetsBindingObserver {
             const SizedBox(height: 24),
 
             // Search Bar
-            Container(
-              decoration: BoxDecoration(
-                color: const Color(0xFF1E1E1E),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: TextField(
-                style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  hintText: 'Search documents...',
-                  hintStyle: TextStyle(
-                    color: Colors.white.withOpacity(0.4),
-                    fontSize: 14,
-                  ),
-                  prefixIcon: Icon(
-                    Icons.search,
-                    color: Colors.white.withOpacity(0.4),
-                  ),
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 14,
-                  ),
+            GestureDetector(
+              onTap: () {
+                // Navigate to search screen by changing bottom nav index
+                final newHomeState =
+                    context.findAncestorStateOfType<_NewHomeScreenState>();
+                if (newHomeState != null) {
+                  newHomeState._pageController.animateToPage(
+                    1, // Index for SearchScreen
+                    duration: const Duration(milliseconds: 350),
+                    curve: Curves.easeInOutCubic,
+                  );
+                }
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1E1E1E),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.search,
+                      color: Colors.white.withOpacity(0.4),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      'Search documents...',
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.4),
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -359,8 +436,10 @@ class _HomeContentState extends State<HomeContent> with WidgetsBindingObserver {
                                   onPressed: () {
                                     Navigator.of(context).push(
                                       MaterialPageRoute(
-                                        builder: (context) => AllDocumentsScreen(
-                                          storageService: main_app.storageService,
+                                        builder: (context) =>
+                                            AllDocumentsScreen(
+                                          storageService:
+                                              main_app.storageService,
                                         ),
                                       ),
                                     );
@@ -378,67 +457,77 @@ class _HomeContentState extends State<HomeContent> with WidgetsBindingObserver {
                             ),
                             const SizedBox(height: 12),
                             ..._expiringDocuments.map((doc) {
-                              final expiryDate = DateTime.parse(doc['expiryDate'] as String);
-                              final daysUntil = expiryDate.difference(DateTime.now()).inDays;
-                              return Container(
-                                margin: const EdgeInsets.only(bottom: 12),
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFEF4444).withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: const Color(0xFFEF4444).withOpacity(0.3),
+                              final expiryDate =
+                                  DateTime.parse(doc['expiryDate'] as String);
+                              final daysUntil =
+                                  expiryDate.difference(DateTime.now()).inDays;
+                              return GestureDetector(
+                                onTap: () => _openDocument(doc),
+                                child: Container(
+                                  margin: const EdgeInsets.only(bottom: 12),
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFEF4444)
+                                        .withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: const Color(0xFFEF4444)
+                                          .withOpacity(0.3),
+                                    ),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        width: 48,
+                                        height: 48,
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFEF4444)
+                                              .withOpacity(0.2),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        child: const Icon(
+                                          Icons.warning,
+                                          color: Color(0xFFEF4444),
+                                          size: 24,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              doc['name'] as String,
+                                              style: const TextStyle(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white,
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              'Expires in $daysUntil day${daysUntil != 1 ? 's' : ''}',
+                                              style: const TextStyle(
+                                                fontSize: 13,
+                                                color: Color(0xFFEF4444),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Icon(
+                                        Icons.chevron_right,
+                                        color: Colors.white.withOpacity(0.5),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      width: 48,
-                                      height: 48,
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFFEF4444).withOpacity(0.2),
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: const Icon(
-                                        Icons.warning,
-                                        color: Color(0xFFEF4444),
-                                        size: 24,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            doc['name'] as String,
-                                            style: const TextStyle(
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.white,
-                                            ),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                          const SizedBox(height: 4),
-                                          Text(
-                                            'Expires in $daysUntil day${daysUntil != 1 ? 's' : ''}',
-                                            style: const TextStyle(
-                                              fontSize: 13,
-                                              color: Color(0xFFEF4444),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Icon(
-                                      Icons.chevron_right,
-                                      color: Colors.white.withOpacity(0.5),
-                                    ),
-                                  ],
-                                ),
                               );
-                            }).toList(),
+                            }),
                             const SizedBox(height: 24),
                           ],
 
@@ -459,8 +548,10 @@ class _HomeContentState extends State<HomeContent> with WidgetsBindingObserver {
                                   onPressed: () {
                                     Navigator.of(context).push(
                                       MaterialPageRoute(
-                                        builder: (context) => AllDocumentsScreen(
-                                          storageService: main_app.storageService,
+                                        builder: (context) =>
+                                            AllDocumentsScreen(
+                                          storageService:
+                                              main_app.storageService,
                                         ),
                                       ),
                                     );
@@ -516,7 +607,8 @@ class _HomeContentState extends State<HomeContent> with WidgetsBindingObserver {
                                     'Recently added',
                                     Icons.description,
                                     const Color(0xFF5E81F3),
-                                    onTap: () => _openDocument(_recentDocuments[0]),
+                                    onTap: () =>
+                                        _openDocument(_recentDocuments[0]),
                                   ),
                                 ),
                                 if (_recentDocuments.length > 1) ...[
@@ -527,7 +619,8 @@ class _HomeContentState extends State<HomeContent> with WidgetsBindingObserver {
                                       'Recently added',
                                       Icons.receipt_long,
                                       const Color(0xFFFBBF24),
-                                      onTap: () => _openDocument(_recentDocuments[1]),
+                                      onTap: () =>
+                                          _openDocument(_recentDocuments[1]),
                                     ),
                                   ),
                                 ],
@@ -670,22 +763,38 @@ class _HomeContentState extends State<HomeContent> with WidgetsBindingObserver {
 
   List<Widget> _buildAllCategories() {
     final List<Widget> categoryWidgets = [];
-    
+
     // Default categories with their icons and colors
     final defaultCategories = [
-      {'name': 'Identity', 'icon': Icons.badge, 'color': const Color(0xFF5E81F3)},
-      {'name': 'Bills', 'icon': Icons.receipt_long, 'color': const Color(0xFF10B981)},
-      {'name': 'Medical', 'icon': Icons.medical_services, 'color': const Color(0xFFF97316)},
-      {'name': 'Insurance', 'icon': Icons.security, 'color': const Color(0xFFFBBF24)},
+      {
+        'name': 'Identity',
+        'icon': Icons.badge,
+        'color': const Color(0xFF5E81F3)
+      },
+      {
+        'name': 'Bills',
+        'icon': Icons.receipt_long,
+        'color': const Color(0xFF10B981)
+      },
+      {
+        'name': 'Medical',
+        'icon': Icons.medical_services,
+        'color': const Color(0xFFF97316)
+      },
+      {
+        'name': 'Insurance',
+        'icon': Icons.security,
+        'color': const Color(0xFFFBBF24)
+      },
       {'name': 'Legal', 'icon': Icons.gavel, 'color': const Color(0xFFEC4899)},
     ];
-    
+
     // Build default categories
     for (final cat in defaultCategories) {
       final name = cat['name'] as String;
       final icon = cat['icon'] as IconData;
       final color = cat['color'] as Color;
-      
+
       categoryWidgets.add(
         _buildCategoryItem(
           name,
@@ -706,19 +815,21 @@ class _HomeContentState extends State<HomeContent> with WidgetsBindingObserver {
       );
       categoryWidgets.add(const SizedBox(height: 12));
     }
-    
+
     // Build custom categories
     for (final customCat in _customCategories) {
       final name = customCat['name'] as String;
       final iconCode = customCat['icon'] as int;
       final colorValue = customCat['color'] as int;
-      
+
+      final categoryIcon = IconData(iconCode, fontFamily: 'MaterialIcons');
+      final categoryColor = Color(colorValue);
       categoryWidgets.add(
         _buildCategoryItem(
           name,
           '${_documentCounts[name] ?? 0} documents',
-          IconData(iconCode, fontFamily: 'MaterialIcons'),
-          Color(colorValue),
+          categoryIcon,
+          categoryColor,
           onTap: () {
             Navigator.of(context).push(
               MaterialPageRoute(
@@ -733,7 +844,7 @@ class _HomeContentState extends State<HomeContent> with WidgetsBindingObserver {
       );
       categoryWidgets.add(const SizedBox(height: 12));
     }
-    
+
     return categoryWidgets;
   }
 }

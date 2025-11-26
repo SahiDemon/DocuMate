@@ -343,7 +343,7 @@ class _DocumentDetailsScreenState extends State<DocumentDetailsScreen> {
               Switch(
                 value: _document.hasReminder,
                 onChanged: _toggleReminder,
-                activeColor: Colors.blue,
+                activeThumbColor: Colors.blue,
               ),
             ],
           ),
@@ -364,10 +364,58 @@ class _DocumentDetailsScreenState extends State<DocumentDetailsScreen> {
   }
 
   Future<void> _toggleReminder(bool value) async {
-    // TODO: Implement reminder toggle logic
     setState(() {
       _document = _document.copyWith(hasReminder: value);
     });
+
+    // Save to storage
+    await widget.storageService.saveDocument(_document.id, _document.toJson());
+
+    // Cancel existing notifications
+    await _notificationService.cancelDocumentReminders(_document);
+
+    // Schedule new notifications if enabled
+    if (value && (_document.expiryDate != null || _document.dueDate != null)) {
+      // Get custom intervals if they exist
+      List<int>? customIntervals;
+      if (_document.metadata != null && 
+          _document.metadata!.containsKey('customReminderIntervals')) {
+        customIntervals = List<int>.from(
+          _document.metadata!['customReminderIntervals'] as List
+        );
+      }
+
+      final scheduledIds = await _notificationService.scheduleDocumentReminders(
+        document: _document,
+        customIntervals: customIntervals,
+      );
+
+      // Update document with notification IDs
+      final metadata = Map<String, dynamic>.from(_document.metadata ?? {});
+      metadata['notificationIds'] = scheduledIds;
+      
+      setState(() {
+        _document = _document.copyWith(metadata: metadata);
+      });
+      
+      await widget.storageService.saveDocument(_document.id, _document.toJson());
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${scheduledIds.length} reminder(s) scheduled'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } else if (!value && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Reminders disabled'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+    }
   }
 
   Future<void> _editDocument() async {

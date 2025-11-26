@@ -59,6 +59,8 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
   }
 
   Future<void> _toggleBackup(bool value) async {
+    if (_isLoading) return; // Prevent double toggle
+
     setState(() => _isLoading = true);
     HapticFeedback.mediumImpact();
 
@@ -76,11 +78,21 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
               ),
             );
           }
-          setState(() => _isLoading = false);
+          setState(() {
+            _isLoading = false;
+            _backupEnabled = false; // Reset toggle
+          });
           return;
         }
 
+        // IMPORTANT: Save the backup enabled state FIRST
         await widget.cloudSyncService.setBackupEnabled(true);
+
+        // Update UI immediately
+        setState(() {
+          _backupEnabled = true;
+          _userEmail = widget.cloudSyncService.getCurrentUserEmail();
+        });
 
         // Check for existing backup first
         if (mounted) {
@@ -115,12 +127,9 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
           }
         }
 
-        setState(() {
-          _backupEnabled = true;
-          _userEmail = widget.cloudSyncService.getCurrentUserEmail();
-        });
-
-        _loadBackupInfo();
+        if (mounted) {
+          _loadBackupInfo();
+        }
       } else {
         // Disable backup
         await widget.cloudSyncService.setBackupEnabled(false);
@@ -142,6 +151,11 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
         }
       }
     } catch (e) {
+      // Reset toggle on error
+      setState(() {
+        _backupEnabled = !value;
+      });
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -151,7 +165,9 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
         );
       }
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -186,11 +202,11 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF1E1E1E),
-        title: Row(
+        title: const Row(
           children: [
-            const Icon(Icons.cloud_download, color: Color(0xFF5E81F3)),
-            const SizedBox(width: 12),
-            const Expanded(
+            Icon(Icons.cloud_download, color: Color(0xFF5E81F3)),
+            SizedBox(width: 12),
+            Expanded(
               child: Text(
                 'Backup Found!',
                 style: TextStyle(color: Colors.white),
@@ -868,7 +884,8 @@ class _RestoreAnimationDialogState extends State<_RestoreAnimationDialog>
                 child: LinearProgressIndicator(
                   value: _currentImage / _totalImages,
                   backgroundColor: Colors.white.withOpacity(0.1),
-                  valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF5E81F3)),
+                  valueColor:
+                      const AlwaysStoppedAnimation<Color>(Color(0xFF5E81F3)),
                 ),
               ),
               const SizedBox(height: 8),

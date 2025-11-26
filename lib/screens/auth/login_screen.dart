@@ -489,8 +489,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       style: OutlinedButton.styleFrom(
                         backgroundColor: const Color(0xFF1E1E1E),
                         foregroundColor: Colors.white,
-                        side: BorderSide(
-                          color: const Color(0xFF1E1E1E),
+                        side: const BorderSide(
+                          color: Color(0xFF1E1E1E),
                           width: 2,
                         ),
                         shape: RoundedRectangleBorder(
@@ -524,8 +524,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       style: OutlinedButton.styleFrom(
                         backgroundColor: const Color(0xFF1E1E1E),
                         foregroundColor: Colors.white,
-                        side: BorderSide(
-                          color: const Color(0xFF1E1E1E),
+                        side: const BorderSide(
+                          color: Color(0xFF1E1E1E),
                           width: 2,
                         ),
                         shape: RoundedRectangleBorder(
