@@ -234,150 +234,155 @@ class _StorageOnboardingScreenState extends State<StorageOnboardingScreen>
 
                         // Cloud icon with float animation
                         AnimatedBuilder(
-                animation: _floatAnimation,
-                builder: (context, child) {
-                  return Transform.translate(
-                    offset: Offset(0, _floatAnimation.value),
-                    child: child,
-                  );
-                },
-                child: Container(
-                  width: 160,
-                  height: 160,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: RadialGradient(
-                      colors: [
-                        theme.primaryColor.withValues(alpha: 0.1),
-                        Colors.transparent,
-                      ],
-                    ),
-                  ),
-                  child: Icon(
-                    Icons.cloud_done,
-                    size: 100,
-                    color: theme.primaryColor,
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 24),
-
-              // Title
-              Text(
-                'Where do you want to\nstore your data?',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.w800,
-                  color: theme.textTheme.bodyLarge?.color,
-                  height: 1.2,
-                  letterSpacing: -0.5,
-                ),
-              ),
-
-              const SizedBox(height: 8),
-
-              // Subtitle
-              Text(
-                'Choose an option to get started.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: theme.textTheme.bodySmall?.color,
-                ),
-              ),
-
-              const SizedBox(height: 40),
-
-              // Local Only Option
-              _buildStorageOption(
-                option: StorageOption.localOnly,
-                icon: Icons.smartphone,
-                title: 'Local Only',
-                description:
-                    'Keep your documents stored exclusively on this device.',
-                isSelected: _selectedOption == StorageOption.localOnly,
-                onTap: () {
-                  HapticFeedback.selectionClick();
-                  setState(() => _selectedOption = StorageOption.localOnly);
-                },
-              ),
-
-              const SizedBox(height: 16),
-
-              // Google Drive Option
-              _buildStorageOption(
-                option: StorageOption.googleDrive,
-                icon: Icons.cloud_upload,
-                iconWidget: Image.network(
-                  'https://lh3.googleusercontent.com/aida-public/AB6AXuDkfSxmm6VGtRH18uYZWgM3JHuO17UEoEYt-nDrDj2lNr626lACEca1cmj_qcRJHqLIPItC2r4h7T6JphPV7htdB3WN70Ou2paGmRuseBgoCWZG3hwSXP7n5uKcKAHKQyT2K-B5wRULcbSceZbeuyAzMTl6vR94Gy_ciqt9D-zLXPFIzDjCihi96sY8SXkwrGIX04oZ9z4MyTkACF_Q8jbf5U3D4H37WS3_nr8FXHiEucdbHjY2t0ffAOYkcnEJikSJTUGlgTnYP-U',
-                  width: 28,
-                  height: 28,
-                  errorBuilder: (context, error, stackTrace) => Icon(
-                    Icons.cloud_upload,
-                    size: 28,
-                    color: theme.textTheme.bodyLarge?.color,
-                  ),
-                ),
-                title: 'Local + Backup to Google Drive',
-                description:
-                    'Store on device and securely back up to your cloud storage.',
-                isSelected: _selectedOption == StorageOption.googleDrive,
-                onTap: () {
-                  HapticFeedback.selectionClick();
-                  setState(() => _selectedOption = StorageOption.googleDrive);
-                },
-              ),
-
-              const Spacer(),
-
-              // Continue Button
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton(
-                  onPressed: _isLoading ? null : _handleContinue,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: theme.primaryColor,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    elevation: 8,
-                    shadowColor: theme.primaryColor.withValues(alpha: 0.3),
-                    disabledBackgroundColor:
-                        theme.primaryColor.withValues(alpha: 0.5),
-                  ),
-                  child: _isLoading
-                      ? const SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor:
-                                AlwaysStoppedAnimation<Color>(Colors.white),
-                          ),
-                        )
-                      : const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Continue',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
+                          animation: _floatAnimation,
+                          builder: (context, child) {
+                            return Transform.translate(
+                              offset: Offset(0, _floatAnimation.value),
+                              child: child,
+                            );
+                          },
+                          child: Container(
+                            width: 160,
+                            height: 160,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: RadialGradient(
+                                colors: [
+                                  theme.primaryColor.withValues(alpha: 0.1),
+                                  Colors.transparent,
+                                ],
                               ),
                             ),
-                            SizedBox(width: 8),
-                            Icon(Icons.arrow_forward, size: 20),
-                          ],
+                            child: Icon(
+                              Icons.cloud_done,
+                              size: 100,
+                              color: theme.primaryColor,
+                            ),
+                          ),
                         ),
-                ),
-              ),
 
-              const SizedBox(height: 16),
+                        const SizedBox(height: 24),
+
+                        // Title
+                        Text(
+                          'Where do you want to\nstore your data?',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 30,
+                            fontWeight: FontWeight.w800,
+                            color: theme.textTheme.bodyLarge?.color,
+                            height: 1.2,
+                            letterSpacing: -0.5,
+                          ),
+                        ),
+
+                        const SizedBox(height: 8),
+
+                        // Subtitle
+                        Text(
+                          'Choose an option to get started.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: theme.textTheme.bodySmall?.color,
+                          ),
+                        ),
+
+                        const SizedBox(height: 40),
+
+                        // Local Only Option
+                        _buildStorageOption(
+                          option: StorageOption.localOnly,
+                          icon: Icons.smartphone,
+                          title: 'Local Only',
+                          description:
+                              'Keep your documents stored exclusively on this device.',
+                          isSelected:
+                              _selectedOption == StorageOption.localOnly,
+                          onTap: () {
+                            HapticFeedback.selectionClick();
+                            setState(() =>
+                                _selectedOption = StorageOption.localOnly);
+                          },
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        // Google Drive Option
+                        _buildStorageOption(
+                          option: StorageOption.googleDrive,
+                          icon: Icons.cloud_upload,
+                          iconWidget: Image.network(
+                            'https://lh3.googleusercontent.com/aida-public/AB6AXuDkfSxmm6VGtRH18uYZWgM3JHuO17UEoEYt-nDrDj2lNr626lACEca1cmj_qcRJHqLIPItC2r4h7T6JphPV7htdB3WN70Ou2paGmRuseBgoCWZG3hwSXP7n5uKcKAHKQyT2K-B5wRULcbSceZbeuyAzMTl6vR94Gy_ciqt9D-zLXPFIzDjCihi96sY8SXkwrGIX04oZ9z4MyTkACF_Q8jbf5U3D4H37WS3_nr8FXHiEucdbHjY2t0ffAOYkcnEJikSJTUGlgTnYP-U',
+                            width: 28,
+                            height: 28,
+                            errorBuilder: (context, error, stackTrace) => Icon(
+                              Icons.cloud_upload,
+                              size: 28,
+                              color: theme.textTheme.bodyLarge?.color,
+                            ),
+                          ),
+                          title: 'Local + Backup to Google Drive',
+                          description:
+                              'Store on device and securely back up to your cloud storage.',
+                          isSelected:
+                              _selectedOption == StorageOption.googleDrive,
+                          onTap: () {
+                            HapticFeedback.selectionClick();
+                            setState(() =>
+                                _selectedOption = StorageOption.googleDrive);
+                          },
+                        ),
+
+                        const Spacer(),
+
+                        // Continue Button
+                        SizedBox(
+                          width: double.infinity,
+                          height: 56,
+                          child: ElevatedButton(
+                            onPressed: _isLoading ? null : _handleContinue,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: theme.primaryColor,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              elevation: 8,
+                              shadowColor:
+                                  theme.primaryColor.withValues(alpha: 0.3),
+                              disabledBackgroundColor:
+                                  theme.primaryColor.withValues(alpha: 0.5),
+                            ),
+                            child: _isLoading
+                                ? const SizedBox(
+                                    width: 24,
+                                    height: 24,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                          Colors.white),
+                                    ),
+                                  )
+                                : const Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        'Continue',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      SizedBox(width: 8),
+                                      Icon(Icons.arrow_forward, size: 20),
+                                    ],
+                                  ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 16),
                       ],
                     ),
                   ),
