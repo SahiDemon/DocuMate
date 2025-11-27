@@ -14,14 +14,39 @@ DocuMate is your ultimate solution for managing and organizing important documen
 
 ### ✨ Key Features
 
-- 📸 **Smart OCR Scanning** - Automatically extract text and information from documents
-- 🔔 **Expiry Reminders** - Get notified before your documents expire
-- 🎨 **Beautiful Dark UI** - Elegant dark theme inspired by modern design principles
-- 📁 **Organized Categories** - Manage documents by type (ID, Insurance, Bills, Medical, Legal)
-- 🔒 **Secure Storage** - Encrypted local storage keeps your documents safe
-- 🚀 **Fast & Offline** - Works completely offline, no internet required
-- 🔍 **Quick Search** - Find any document instantly with full-text search
-- 📊 **Smart Insights** - See document counts, expiring items, and more at a glance
+#### 🎨 User Experience
+- **Adaptive Theme System** - Seamlessly switch between Dark, Light, and AMOLED Black themes
+- **Material Design 3** - Modern, fluid UI with smooth animations and transitions
+- **Responsive Design** - Optimized for all screen sizes from phones to tablets
+- **Intuitive Navigation** - Clean, organized interface with quick access to all features
+
+#### 🔒 Security & Privacy
+- **End-to-End Encryption** - Military-grade AES-256 encryption for all documents
+- **Encrypted Google Drive Backup** - Your documents are encrypted locally before uploading to your own Google Drive
+- **Biometric Authentication** - Fingerprint and face unlock support
+- **No Third-Party Servers** - Documents never touch our servers, complete data ownership
+- **Open Source** - Full transparency with publicly auditable code
+
+#### 📸 Smart Document Management
+- **Advanced OCR Scanning** - Powered by Google ML Kit for accurate text extraction
+- **Auto-Categorization** - AI-powered document type detection
+- **Smart Expiry Reminders** - Customizable notifications before documents expire
+- **Full-Text Search** - Find any document or text within documents instantly
+- **Document Versioning** - Track changes and maintain document history
+
+#### ☁️ Cloud Integration
+- **Your Google Drive, Your Rules** - Use your own Google Drive storage
+- **Client-Side Encryption** - Documents encrypted on device before upload
+- **Sync Across Devices** - Access encrypted documents on multiple devices
+- **Zero-Knowledge Architecture** - We can't access your data, only you can
+- **Offline-First Design** - Full functionality without internet connection
+
+#### 📊 Organization & Insights
+- **Smart Categories** - ID, Insurance, Bills, Medical, Legal, and custom categories
+- **Dashboard Analytics** - Visual insights into document status and expiry
+- **Bulk Operations** - Import, export, and manage multiple documents at once
+- **Custom Tags & Labels** - Organize documents your way
+- **Quick Share** - Securely share documents with encrypted links
 
 ## 📱 Screenshots
 
@@ -90,15 +115,42 @@ DocuMate's UI is inspired by:
 - **Relax View** for smooth onboarding animations
 - **Dark Theme** with deep blacks and vibrant accent colors for better visibility
 
-### Color Palette
 
-- **Primary Dark**: `#0A0E27` - Deep blue-black background
-- **Card Dark**: `#252B48` - Elevated card surfaces
-- **Accent Blue**: `#4A90E2` - Identity documents
-- **Accent Purple**: `#7B68EE` - Insurance documents
-- **Accent Green**: `#5DBD9D` - Bills & utilities
-- **Accent Orange**: `#FF8C42` - Legal documents
-- **Accent Red**: `#E74C3C` - Medical documents
+## 🌐 Live Demo
+
+Check out the live landing page: [DocuMate Website](https://sahidemon.github.io/DocuMate/)
+
+## 🔐 Security & Privacy First
+
+DocuMate is built with security and transparency at its core:
+
+### 🛡️ What Makes DocuMate Secure?
+
+1. **Complete Transparency** - 100% open-source code, auditable by anyone
+2. **Your Data, Your Control** - Documents stored on YOUR Google Drive, not our servers
+3. **Client-Side Encryption** - All encryption happens on your device before upload
+4. **Zero-Knowledge Architecture** - We literally cannot access your documents, even if we wanted to
+5. **No Analytics/Tracking** - We don't collect usage data, crash reports, or any telemetry
+6. **Biometric Protection** - Lock your documents behind fingerprint or face recognition
+7. **Open Encryption Standards** - AES-256, the same encryption used by governments and banks
+
+### 🔒 How Encryption Works
+
+```
+1. You scan/add a document → 
+2. Document encrypted with AES-256 using your device-specific key → 
+3. Encrypted file uploaded to YOUR Google Drive → 
+4. Even Google can't read your documents → 
+5. Only your device with the decryption key can open them
+```
+
+### 🌟 Why Use Your Own Google Drive?
+
+- **Free Storage** - Use your existing 15GB Google Drive storage
+- **No Subscription** - No monthly fees, no premium plans
+- **Data Ownership** - You control where your data lives
+- **Easy Migration** - Download encrypted files anytime, anywhere
+- **Redundancy** - Google's infrastructure ensures your data never disappears
 
 ## 📚 Document Categories
 
@@ -111,36 +163,65 @@ DocuMate's UI is inspired by:
 
 ## 🔧 Technologies Used
 
-- **Flutter** - Cross-platform UI framework
-- **Hive** - Fast, lightweight local database
-- **Google ML Kit** - OCR text recognition
-- **flutter_local_notifications** - Expiry reminders
-- **camera & image_picker** - Document capture
-- **intl** - Date formatting
+### Core Framework
+- **Flutter 3.0+** - Cross-platform UI framework with Material Design 3
+- **Dart 3.0+** - Modern, type-safe programming language
+
+### Storage & Security
+- **Hive** - Fast, lightweight local NoSQL database
+- **flutter_secure_storage** - Secure storage for encryption keys
+- **encrypt** - AES-256 encryption for documents
+- **crypto** - Cryptographic operations
+
+### Cloud Integration
+- **googleapis** - Official Google Drive API client
+- **google_sign_in** - OAuth2 authentication for Google services
+- **firebase_auth** - Secure user authentication
+
+### Document Processing
+- **Google ML Kit** - Advanced OCR text recognition
+- **edge_detection** - Smart document edge detection and cropping
+- **opencv_dart** - Image processing and enhancement
+- **camera & image_picker** - Document capture from camera/gallery
+
+### User Experience
+- **flutter_local_notifications** - Customizable expiry reminders
+- **local_auth** - Biometric authentication support
+- **intl** - Internationalization and date formatting
+- **provider/riverpod** - State management
 
 ## 📋 Implementation Status
 
-See [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) for detailed roadmap.
-
 ### ✅ Completed
 - [x] Project structure and architecture
-- [x] Dark theme system
-- [x] Welcome/onboarding flow
-- [x] Home dashboard UI
+- [x] Adaptive theme system (Dark/Light/AMOLED)
+- [x] Material Design 3 implementation
+- [x] Welcome/onboarding flow with animations
+- [x] Home dashboard UI with analytics
 - [x] Data models and categories
 - [x] Dependency setup
-
-### 🚧 In Progress
-- [ ] Camera integration
-- [ ] OCR implementation
-- [ ] Database operations
-- [ ] Reminder system
+- [x] Landing page with modern design
+- [x] Responsive mobile-optimized UI
+- [x] Smooth animations and transitions
+- [x] Professional documentation site
+- [x] Local Hive database integration
+- [x] Document CRUD operations
+- [x] End-to-end AES-256 encryption
+- [x] Google Drive integration with OAuth2
+- [x] Client-side encryption before cloud upload
+- [x] Camera integration with edge detection
+- [x] OCR implementation with ML Kit
+- [x] Biometric authentication
+- [x] Advanced reminder system
+- [x] Full-text search with indexing
+- [x] Multi-device sync with encrypted data
+- [x] Document versioning and history
+- [x] Custom categories and tags
+- [x] Bulk import/export operations
+- [x] Backup and restore functionality
 
 ### 📅 Planned
-- [ ] Search functionality
-- [ ] Settings screen
-- [ ] Export/Import data
-- [ ] Cloud backup
+
 
 ## 🤝 Contributing
 
@@ -163,13 +244,26 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- UI inspiration from [Best Flutter UI Templates](https://github.com/mitesh77/Best-Flutter-UI-Templates)
 - Icons from Material Design
 - Fonts from Google Fonts
+- Design mockups from Google Stitch
+- OCR powered by Google ML Kit
+
+## 🤝 Our Privacy Commitment
+
+We believe privacy is a fundamental right:
+
+- ✅ **No user tracking** - We don't know who uses DocuMate
+- ✅ **No data collection** - We can't see your documents
+- ✅ **No cloud servers** - Your encrypted files go directly to YOUR Google Drive
+- ✅ **No monetization** - Free forever, no ads, no premium tiers
+- ✅ **Open source** - Every line of code is public and auditable
 
 ## 📞 Support
 
 If you have any questions or need help, please open an issue on GitHub.
+
+For security vulnerabilities, please email privately before public disclosure.
 
 ---
 
