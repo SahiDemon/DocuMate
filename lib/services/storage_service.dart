@@ -216,6 +216,14 @@ class StorageService {
       return jsonDecode(decrypted);
     } catch (e) {
       print('⚠ Error getting setting $key: $e');
+      // If decryption fails, the data is likely corrupted or key changed.
+      // Delete it so we don't keep hitting this error.
+      try {
+        await _settingsBox!.delete(key);
+        print('🗑️ Deleted corrupted setting: $key');
+      } catch (deleteError) {
+        print('⚠ Error deleting corrupted setting: $deleteError');
+      }
       return defaultValue;
     }
   }
@@ -299,39 +307,39 @@ class StorageService {
       if (version == '2.0') {
         // NEW FORMAT: Encryption key in header, data is encrypted
         print('📦 Restoring v2.0 backup with encryption key');
-        
-        if (backup['encryptionKey'] == null || backup['encryptedPayload'] == null) {
+
+        if (backup['encryptionKey'] == null ||
+            backup['encryptedPayload'] == null) {
           throw Exception('Invalid v2.0 backup format');
         }
 
         final backupKey = backup['encryptionKey'] as String;
         final encryptedPayload = backup['encryptedPayload'] as String;
-        
+
         // Adopt the encryption key from backup
         final currentKey = await _secureStorage.read(key: _keyStorageKey);
         if (currentKey != backupKey) {
           print('🔑 Adopting encryption key from backup');
           await _secureStorage.write(key: _keyStorageKey, value: backupKey);
-          
+
           // Reinitialize encrypter with backup's key
           final key = encrypt_lib.Key.fromBase64(backupKey);
           _encrypter = encrypt_lib.Encrypter(
               encrypt_lib.AES(key, mode: encrypt_lib.AESMode.gcm));
-          
+
           print('✓ Encryption key updated successfully');
         }
 
         // Decrypt the payload with the backup's key
         final decryptedPayload = _decrypt(encryptedPayload);
         final payload = jsonDecode(decryptedPayload) as Map<String, dynamic>;
-        
+
         documents = payload['documents'] as Map<String, dynamic>;
         settings = payload['settings'] as Map<String, dynamic>?;
-        
       } else {
         // OLD FORMAT (v1.0): Entire backup is encrypted with current key
         print('📦 Restoring v1.0 backup (legacy format)');
-        
+
         try {
           final decrypted = _decrypt(backupString);
           final legacyBackup = jsonDecode(decrypted) as Map<String, dynamic>;
@@ -339,7 +347,8 @@ class StorageService {
           settings = legacyBackup['settings'] as Map<String, dynamic>?;
         } catch (e) {
           print('❌ Cannot decrypt legacy backup: $e');
-          throw Exception('DECRYPTION_KEY_MISMATCH - Legacy backup encrypted with different key');
+          throw Exception(
+              'DECRYPTION_KEY_MISMATCH - Legacy backup encrypted with different key');
         }
       }
 
@@ -363,7 +372,8 @@ class StorageService {
         }
       }
 
-      print('✓ Backup restored: $restoredDocs documents, $restoredSettings settings');
+      print(
+          '✓ Backup restored: $restoredDocs documents, $restoredSettings settings');
     } catch (e) {
       print('⚠ Error restoring backup: $e');
       rethrow;
@@ -404,15 +414,15 @@ class StorageService {
 
     // Generate a random IV for each encryption
     final iv = encrypt_lib.IV.fromSecureRandom(16);
-    
+
     // Encrypt the data
     final encrypted = _encrypter!.encryptBytes(data, iv: iv);
-    
+
     // Combine IV + encrypted data for storage
     final combined = BytesBuilder();
     combined.add(iv.bytes);
     combined.add(encrypted.bytes);
-    
+
     return combined.toBytes();
   }
 
@@ -425,10 +435,10 @@ class StorageService {
     // Extract IV (first 16 bytes) and encrypted data
     final iv = encrypt_lib.IV(encryptedData.sublist(0, 16));
     final encrypted = encrypt_lib.Encrypted(encryptedData.sublist(16));
-    
+
     // Decrypt
     final decrypted = _encrypter!.decryptBytes(encrypted, iv: iv);
-    
+
     return Uint8List.fromList(decrypted);
   }
 

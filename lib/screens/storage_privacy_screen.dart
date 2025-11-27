@@ -12,8 +12,8 @@ class StoragePrivacyScreen extends StatefulWidget {
 class _StoragePrivacyScreenState extends State<StoragePrivacyScreen> {
   void _handleContinue() {
     HapticFeedback.mediumImpact();
-    // Navigate to storage onboarding to choose local/cloud
-    Navigator.of(context).pushReplacementNamed('/storage-onboarding');
+    // Navigate to permission screen first
+    Navigator.of(context).pushReplacementNamed('/permission-screen');
   }
 
   @override

@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:camera/camera.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
@@ -782,7 +781,7 @@ class _ImprovedCaptureScreenState extends State<ImprovedCaptureScreen>
 
       print('✓ Image cropped and saved: ${imageFile.path}');
       print('  Original: ${originalImage.width}x${originalImage.height}');
-      print('  Cropped: ${cropWidth}x${cropHeight}');
+      print('  Cropped: ${cropWidth}x$cropHeight');
 
       setState(() => _showCropScreen = false);
 

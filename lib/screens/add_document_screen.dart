@@ -106,8 +106,9 @@ class _AddDocumentScreenState extends State<AddDocumentScreen>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 400),
         switchInCurve: Curves.easeInOut,
@@ -130,6 +131,7 @@ class _AddDocumentScreenState extends State<AddDocumentScreen>
   }
 
   Widget _buildCameraView() {
+    // Camera view usually stays dark regardless of theme
     return Stack(
       key: const ValueKey('camera'),
       children: [
@@ -221,6 +223,7 @@ class _AddDocumentScreenState extends State<AddDocumentScreen>
   }
 
   Widget _buildUploadView() {
+    final theme = Theme.of(context);
     return SafeArea(
       key: const ValueKey('upload'),
       child: Padding(
@@ -235,35 +238,33 @@ class _AddDocumentScreenState extends State<AddDocumentScreen>
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF1E1E1E),
+                    color: theme.cardColor,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: IconButton(
-                    icon: const Icon(Icons.arrow_back, size: 20),
-                    color: const Color(0xFFE5E5E5),
-                    onPressed: () => Navigator.pop(context),
+                    icon: Icon(Icons.arrow_back,
+                        size: 20, color: theme.iconTheme.color),
+                    onPressed: () =>
+                        Navigator.of(context).pushReplacementNamed('/home'),
                     padding: EdgeInsets.zero,
                   ),
                 ),
-                const Text(
+                Text(
                   'Add Document',
-                  style: TextStyle(
-                    fontSize: 18,
+                  style: theme.textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    letterSpacing: -0.015,
                   ),
                 ),
                 Container(
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF1E1E1E),
+                    color: theme.cardColor,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: IconButton(
-                    icon: const Icon(Icons.more_vert, size: 20),
-                    color: const Color(0xFFE5E5E5),
+                    icon: Icon(Icons.more_vert,
+                        size: 20, color: theme.iconTheme.color),
                     onPressed: () {},
                     padding: EdgeInsets.zero,
                   ),
@@ -276,24 +277,24 @@ class _AddDocumentScreenState extends State<AddDocumentScreen>
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   // Title and subtitle
-                  const Text(
+                  Text(
                     'Ready to Scan',
                     style: TextStyle(
                       fontSize: 30,
                       fontWeight: FontWeight.w800,
-                      color: Colors.white,
+                      color: theme.textTheme.bodyLarge?.color,
                       letterSpacing: -0.5,
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 40),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 40),
                     child: Text(
                       'Choose your preferred method to add a new document to your secure vault.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 14,
-                        color: Color(0xFF9CA3AF),
+                        color: theme.textTheme.bodySmall?.color,
                       ),
                     ),
                   ),
@@ -315,15 +316,15 @@ class _AddDocumentScreenState extends State<AddDocumentScreen>
                               child: Container(
                                 width: 280,
                                 height: 280,
-                                decoration: const BoxDecoration(
+                                decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   gradient: SweepGradient(
                                     colors: [
-                                      Color(0xFF5E81F3),
-                                      Color(0xFF121212),
-                                      Color(0xFF5E81F3),
+                                      theme.primaryColor,
+                                      theme.scaffoldBackgroundColor,
+                                      theme.primaryColor,
                                     ],
-                                    stops: [0.0, 0.5, 1.0],
+                                    stops: const [0.0, 0.5, 1.0],
                                   ),
                                 ),
                               ),
@@ -334,28 +335,28 @@ class _AddDocumentScreenState extends State<AddDocumentScreen>
                         Container(
                           width: 272,
                           height: 272,
-                          decoration: const BoxDecoration(
+                          decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Color(0xFF121212),
+                            color: theme.scaffoldBackgroundColor,
                           ),
                         ),
                         // Icon and text
                         Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.document_scanner,
-                              color: Color(0xFF5E81F3),
+                              color: theme.primaryColor,
                               size: 48,
                             ),
                             const SizedBox(height: 16),
                             Text(
                               'CAPTURE OR UPLOAD',
-                              style: TextStyle(
+                              style: theme.textTheme.labelSmall?.copyWith(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
                                 letterSpacing: 2,
-                                color: Colors.white.withOpacity(0.5),
+                                color: theme.textTheme.bodySmall?.color,
                               ),
                             ),
                           ],
@@ -376,14 +377,13 @@ class _AddDocumentScreenState extends State<AddDocumentScreen>
                           child: ElevatedButton(
                             onPressed: _initializeCamera,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF5E81F3),
+                              backgroundColor: theme.primaryColor,
                               foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               elevation: 8,
-                              shadowColor:
-                                  const Color(0xFF3E63DD).withOpacity(0.3),
+                              shadowColor: theme.primaryColor.withOpacity(0.3),
                             ),
                             child: const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -408,8 +408,9 @@ class _AddDocumentScreenState extends State<AddDocumentScreen>
                           child: ElevatedButton(
                             onPressed: _openGallery,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF1E1E1E),
-                              foregroundColor: const Color(0xFFCCCCCC),
+                              backgroundColor: theme.cardColor,
+                              foregroundColor:
+                                  theme.textTheme.bodyMedium?.color,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -443,14 +444,13 @@ class _AddDocumentScreenState extends State<AddDocumentScreen>
                       Icon(
                         Icons.lock,
                         size: 16,
-                        color: Colors.white.withOpacity(0.5),
+                        color: theme.textTheme.bodySmall?.color,
                       ),
                       const SizedBox(width: 8),
                       Text(
                         'Your documents are securely encrypted.',
-                        style: TextStyle(
+                        style: theme.textTheme.bodySmall?.copyWith(
                           fontSize: 12,
-                          color: Colors.white.withOpacity(0.5),
                         ),
                       ),
                     ],

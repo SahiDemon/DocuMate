@@ -77,13 +77,14 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final itemWidth = (MediaQuery.of(context).size.width - 40) / 4;
 
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E),
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(50),
       ),
       child: SafeArea(
@@ -106,19 +107,19 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
                         width: itemWidth,
                         height: 64,
                         decoration: BoxDecoration(
-                          gradient: const LinearGradient(
+                          gradient: LinearGradient(
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                             colors: [
-                              Color(0xFF6EA8FF),
-                              Color(0xFF5E81F3),
-                              Color(0xFF3E63DD),
+                              theme.primaryColor.withOpacity(0.8),
+                              theme.primaryColor,
+                              theme.primaryColor.withOpacity(0.9),
                             ],
                           ),
                           borderRadius: BorderRadius.circular(50),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF5E81F3).withOpacity(0.3),
+                              color: theme.primaryColor.withOpacity(0.3),
                               blurRadius: 12,
                               spreadRadius: 0,
                               offset: const Offset(0, 4),
@@ -148,7 +149,15 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
   }
 
   Widget _buildNavItem(IconData icon, String label, int index) {
+    final theme = Theme.of(context);
     final isSelected = widget.currentIndex == index;
+
+    // Selected items are always white (on blue pill)
+    // Unselected items follow the theme
+    final unselectedColor = theme.brightness == Brightness.dark
+        ? Colors.white.withOpacity(0.5)
+        : const Color(0xFF666666);
+
     return Expanded(
       child: InkWell(
         onTap: () {
@@ -164,8 +173,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
             children: [
               Icon(
                 icon,
-                color:
-                    isSelected ? Colors.white : Colors.white.withOpacity(0.5),
+                color: isSelected ? Colors.white : unselectedColor,
                 size: 24,
               ),
               const SizedBox(height: 4),
@@ -174,8 +182,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                  color:
-                      isSelected ? Colors.white : Colors.white.withOpacity(0.5),
+                  color: isSelected ? Colors.white : unselectedColor,
                 ),
               ),
             ],

@@ -4,7 +4,9 @@ import 'package:documate/screens/document_details_screen.dart';
 import 'package:documate/main.dart' as main_app;
 
 class SearchScreen extends StatefulWidget {
-  const SearchScreen({super.key});
+  final bool autoFocus;
+
+  const SearchScreen({super.key, this.autoFocus = false});
 
   @override
   State<SearchScreen> createState() => _SearchScreenState();
@@ -12,6 +14,7 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
   List<String> _recentSearches = [];
   List<DocumentModel> _searchResults = [];
   List<DocumentModel> _allSearchResults = [];
@@ -20,7 +23,7 @@ class _SearchScreenState extends State<SearchScreen> {
   bool _hasSearched = false;
   String? _selectedCategory;
   String _sortBy = 'date'; // date, name, category
-  
+
   // Debouncing for auto-search
   DateTime? _lastSearchTime;
   String _lastSearchQuery = '';
@@ -31,6 +34,13 @@ class _SearchScreenState extends State<SearchScreen> {
     _loadRecentSearches();
     _loadRecentDocuments();
     _searchController.addListener(_onSearchChanged);
+
+    // Auto-focus the search field if requested
+    if (widget.autoFocus) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _searchFocusNode.requestFocus();
+      });
+    }
   }
 
   Future<void> _loadRecentSearches() async {
@@ -57,7 +67,8 @@ class _SearchScreenState extends State<SearchScreen> {
       });
 
       // Get top 10 recent documents
-      final recentDocs = docs.take(10).map((doc) => DocumentModel.fromJson(doc)).toList();
+      final recentDocs =
+          docs.take(10).map((doc) => DocumentModel.fromJson(doc)).toList();
 
       setState(() {
         _recentDocuments = recentDocs;
@@ -69,7 +80,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
   void _onSearchChanged() {
     final query = _searchController.text.trim();
-    
+
     if (query.isEmpty) {
       setState(() {
         _searchResults = [];
@@ -81,9 +92,9 @@ class _SearchScreenState extends State<SearchScreen> {
     // Auto-search with debouncing (wait 500ms after user stops typing)
     _lastSearchTime = DateTime.now();
     _lastSearchQuery = query;
-    
+
     Future.delayed(const Duration(milliseconds: 500), () {
-      if (_lastSearchQuery == query && 
+      if (_lastSearchQuery == query &&
           _lastSearchTime != null &&
           DateTime.now().difference(_lastSearchTime!).inMilliseconds >= 500) {
         _performSearch(query);
@@ -160,7 +171,8 @@ class _SearchScreenState extends State<SearchScreen> {
 
     // Apply category filter
     if (_selectedCategory != null) {
-      filtered = filtered.where((doc) => doc.category == _selectedCategory).toList();
+      filtered =
+          filtered.where((doc) => doc.category == _selectedCategory).toList();
     }
 
     // Apply sorting
@@ -184,8 +196,10 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -200,35 +214,34 @@ class _SearchScreenState extends State<SearchScreen> {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1E1E1E),
+                      color: theme.cardColor,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: IconButton(
-                      icon: const Icon(Icons.arrow_back, size: 20),
-                      color: const Color(0xFFE5E5E5),
-                      onPressed: () => Navigator.of(context).pushReplacementNamed('/home'),
+                      icon: Icon(Icons.arrow_back,
+                          size: 20, color: theme.iconTheme.color),
+                      onPressed: () =>
+                          Navigator.of(context).pushReplacementNamed('/home'),
                       padding: EdgeInsets.zero,
                     ),
                   ),
-                  const Text(
+                  Text(
                     'Search Documents',
-                    style: TextStyle(
+                    style: theme.textTheme.headlineSmall?.copyWith(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      letterSpacing: -0.015,
                     ),
                   ),
                   Container(
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1E1E1E),
+                      color: theme.cardColor,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: IconButton(
-                      icon: const Icon(Icons.more_vert, size: 20),
-                      color: const Color(0xFFE5E5E5),
+                      icon: Icon(Icons.more_vert,
+                          size: 20, color: theme.iconTheme.color),
                       onPressed: () {},
                       padding: EdgeInsets.zero,
                     ),
@@ -241,22 +254,22 @@ class _SearchScreenState extends State<SearchScreen> {
               Container(
                 height: 56,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1E1E1E),
+                  color: theme.cardColor,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: TextField(
                   controller: _searchController,
-                  style: const TextStyle(color: Colors.white, fontSize: 16),
+                  focusNode: _searchFocusNode,
+                  style: theme.textTheme.bodyLarge,
                   onSubmitted: _performSearch,
                   decoration: InputDecoration(
                     hintText: 'Search for documents...',
-                    hintStyle: TextStyle(
-                      color: Colors.white.withOpacity(0.4),
-                      fontSize: 16,
+                    hintStyle: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.hintColor,
                     ),
                     prefixIcon: Icon(
                       Icons.search,
-                      color: Colors.white.withOpacity(0.4),
+                      color: theme.hintColor,
                     ),
                     suffixIcon: _isSearching
                         ? const Padding(
@@ -301,7 +314,9 @@ class _SearchScreenState extends State<SearchScreen> {
                         _selectedCategory == 'Identity',
                         () {
                           setState(() {
-                            _selectedCategory = _selectedCategory == 'Identity' ? null : 'Identity';
+                            _selectedCategory = _selectedCategory == 'Identity'
+                                ? null
+                                : 'Identity';
                             _applyFilters();
                           });
                         },
@@ -312,7 +327,8 @@ class _SearchScreenState extends State<SearchScreen> {
                         _selectedCategory == 'Bills',
                         () {
                           setState(() {
-                            _selectedCategory = _selectedCategory == 'Bills' ? null : 'Bills';
+                            _selectedCategory =
+                                _selectedCategory == 'Bills' ? null : 'Bills';
                             _applyFilters();
                           });
                         },
@@ -323,7 +339,9 @@ class _SearchScreenState extends State<SearchScreen> {
                         _selectedCategory == 'Medical',
                         () {
                           setState(() {
-                            _selectedCategory = _selectedCategory == 'Medical' ? null : 'Medical';
+                            _selectedCategory = _selectedCategory == 'Medical'
+                                ? null
+                                : 'Medical';
                             _applyFilters();
                           });
                         },
@@ -334,7 +352,9 @@ class _SearchScreenState extends State<SearchScreen> {
                         _selectedCategory == 'Insurance',
                         () {
                           setState(() {
-                            _selectedCategory = _selectedCategory == 'Insurance' ? null : 'Insurance';
+                            _selectedCategory = _selectedCategory == 'Insurance'
+                                ? null
+                                : 'Insurance';
                             _applyFilters();
                           });
                         },
@@ -345,7 +365,8 @@ class _SearchScreenState extends State<SearchScreen> {
                         _selectedCategory == 'Legal',
                         () {
                           setState(() {
-                            _selectedCategory = _selectedCategory == 'Legal' ? null : 'Legal';
+                            _selectedCategory =
+                                _selectedCategory == 'Legal' ? null : 'Legal';
                             _applyFilters();
                           });
                         },
@@ -356,9 +377,9 @@ class _SearchScreenState extends State<SearchScreen> {
                         height: 36,
                         padding: const EdgeInsets.symmetric(horizontal: 12),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF1E1E1E),
+                          color: theme.cardColor,
                           borderRadius: BorderRadius.circular(18),
-                          border: Border.all(color: const Color(0xFF5E81F3)),
+                          border: Border.all(color: theme.primaryColor),
                         ),
                         child: PopupMenuButton<String>(
                           onSelected: (value) {
@@ -367,16 +388,21 @@ class _SearchScreenState extends State<SearchScreen> {
                               _applyFilters();
                             });
                           },
-                          color: const Color(0xFF1E1E1E),
+                          color: theme.cardColor,
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.sort, color: Color(0xFF5E81F3), size: 18),
+                              Icon(Icons.sort,
+                                  color: theme.primaryColor, size: 18),
                               const SizedBox(width: 6),
                               Text(
-                                _sortBy == 'date' ? 'Date' : _sortBy == 'name' ? 'Name' : 'Category',
-                                style: const TextStyle(
-                                  color: Color(0xFF5E81F3),
+                                _sortBy == 'date'
+                                    ? 'Date'
+                                    : _sortBy == 'name'
+                                        ? 'Name'
+                                        : 'Category',
+                                style: TextStyle(
+                                  color: theme.primaryColor,
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -384,17 +410,20 @@ class _SearchScreenState extends State<SearchScreen> {
                             ],
                           ),
                           itemBuilder: (context) => [
-                            const PopupMenuItem(
+                            PopupMenuItem(
                               value: 'date',
-                              child: Text('Sort by Date', style: TextStyle(color: Colors.white)),
+                              child: Text('Sort by Date',
+                                  style: theme.textTheme.bodyMedium),
                             ),
-                            const PopupMenuItem(
+                            PopupMenuItem(
                               value: 'name',
-                              child: Text('Sort by Name', style: TextStyle(color: Colors.white)),
+                              child: Text('Sort by Name',
+                                  style: theme.textTheme.bodyMedium),
                             ),
-                            const PopupMenuItem(
+                            PopupMenuItem(
                               value: 'category',
-                              child: Text('Sort by Category', style: TextStyle(color: Colors.white)),
+                              child: Text('Sort by Category',
+                                  style: theme.textTheme.bodyMedium),
                             ),
                           ],
                         ),
@@ -414,11 +443,9 @@ class _SearchScreenState extends State<SearchScreen> {
                       if (_recentSearches.isNotEmpty && !_hasSearched) ...[
                         Text(
                           'RECENT SEARCHES',
-                          style: TextStyle(
-                            fontSize: 12,
+                          style: theme.textTheme.labelSmall?.copyWith(
                             fontWeight: FontWeight.w600,
                             letterSpacing: 1.2,
-                            color: Colors.white.withOpacity(0.4),
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -436,28 +463,22 @@ class _SearchScreenState extends State<SearchScreen> {
                       if (!_hasSearched && _recentDocuments.isNotEmpty) ...[
                         Text(
                           'RECENT DOCUMENTS',
-                          style: TextStyle(
-                            fontSize: 12,
+                          style: theme.textTheme.labelSmall?.copyWith(
                             fontWeight: FontWeight.w600,
                             letterSpacing: 1.2,
-                            color: Colors.white.withOpacity(0.4),
                           ),
                         ),
                         const SizedBox(height: 16),
-                        ..._recentDocuments
-                            .map((doc) => _buildResultItem(doc))
-                            .toList(),
+                        ..._recentDocuments.map((doc) => _buildResultItem(doc)),
                       ],
 
                       // Search Results
                       if (_hasSearched) ...[
                         Text(
                           'SEARCH RESULTS (${_searchResults.length})',
-                          style: TextStyle(
-                            fontSize: 12,
+                          style: theme.textTheme.labelSmall?.copyWith(
                             fontWeight: FontWeight.w600,
                             letterSpacing: 1.2,
-                            color: Colors.white.withOpacity(0.4),
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -469,14 +490,13 @@ class _SearchScreenState extends State<SearchScreen> {
                                 Icon(
                                   Icons.search_off,
                                   size: 64,
-                                  color: Colors.grey[700],
+                                  color: theme.disabledColor,
                                 ),
                                 const SizedBox(height: 16),
                                 Text(
                                   'No results found',
-                                  style: TextStyle(
-                                    color: Colors.grey[600],
-                                    fontSize: 16,
+                                  style: theme.textTheme.bodyLarge?.copyWith(
+                                    color: theme.disabledColor,
                                   ),
                                 ),
                               ],
@@ -484,8 +504,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           )
                         else
                           ..._searchResults
-                              .map((result) => _buildResultItem(result))
-                              .toList(),
+                              .map((result) => _buildResultItem(result)),
                       ],
                     ],
                   ),
@@ -499,21 +518,23 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Widget _buildFilterChip(String label, bool isSelected, VoidCallback onTap) {
+    final theme = Theme.of(context);
     return InkWell(
       onTap: onTap,
       child: Container(
         height: 36,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF5E81F3) : const Color(0xFF1E1E1E),
+          color: isSelected ? theme.primaryColor : theme.cardColor,
           borderRadius: BorderRadius.circular(18),
-          border: isSelected ? null : Border.all(color: Colors.grey[800]!),
+          border: isSelected ? null : Border.all(color: theme.dividerColor),
         ),
         child: Center(
           child: Text(
             label,
             style: TextStyle(
-              color: isSelected ? Colors.white : Colors.white.withOpacity(0.7),
+              color:
+                  isSelected ? Colors.white : theme.textTheme.bodyMedium?.color,
               fontSize: 13,
               fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
             ),
@@ -524,6 +545,7 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Widget _buildSearchChip(String text) {
+    final theme = Theme.of(context);
     return InkWell(
       onTap: () {
         _searchController.text = text;
@@ -532,7 +554,7 @@ class _SearchScreenState extends State<SearchScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: const Color(0xFF1E1E1E),
+          color: theme.cardColor,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Row(
@@ -540,10 +562,7 @@ class _SearchScreenState extends State<SearchScreen> {
           children: [
             Text(
               text,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.white.withOpacity(0.8),
-              ),
+              style: theme.textTheme.bodyMedium,
             ),
             const SizedBox(width: 8),
             InkWell(
@@ -551,7 +570,7 @@ class _SearchScreenState extends State<SearchScreen> {
               child: Icon(
                 Icons.close,
                 size: 18,
-                color: Colors.white.withOpacity(0.8),
+                color: theme.iconTheme.color,
               ),
             ),
           ],
@@ -561,6 +580,7 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Widget _buildResultItem(DocumentModel document) {
+    final theme = Theme.of(context);
     final icon = document.category == 'Identity'
         ? Icons.badge
         : document.category == 'Bills'
@@ -603,7 +623,7 @@ class _SearchScreenState extends State<SearchScreen> {
         margin: const EdgeInsets.only(bottom: 16),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: const Color(0xFF1E1E1E),
+          color: theme.cardColor,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
@@ -628,19 +648,14 @@ class _SearchScreenState extends State<SearchScreen> {
                 children: [
                   Text(
                     document.name,
-                    style: const TextStyle(
-                      fontSize: 15,
+                    style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     '$timeText • ${document.category}',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.white.withOpacity(0.5),
-                    ),
+                    style: theme.textTheme.bodySmall,
                   ),
                 ],
               ),
@@ -648,7 +663,7 @@ class _SearchScreenState extends State<SearchScreen> {
             Icon(
               Icons.arrow_forward_ios,
               size: 16,
-              color: Colors.white.withOpacity(0.5),
+              color: theme.iconTheme.color?.withOpacity(0.5),
             ),
           ],
         ),
@@ -659,6 +674,7 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   void dispose() {
     _searchController.dispose();
+    _searchFocusNode.dispose();
     super.dispose();
   }
 }

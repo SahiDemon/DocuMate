@@ -39,13 +39,13 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final customCategories =
-          await widget.storageService.getSetting('custom_categories',
-              defaultValue: <Map<String, dynamic>>[]) as List;
+      final customCategories = await widget.storageService.getSetting(
+          'custom_categories',
+          defaultValue: <Map<String, dynamic>>[]) as List;
 
-      print('🔍 Loading categories...');
-      print('📦 Custom categories from storage: $customCategories');
-      print('📊 Custom categories length: ${customCategories.length}');
+      debugPrint('🔍 Loading categories...');
+      debugPrint('📦 Custom categories from storage: $customCategories');
+      debugPrint('📊 Custom categories length: ${customCategories.length}');
 
       final allCategories = [
         ..._defaultCategories.map((name) => {
@@ -60,17 +60,18 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
         }),
       ];
 
-      print('✅ All categories count: ${allCategories.length}');
+      debugPrint('✅ All categories count: ${allCategories.length}');
 
       setState(() {
         _categories = List<Map<String, dynamic>>.from(allCategories);
         _isLoading = false;
       });
 
-      print('✓ Categories loaded successfully: ${_categories.length} total');
+      debugPrint(
+          '✓ Categories loaded successfully: ${_categories.length} total');
     } catch (e, stackTrace) {
-      print('❌ Error loading categories: $e');
-      print('Stack trace: $stackTrace');
+      debugPrint('❌ Error loading categories: $e');
+      debugPrint('Stack trace: $stackTrace');
       setState(() => _isLoading = false);
     }
   }
@@ -119,23 +120,24 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
             })
         .toList();
 
-    await widget.storageService.saveSetting('custom_categories', customCategories);
+    await widget.storageService
+        .saveSetting('custom_categories', customCategories);
   }
 
   Future<void> _addCategory() async {
     final result = await showDialog<Map<String, dynamic>>(
       context: context,
-      builder: (context) => _CategoryEditorDialog(),
+      builder: (context) => const _CategoryEditorDialog(),
     );
 
     if (result != null) {
       // Add to list first
       _categories.add({...result, 'isDefault': false});
-      
+
       // Save and reload
       await _saveCustomCategories();
       await _loadCategories(); // Reload to ensure consistency
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -150,7 +152,7 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
 
   Future<void> _editCategory(int index) async {
     final category = _categories[index];
-    
+
     if (category['isDefault'] == true) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -195,7 +197,8 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF1E1E1E),
-        title: const Text('Delete Category?', style: TextStyle(color: Colors.white)),
+        title: const Text('Delete Category?',
+            style: TextStyle(color: Colors.white)),
         content: Text(
           'Are you sure you want to delete "${category['name']}"? Documents in this category will be moved to "Other".',
           style: const TextStyle(color: Colors.white70),
@@ -219,7 +222,7 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
         _categories.removeAt(index);
       });
       await _saveCustomCategories();
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -233,26 +236,28 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text(
+        title: Text(
           'Manage Categories',
           style: TextStyle(
-            color: Colors.white,
+            color: theme.textTheme.bodyLarge?.color,
             fontWeight: FontWeight.bold,
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: theme.textTheme.bodyLarge?.color),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
       body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(color: Color(0xFF5E81F3)),
+          ? Center(
+              child: CircularProgressIndicator(color: theme.primaryColor),
             )
           : Column(
               children: [
@@ -274,7 +279,8 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
                       icon: const Icon(Icons.add),
                       label: const Text('Add Custom Category'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF5E81F3),
+                        backgroundColor: theme.primaryColor,
+                        foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         minimumSize: const Size(double.infinity, 50),
                         shape: RoundedRectangleBorder(
@@ -290,17 +296,19 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
   }
 
   Widget _buildCategoryCard(Map<String, dynamic> category, int index) {
+    final theme = Theme.of(context);
     final isDefault = category['isDefault'] == true;
-    final iconData = IconData(category['icon'], fontFamily: 'MaterialIcons');
+    final iconCodePoint = category['icon'] as int;
+    final iconData = IconData(iconCodePoint, fontFamily: 'MaterialIcons');
     final color = Color(category['color']);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E),
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: color.withOpacity(0.3),
+          color: color.withValues(alpha: 0.3),
         ),
       ),
       child: ListTile(
@@ -309,15 +317,15 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
           width: 56,
           height: 56,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.2),
+            color: color.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(iconData, color: color, size: 28),
         ),
         title: Text(
           category['name'],
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: theme.textTheme.bodyLarge?.color,
             fontSize: 16,
             fontWeight: FontWeight.w600,
           ),
@@ -325,15 +333,16 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
         subtitle: Text(
           isDefault ? 'Default Category' : 'Custom Category',
           style: TextStyle(
-            color: Colors.white.withOpacity(0.5),
+            color: theme.textTheme.bodySmall?.color,
             fontSize: 12,
           ),
         ),
         trailing: isDefault
             ? Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.2),
+                  color: Colors.blue.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Text(
@@ -430,11 +439,15 @@ class _CategoryEditorDialogState extends State<_CategoryEditorDialog> {
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.initialName ?? '');
-    _selectedIcon = widget.initialIcon != null
-        ? IconData(widget.initialIcon!, fontFamily: 'MaterialIcons')
-        : Icons.folder;
-    _selectedColor =
-        widget.initialColor != null ? Color(widget.initialColor!) : _availableColors[0];
+    if (widget.initialIcon != null) {
+      _selectedIcon =
+          IconData(widget.initialIcon!, fontFamily: 'MaterialIcons');
+    } else {
+      _selectedIcon = Icons.folder;
+    }
+    _selectedColor = widget.initialColor != null
+        ? Color(widget.initialColor!)
+        : _availableColors[0];
   }
 
   @override
@@ -445,8 +458,10 @@ class _CategoryEditorDialogState extends State<_CategoryEditorDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Dialog(
-      backgroundColor: const Color(0xFF1E1E1E),
+      backgroundColor: theme.cardColor,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: SingleChildScrollView(
         child: Padding(
@@ -457,8 +472,8 @@ class _CategoryEditorDialogState extends State<_CategoryEditorDialog> {
             children: [
               Text(
                 widget.initialName != null ? 'Edit Category' : 'New Category',
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: theme.textTheme.bodyLarge?.color,
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                 ),
@@ -468,17 +483,17 @@ class _CategoryEditorDialogState extends State<_CategoryEditorDialog> {
               // Name field
               TextField(
                 controller: _nameController,
-                style: const TextStyle(color: Colors.white),
+                style: TextStyle(color: theme.textTheme.bodyLarge?.color),
                 decoration: InputDecoration(
                   labelText: 'Category Name',
-                  labelStyle: TextStyle(color: Colors.grey[400]),
+                  labelStyle: TextStyle(color: theme.hintColor),
                   enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey[700]!),
+                    borderSide: BorderSide(color: theme.dividerColor),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  focusedBorder: const OutlineInputBorder(
-                    borderSide: BorderSide(color: Color(0xFF5E81F3)),
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: theme.primaryColor),
+                    borderRadius: const BorderRadius.all(Radius.circular(12)),
                   ),
                 ),
               ),
@@ -488,7 +503,7 @@ class _CategoryEditorDialogState extends State<_CategoryEditorDialog> {
               Text(
                 'Select Icon',
                 style: TextStyle(
-                  color: Colors.grey[400],
+                  color: theme.textTheme.bodySmall?.color,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                 ),
@@ -497,7 +512,7 @@ class _CategoryEditorDialogState extends State<_CategoryEditorDialog> {
               Container(
                 height: 200,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF2A2A2A),
+                  color: theme.scaffoldBackgroundColor,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: GridView.builder(
@@ -516,19 +531,19 @@ class _CategoryEditorDialogState extends State<_CategoryEditorDialog> {
                       child: Container(
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? const Color(0xFF5E81F3).withOpacity(0.3)
+                              ? theme.primaryColor.withValues(alpha: 0.3)
                               : Colors.transparent,
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
                             color: isSelected
-                                ? const Color(0xFF5E81F3)
+                                ? theme.primaryColor
                                 : Colors.transparent,
                             width: 2,
                           ),
                         ),
                         child: Icon(
                           icon,
-                          color: Colors.white,
+                          color: theme.iconTheme.color,
                           size: 24,
                         ),
                       ),
@@ -542,7 +557,7 @@ class _CategoryEditorDialogState extends State<_CategoryEditorDialog> {
               Text(
                 'Select Color',
                 style: TextStyle(
-                  color: Colors.grey[400],
+                  color: theme.textTheme.bodySmall?.color,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                 ),
@@ -568,7 +583,7 @@ class _CategoryEditorDialogState extends State<_CategoryEditorDialog> {
                         boxShadow: isSelected
                             ? [
                                 BoxShadow(
-                                  color: color.withOpacity(0.5),
+                                  color: color.withValues(alpha: 0.5),
                                   blurRadius: 8,
                                   spreadRadius: 2,
                                 ),
@@ -576,7 +591,8 @@ class _CategoryEditorDialogState extends State<_CategoryEditorDialog> {
                             : null,
                       ),
                       child: isSelected
-                          ? const Icon(Icons.check, color: Colors.white, size: 20)
+                          ? const Icon(Icons.check,
+                              color: Colors.white, size: 20)
                           : null,
                     ),
                   );
@@ -588,9 +604,10 @@ class _CategoryEditorDialogState extends State<_CategoryEditorDialog> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: _selectedColor.withOpacity(0.1),
+                  color: _selectedColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: _selectedColor.withOpacity(0.3)),
+                  border:
+                      Border.all(color: _selectedColor.withValues(alpha: 0.3)),
                 ),
                 child: Row(
                   children: [
@@ -598,20 +615,21 @@ class _CategoryEditorDialogState extends State<_CategoryEditorDialog> {
                       width: 48,
                       height: 48,
                       decoration: BoxDecoration(
-                        color: _selectedColor.withOpacity(0.2),
+                        color: _selectedColor.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Icon(_selectedIcon, color: _selectedColor, size: 28),
+                      child:
+                          Icon(_selectedIcon, color: _selectedColor, size: 28),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             'Preview',
                             style: TextStyle(
-                              color: Colors.grey,
+                              color: theme.textTheme.bodySmall?.color,
                               fontSize: 11,
                             ),
                           ),
@@ -619,8 +637,8 @@ class _CategoryEditorDialogState extends State<_CategoryEditorDialog> {
                             _nameController.text.isEmpty
                                 ? 'Category Name'
                                 : _nameController.text,
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: theme.textTheme.bodyLarge?.color,
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                             ),
@@ -662,7 +680,8 @@ class _CategoryEditorDialogState extends State<_CategoryEditorDialog> {
                         });
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF5E81F3),
+                        backgroundColor: theme.primaryColor,
+                        foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
                       child: const Text('Save'),
@@ -677,4 +696,3 @@ class _CategoryEditorDialogState extends State<_CategoryEditorDialog> {
     );
   }
 }
-

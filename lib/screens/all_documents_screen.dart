@@ -37,9 +37,8 @@ class _AllDocumentsScreenState extends State<AllDocumentsScreen> {
 
     try {
       final docsMap = await widget.storageService.getAllDocuments();
-      final docs = docsMap.entries
-          .map((e) => DocumentModel.fromJson(e.value))
-          .toList();
+      final docs =
+          docsMap.entries.map((e) => DocumentModel.fromJson(e.value)).toList();
 
       // Filter by category if specified
       final filtered = widget.category != null
@@ -69,7 +68,8 @@ class _AllDocumentsScreenState extends State<AllDocumentsScreen> {
           final searchLower = query.toLowerCase();
           return doc.name.toLowerCase().contains(searchLower) ||
               doc.category.toLowerCase().contains(searchLower) ||
-              (doc.tags?.any((tag) => tag.toLowerCase().contains(searchLower)) ??
+              (doc.tags
+                      ?.any((tag) => tag.toLowerCase().contains(searchLower)) ??
                   false) ||
               (doc.extractedText?.toLowerCase().contains(searchLower) ?? false);
         }).toList();
@@ -96,12 +96,13 @@ class _AllDocumentsScreenState extends State<AllDocumentsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final title = widget.category != null
         ? '${widget.category} Documents'
         : 'All Documents';
 
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -110,8 +111,8 @@ class _AllDocumentsScreenState extends State<AllDocumentsScreen> {
           children: [
             Text(
               title,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: theme.textTheme.bodyLarge?.color,
                 fontWeight: FontWeight.bold,
                 fontSize: 20,
               ),
@@ -119,19 +120,19 @@ class _AllDocumentsScreenState extends State<AllDocumentsScreen> {
             Text(
               '${_filteredDocuments.length} document${_filteredDocuments.length != 1 ? 's' : ''}',
               style: TextStyle(
-                color: Colors.white.withOpacity(0.6),
+                color: theme.textTheme.bodySmall?.color,
                 fontSize: 12,
               ),
             ),
           ],
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: theme.textTheme.bodyLarge?.color),
           onPressed: () => Navigator.of(context).pushReplacementNamed('/home'),
         ),
         actions: [
           PopupMenuButton<String>(
-            icon: const Icon(Icons.sort, color: Colors.white),
+            icon: Icon(Icons.sort, color: theme.textTheme.bodyLarge?.color),
             onSelected: (value) {
               setState(() => _sortBy = value);
               _applySorting();
@@ -145,11 +146,11 @@ class _AllDocumentsScreenState extends State<AllDocumentsScreen> {
                       Icons.calendar_today,
                       size: 18,
                       color: _sortBy == 'date'
-                          ? const Color(0xFF5E81F3)
-                          : Colors.grey,
+                          ? theme.primaryColor
+                          : theme.disabledColor,
                     ),
                     const SizedBox(width: 8),
-                    Text('Sort by Date'),
+                    const Text('Sort by Date'),
                   ],
                 ),
               ),
@@ -161,11 +162,11 @@ class _AllDocumentsScreenState extends State<AllDocumentsScreen> {
                       Icons.sort_by_alpha,
                       size: 18,
                       color: _sortBy == 'name'
-                          ? const Color(0xFF5E81F3)
-                          : Colors.grey,
+                          ? theme.primaryColor
+                          : theme.disabledColor,
                     ),
                     const SizedBox(width: 8),
-                    Text('Sort by Name'),
+                    const Text('Sort by Name'),
                   ],
                 ),
               ),
@@ -177,11 +178,11 @@ class _AllDocumentsScreenState extends State<AllDocumentsScreen> {
                       Icons.category,
                       size: 18,
                       color: _sortBy == 'category'
-                          ? const Color(0xFF5E81F3)
-                          : Colors.grey,
+                          ? theme.primaryColor
+                          : theme.disabledColor,
                     ),
                     const SizedBox(width: 8),
-                    Text('Sort by Category'),
+                    const Text('Sort by Category'),
                   ],
                 ),
               ),
@@ -195,24 +196,24 @@ class _AllDocumentsScreenState extends State<AllDocumentsScreen> {
           Padding(
             padding: const EdgeInsets.all(16),
             child: TextField(
-              style: const TextStyle(color: Colors.white),
+              style: TextStyle(color: theme.textTheme.bodyLarge?.color),
               decoration: InputDecoration(
                 hintText: 'Search documents...',
-                hintStyle: TextStyle(color: Colors.white.withOpacity(0.4)),
+                hintStyle: TextStyle(color: theme.hintColor),
                 prefixIcon: Icon(
                   Icons.search,
-                  color: Colors.white.withOpacity(0.4),
+                  color: theme.iconTheme.color?.withOpacity(0.4),
                 ),
                 suffixIcon: _searchQuery.isNotEmpty
                     ? IconButton(
-                        icon: const Icon(Icons.clear, color: Colors.white),
+                        icon: Icon(Icons.clear, color: theme.iconTheme.color),
                         onPressed: () {
                           _filterDocuments('');
                         },
                       )
                     : null,
                 filled: true,
-                fillColor: const Color(0xFF1E1E1E),
+                fillColor: theme.cardColor,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
@@ -225,8 +226,8 @@ class _AllDocumentsScreenState extends State<AllDocumentsScreen> {
           // Documents list
           Expanded(
             child: _isLoading
-                ? const Center(
-                    child: CircularProgressIndicator(color: Color(0xFF5E81F3)),
+                ? Center(
+                    child: CircularProgressIndicator(color: theme.primaryColor),
                   )
                 : _filteredDocuments.isEmpty
                     ? Center(
@@ -236,7 +237,7 @@ class _AllDocumentsScreenState extends State<AllDocumentsScreen> {
                             Icon(
                               Icons.description_outlined,
                               size: 80,
-                              color: Colors.grey[700],
+                              color: theme.disabledColor,
                             ),
                             const SizedBox(height: 16),
                             Text(
@@ -244,7 +245,7 @@ class _AllDocumentsScreenState extends State<AllDocumentsScreen> {
                                   ? 'No documents found'
                                   : 'No documents yet',
                               style: TextStyle(
-                                color: Colors.grey[600],
+                                color: theme.textTheme.bodySmall?.color,
                                 fontSize: 18,
                               ),
                             ),
@@ -265,12 +266,13 @@ class _AllDocumentsScreenState extends State<AllDocumentsScreen> {
   }
 
   Widget _buildDocumentCard(DocumentModel document) {
+    final theme = Theme.of(context);
     final category = documentCategoryFromString(document.category);
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E),
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: category.color.withOpacity(0.3),
@@ -289,8 +291,8 @@ class _AllDocumentsScreenState extends State<AllDocumentsScreen> {
         ),
         title: Text(
           document.name,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: theme.textTheme.bodyLarge?.color,
             fontSize: 16,
             fontWeight: FontWeight.w600,
           ),
@@ -313,7 +315,7 @@ class _AllDocumentsScreenState extends State<AllDocumentsScreen> {
             Text(
               DateFormat('MMM d, yyyy').format(document.createdAt),
               style: TextStyle(
-                color: Colors.white.withOpacity(0.5),
+                color: theme.textTheme.bodySmall?.color,
                 fontSize: 11,
               ),
             ),
@@ -327,13 +329,13 @@ class _AllDocumentsScreenState extends State<AllDocumentsScreen> {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF5E81F3).withOpacity(0.2),
+                      color: theme.primaryColor.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
                       tag,
-                      style: const TextStyle(
-                        color: Color(0xFF5E81F3),
+                      style: TextStyle(
+                        color: theme.primaryColor,
                         fontSize: 10,
                       ),
                     ),
@@ -345,7 +347,7 @@ class _AllDocumentsScreenState extends State<AllDocumentsScreen> {
         ),
         trailing: Icon(
           Icons.chevron_right,
-          color: Colors.white.withOpacity(0.5),
+          color: theme.iconTheme.color?.withOpacity(0.5),
         ),
         onTap: () {
           Navigator.push(
@@ -362,4 +364,3 @@ class _AllDocumentsScreenState extends State<AllDocumentsScreen> {
     );
   }
 }
-

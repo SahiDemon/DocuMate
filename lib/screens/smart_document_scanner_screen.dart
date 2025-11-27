@@ -67,10 +67,11 @@ class _SmartDocumentScannerScreenState
       // Process the scanned document
       if (result.images.isNotEmpty) {
         final scannedImage = result.images.first;
-        
+
         // Save to permanent location
         final Directory appDir = await getApplicationDocumentsDirectory();
-        final String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
+        final String timestamp =
+            DateTime.now().millisecondsSinceEpoch.toString();
         final String side = widget.isFront ? 'front' : 'back';
         final String permanentPath =
             '${appDir.path}/documents/${side}_$timestamp.jpg';
@@ -108,7 +109,7 @@ class _SmartDocumentScannerScreenState
         }
       }
     } catch (e) {
-      print('Error scanning document: $e');
+      debugPrint('Error scanning document: $e');
       setState(() => _isProcessing = false);
 
       if (mounted) {
@@ -130,8 +131,9 @@ class _SmartDocumentScannerScreenState
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: Stack(
           children: [
@@ -145,28 +147,26 @@ class _SmartDocumentScannerScreenState
                     Container(
                       padding: const EdgeInsets.all(40),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF5E81F3).withOpacity(0.1),
+                        color: theme.primaryColor.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: const Color(0xFF5E81F3).withOpacity(0.3),
+                          color: theme.primaryColor.withValues(alpha: 0.3),
                           width: 2,
                         ),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.document_scanner,
                         size: 80,
-                        color: Color(0xFF5E81F3),
+                        color: theme.primaryColor,
                       ),
                     ),
                     const SizedBox(height: 32),
                     Text(
-                      widget.isFront
-                          ? 'Scan Front Side'
-                          : 'Scan Back Side',
-                      style: const TextStyle(
+                      widget.isFront ? 'Scan Front Side' : 'Scan Back Side',
+                      style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: theme.textTheme.bodyLarge?.color,
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -175,25 +175,28 @@ class _SmartDocumentScannerScreenState
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 16,
-                        color: Colors.white.withOpacity(0.7),
+                        color: theme.textTheme.bodySmall?.color,
                         height: 1.5,
                       ),
                     ),
                     const SizedBox(height: 48),
-                    
+
                     // Scan button
                     if (!_isProcessing)
                       Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(24),
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFF5E81F3), Color(0xFF3E63DD)],
+                          gradient: LinearGradient(
+                            colors: [
+                              theme.primaryColor,
+                              theme.primaryColor.withValues(alpha: 0.8)
+                            ],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF5E81F3).withOpacity(0.4),
+                              color: theme.primaryColor.withValues(alpha: 0.4),
                               blurRadius: 20,
                               offset: const Offset(0, 8),
                             ),
@@ -222,14 +225,14 @@ class _SmartDocumentScannerScreenState
                           ),
                         ),
                       ),
-                    
+
                     // Loading indicator
                     if (_isProcessing)
                       Column(
                         children: [
-                          const CircularProgressIndicator(
+                          CircularProgressIndicator(
                             valueColor: AlwaysStoppedAnimation<Color>(
-                              Color(0xFF5E81F3),
+                              theme.primaryColor,
                             ),
                             strokeWidth: 3,
                           ),
@@ -238,7 +241,7 @@ class _SmartDocumentScannerScreenState
                             'Processing document...',
                             style: TextStyle(
                               fontSize: 16,
-                              color: Colors.white.withOpacity(0.7),
+                              color: theme.textTheme.bodySmall?.color,
                             ),
                           ),
                         ],
@@ -254,11 +257,12 @@ class _SmartDocumentScannerScreenState
               left: 16,
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.5),
+                  color: theme.cardColor.withValues(alpha: 0.5),
                   shape: BoxShape.circle,
                 ),
                 child: IconButton(
-                  icon: const Icon(Icons.close, color: Colors.white),
+                  icon: Icon(Icons.close,
+                      color: theme.textTheme.bodyLarge?.color),
                   onPressed: () => Navigator.of(context).pop(),
                 ),
               ),
@@ -272,10 +276,10 @@ class _SmartDocumentScannerScreenState
               child: Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.7),
+                  color: theme.cardColor.withValues(alpha: 0.9),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: const Color(0xFF5E81F3).withOpacity(0.3),
+                    color: theme.primaryColor.withValues(alpha: 0.3),
                   ),
                 ),
                 child: Row(
@@ -291,7 +295,7 @@ class _SmartDocumentScannerScreenState
                         'Place document on a flat surface with good lighting for best results',
                         style: TextStyle(
                           fontSize: 14,
-                          color: Colors.white.withOpacity(0.9),
+                          color: theme.textTheme.bodyLarge?.color,
                         ),
                       ),
                     ),
@@ -305,4 +309,3 @@ class _SmartDocumentScannerScreenState
     );
   }
 }
-

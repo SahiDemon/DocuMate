@@ -3,6 +3,11 @@ import 'package:documate/services/firebase_auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:documate/screens/auth/login_screen.dart';
 import 'package:documate/screens/category_management_screen.dart';
+import 'package:documate/screens/account_information_screen.dart';
+import 'package:documate/screens/password_security_screen.dart';
+import 'package:documate/screens/subscription_screen.dart';
+import 'package:documate/screens/appearance_screen.dart';
+import 'package:documate/screens/support_developer_screen.dart';
 import 'package:documate/utils/transitions.dart';
 import 'package:documate/main.dart' as main_app;
 
@@ -45,12 +50,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final displayName = _user?.displayName ?? 'Your Name';
     final email = _user?.email ?? 'you@example.com';
     final photo = _user?.photoURL;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -64,35 +70,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1E1E1E),
+                      color: theme.cardColor,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: IconButton(
-                      icon: const Icon(Icons.arrow_back, size: 20),
-                      color: const Color(0xFFE5E5E5),
-                      onPressed: () => Navigator.of(context).pop(),
+                      icon: Icon(Icons.arrow_back,
+                          size: 20, color: theme.iconTheme.color),
+                      onPressed: () {
+                        Navigator.of(context).pushReplacementNamed('/home');
+                      },
                       padding: EdgeInsets.zero,
                     ),
                   ),
-                  const Text(
+                  Text(
                     'Profile',
-                    style: TextStyle(
+                    style: theme.textTheme.headlineSmall?.copyWith(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      letterSpacing: -0.015,
                     ),
                   ),
                   Container(
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1E1E1E),
+                      color: theme.cardColor,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: IconButton(
-                      icon: const Icon(Icons.more_vert, size: 20),
-                      color: const Color(0xFFE5E5E5),
+                      icon: Icon(Icons.more_vert,
+                          size: 20, color: theme.iconTheme.color),
                       onPressed: () {},
                       padding: EdgeInsets.zero,
                     ),
@@ -112,7 +118,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           CircleAvatar(
                             radius: 48,
                             backgroundColor:
-                                const Color(0xFF5E81F3).withOpacity(0.2),
+                                theme.primaryColor.withOpacity(0.2),
                             backgroundImage:
                                 photo != null ? NetworkImage(photo) : null,
                             child: photo == null
@@ -120,9 +126,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     displayName.isNotEmpty
                                         ? displayName[0]
                                         : 'U',
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 40,
-                                      color: Color(0xFF5E81F3),
+                                      color: theme.primaryColor,
                                     ),
                                   )
                                 : null,
@@ -134,10 +140,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               width: 32,
                               height: 32,
                               decoration: BoxDecoration(
-                                color: const Color(0xFF5E81F3),
+                                color: theme.primaryColor,
                                 shape: BoxShape.circle,
                                 border: Border.all(
-                                  color: const Color(0xFF121212),
+                                  color: theme.scaffoldBackgroundColor,
                                   width: 2,
                                 ),
                               ),
@@ -153,19 +159,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       const SizedBox(height: 16),
                       Text(
                         displayName,
-                        style: const TextStyle(
+                        style: theme.textTheme.headlineMedium?.copyWith(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
                           letterSpacing: -0.5,
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         email,
-                        style: TextStyle(
+                        style: theme.textTheme.bodyMedium?.copyWith(
                           fontSize: 14,
-                          color: Colors.white.withOpacity(0.6),
+                          color: theme.textTheme.bodyMedium?.color
+                              ?.withOpacity(0.6),
                         ),
                       ),
                       const SizedBox(height: 32),
@@ -177,18 +183,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           padding: const EdgeInsets.only(left: 12, bottom: 12),
                           child: Text(
                             'ACCOUNT',
-                            style: TextStyle(
+                            style: theme.textTheme.labelSmall?.copyWith(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                               letterSpacing: 1.2,
-                              color: Colors.white.withOpacity(0.5),
+                              color: theme.textTheme.bodySmall?.color,
                             ),
                           ),
                         ),
                       ),
                       Container(
                         decoration: BoxDecoration(
-                          color: const Color(0xFF1E1E1E),
+                          color: theme.cardColor,
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Column(
@@ -196,19 +202,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             _buildMenuItem(
                               icon: Icons.person,
                               title: 'Account Information',
-                              onTap: () {},
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const AccountInformationScreen(),
+                                  ),
+                                );
+                              },
                             ),
                             _buildDivider(),
                             _buildMenuItem(
                               icon: Icons.lock,
                               title: 'Password & Security',
-                              onTap: () {},
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const PasswordSecurityScreen(),
+                                  ),
+                                );
+                              },
                             ),
                             _buildDivider(),
                             _buildMenuItem(
                               icon: Icons.credit_card,
                               title: 'Subscription',
-                              onTap: () {},
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const SubscriptionScreen(),
+                                  ),
+                                );
+                              },
                               isLast: true,
                             ),
                           ],
@@ -223,18 +250,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           padding: const EdgeInsets.only(left: 12, bottom: 12),
                           child: Text(
                             'SETTINGS',
-                            style: TextStyle(
+                            style: theme.textTheme.labelSmall?.copyWith(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                               letterSpacing: 1.2,
-                              color: Colors.white.withOpacity(0.5),
+                              color: theme.textTheme.bodySmall?.color,
                             ),
                           ),
                         ),
                       ),
                       Container(
                         decoration: BoxDecoration(
-                          color: const Color(0xFF1E1E1E),
+                          color: theme.cardColor,
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Column(
@@ -245,7 +272,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               onTap: () {
                                 Navigator.of(context).push(
                                   MaterialPageRoute(
-                                    builder: (context) => CategoryManagementScreen(
+                                    builder: (context) =>
+                                        CategoryManagementScreen(
                                       storageService: main_app.storageService,
                                     ),
                                   ),
@@ -270,13 +298,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             _buildMenuItem(
                               icon: Icons.palette,
                               title: 'Appearance',
-                              onTap: () {},
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const AppearanceScreen(),
+                                  ),
+                                );
+                              },
                             ),
                             _buildDivider(),
                             _buildMenuItem(
                               icon: Icons.key,
                               title: 'Encryption Key Info',
                               onTap: _showEncryptionKeyInfo,
+                            ),
+                            _buildDivider(),
+                            _buildMenuItem(
+                              icon: Icons.favorite,
+                              title: 'Support Developer',
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const SupportDeveloperScreen(),
+                                  ),
+                                );
+                              },
                               isLast: true,
                             ),
                           ],
@@ -291,8 +339,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         child: ElevatedButton(
                           onPressed: _logout,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF1E1E1E),
-                            foregroundColor: const Color(0xFFEF4444),
+                            backgroundColor: theme.cardColor,
+                            foregroundColor: theme.colorScheme.error,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -332,6 +380,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required VoidCallback onTap,
     bool isLast = false,
   }) {
+    final theme = Theme.of(context);
     return InkWell(
       onTap: onTap,
       child: Padding(
@@ -340,23 +389,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
           children: [
             Icon(
               icon,
-              color: const Color(0xFF5E81F3),
+              color: theme.primaryColor,
               size: 24,
             ),
             const SizedBox(width: 16),
             Expanded(
               child: Text(
                 title,
-                style: TextStyle(
+                style: theme.textTheme.bodyLarge?.copyWith(
                   fontSize: 15,
                   fontWeight: FontWeight.w500,
-                  color: Colors.white.withOpacity(0.9),
                 ),
               ),
             ),
             Icon(
               Icons.chevron_right,
-              color: Colors.white.withOpacity(0.4),
+              color: theme.iconTheme.color?.withOpacity(0.4),
             ),
           ],
         ),
@@ -366,13 +414,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _showEncryptionKeyInfo() async {
     final key = await main_app.storageService.getCurrentEncryptionKey();
-    
+    final theme = Theme.of(context);
+
     if (!mounted) return;
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF1E1E1E),
+        backgroundColor: theme.cardColor,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
@@ -381,21 +430,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: const Color(0xFF5E81F3).withOpacity(0.2),
+                color: theme.primaryColor.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.key,
-                color: Color(0xFF5E81F3),
+                color: theme.primaryColor,
                 size: 28,
               ),
             ),
             const SizedBox(width: 16),
-            const Text(
+            Text(
               'Encryption Key',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 20,
+              style: theme.textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -407,32 +454,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
           children: [
             Text(
               'Your device is secured with AES-256 encryption.',
-              style: TextStyle(
-                color: Colors.white.withOpacity(0.7),
-                fontSize: 14,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.textTheme.bodyMedium?.color?.withOpacity(0.7),
               ),
             ),
             const SizedBox(height: 16),
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.3),
+                color: theme.scaffoldBackgroundColor,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: const Color(0xFF5E81F3).withOpacity(0.3),
+                  color: theme.primaryColor.withOpacity(0.3),
                 ),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
+                  const Row(
                     children: [
                       Icon(
                         Icons.check_circle,
                         color: Colors.green,
                         size: 16,
                       ),
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8),
                       Text(
                         'Key Status: Active',
                         style: TextStyle(
@@ -446,18 +492,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 12),
                   Text(
                     'Key Preview:',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.5),
-                      fontSize: 11,
-                    ),
+                    style: theme.textTheme.bodySmall,
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    key != null ? '${key.substring(0, 16)}...' : 'Not available',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
+                    key != null
+                        ? '${key.substring(0, 16)}...'
+                        : 'Not available',
+                    style: theme.textTheme.bodyMedium?.copyWith(
                       fontFamily: 'monospace',
+                      fontSize: 12,
                     ),
                   ),
                 ],
@@ -467,24 +511,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFF5E81F3).withOpacity(0.1),
+                color: theme.primaryColor.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
                 children: [
                   Icon(
                     Icons.info_outline,
-                    color: Color(0xFF5E81F3),
+                    color: theme.primaryColor,
                     size: 20,
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
                       'This key is synced via Google Drive and follows you across devices.',
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.7),
-                        fontSize: 12,
-                      ),
+                      style: theme.textTheme.bodySmall,
                     ),
                   ),
                 ],
@@ -495,10 +536,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text(
+            child: Text(
               'Close',
               style: TextStyle(
-                color: Color(0xFF5E81F3),
+                color: theme.primaryColor,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -509,12 +550,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildDivider() {
+    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.only(left: 56),
       child: Divider(
         height: 1,
         thickness: 1,
-        color: Colors.white.withOpacity(0.1),
+        color: theme.dividerColor,
       ),
     );
   }

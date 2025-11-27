@@ -67,3 +67,4 @@ app.*.map.json
 **/GoogleService-Info.plist
 **/firebase_options.dart
 *.json.backup
+create_release.ps1
