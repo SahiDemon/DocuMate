@@ -28,7 +28,7 @@ class _DocumentEditDialogState extends State<DocumentEditDialog> {
   late DateTime? _dueDate;
   late bool _hasReminder;
   late List<int> _customReminderIntervals;
-  
+
   List<String> _categories = [];
   bool _isLoading = true;
 
@@ -36,22 +36,22 @@ class _DocumentEditDialogState extends State<DocumentEditDialog> {
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.document.name);
-    _descriptionController = TextEditingController(text: widget.document.description ?? '');
+    _descriptionController =
+        TextEditingController(text: widget.document.description ?? '');
     _selectedCategory = widget.document.category;
     _issueDate = widget.document.issueDate;
     _expiryDate = widget.document.expiryDate;
     _dueDate = widget.document.dueDate;
     _hasReminder = widget.document.hasReminder;
-    
+
     // Load custom reminder intervals if they exist
     _customReminderIntervals = [];
-    if (widget.document.metadata != null && 
+    if (widget.document.metadata != null &&
         widget.document.metadata!.containsKey('customReminderIntervals')) {
       _customReminderIntervals = List<int>.from(
-        widget.document.metadata!['customReminderIntervals'] as List
-      );
+          widget.document.metadata!['customReminderIntervals'] as List);
     }
-    
+
     _loadCategories();
   }
 
@@ -100,17 +100,20 @@ class _DocumentEditDialogState extends State<DocumentEditDialog> {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.dark(
-              primary: Color(0xFF5E81F3),
+            colorScheme: ColorScheme.dark(
+              primary: Theme.of(context).primaryColor,
               onPrimary: Colors.white,
-              surface: Color(0xFF2A2A2A),
-              onSurface: Colors.white,
+              surface: Theme.of(context).cardColor,
+              onSurface:
+                  Theme.of(context).textTheme.bodyLarge?.color ?? Colors.white,
             ),
           ),
           child: child!,
         );
       },
     );
+
+    if (!mounted) return;
 
     if (picked != null) {
       setState(() {
@@ -135,8 +138,10 @@ class _DocumentEditDialogState extends State<DocumentEditDialog> {
       _customReminderIntervals = defaultIntervals.cast<int>();
     }
 
+    if (!mounted) return;
+
     final intervals = List<int>.from(_customReminderIntervals);
-    
+
     await showDialog(
       context: context,
       builder: (context) => _CustomIntervalsDialog(
@@ -160,7 +165,7 @@ class _DocumentEditDialogState extends State<DocumentEditDialog> {
 
     // Prepare metadata
     final metadata = Map<String, dynamic>.from(widget.document.metadata ?? {});
-    
+
     // Save custom intervals if set
     if (_customReminderIntervals.isNotEmpty) {
       metadata['customReminderIntervals'] = _customReminderIntervals;
@@ -192,11 +197,11 @@ class _DocumentEditDialogState extends State<DocumentEditDialog> {
     if (_hasReminder && (_expiryDate != null || _dueDate != null)) {
       final scheduledIds = await _notificationService.scheduleDocumentReminders(
         document: updatedDocument,
-        customIntervals: _customReminderIntervals.isNotEmpty 
-            ? _customReminderIntervals 
+        customIntervals: _customReminderIntervals.isNotEmpty
+            ? _customReminderIntervals
             : null,
       );
-      
+
       // Update metadata with notification IDs
       metadata['notificationIds'] = scheduledIds;
       final finalDocument = updatedDocument.copyWith(metadata: metadata);
@@ -213,20 +218,22 @@ class _DocumentEditDialogState extends State<DocumentEditDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     if (_isLoading) {
-      return const Dialog(
-        backgroundColor: Color(0xFF1E1E1E),
+      return Dialog(
+        backgroundColor: theme.cardColor,
         child: Padding(
-          padding: EdgeInsets.all(32),
+          padding: const EdgeInsets.all(32),
           child: Center(
-            child: CircularProgressIndicator(color: Color(0xFF5E81F3)),
+            child: CircularProgressIndicator(color: theme.primaryColor),
           ),
         ),
       );
     }
 
     return Dialog(
-      backgroundColor: const Color(0xFF1E1E1E),
+      backgroundColor: theme.cardColor,
       insetPadding: const EdgeInsets.all(16),
       child: Container(
         constraints: const BoxConstraints(maxWidth: 500),
@@ -237,7 +244,7 @@ class _DocumentEditDialogState extends State<DocumentEditDialog> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: const Color(0xFF2A2A2A),
+                color: theme.scaffoldBackgroundColor,
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(12),
                   topRight: Radius.circular(12),
@@ -245,19 +252,20 @@ class _DocumentEditDialogState extends State<DocumentEditDialog> {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.edit, color: Color(0xFF5E81F3)),
+                  Icon(Icons.edit, color: theme.primaryColor),
                   const SizedBox(width: 12),
-                  const Text(
+                  Text(
                     'Edit Document',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: theme.textTheme.bodyLarge?.color,
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const Spacer(),
                   IconButton(
-                    icon: const Icon(Icons.close, color: Colors.white),
+                    icon: Icon(Icons.close,
+                        color: theme.textTheme.bodyLarge?.color),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ],
@@ -274,19 +282,19 @@ class _DocumentEditDialogState extends State<DocumentEditDialog> {
                     // Name field
                     TextField(
                       controller: _nameController,
-                      style: const TextStyle(color: Colors.white),
+                      style: TextStyle(color: theme.textTheme.bodyLarge?.color),
                       decoration: InputDecoration(
                         labelText: 'Document Name *',
-                        labelStyle: const TextStyle(color: Color(0xFF5E81F3)),
+                        labelStyle: TextStyle(color: theme.primaryColor),
                         filled: true,
-                        fillColor: const Color(0xFF2A2A2A),
+                        fillColor: theme.scaffoldBackgroundColor,
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
+                          borderSide: BorderSide(color: theme.dividerColor),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
-                          borderSide: const BorderSide(color: Color(0xFF5E81F3)),
+                          borderSide: BorderSide(color: theme.primaryColor),
                         ),
                       ),
                     ),
@@ -294,21 +302,21 @@ class _DocumentEditDialogState extends State<DocumentEditDialog> {
 
                     // Category dropdown
                     DropdownButtonFormField<String>(
-                      value: _selectedCategory,
-                      dropdownColor: const Color(0xFF2A2A2A),
-                      style: const TextStyle(color: Colors.white),
+                      initialValue: _selectedCategory,
+                      dropdownColor: theme.cardColor,
+                      style: TextStyle(color: theme.textTheme.bodyLarge?.color),
                       decoration: InputDecoration(
                         labelText: 'Category',
-                        labelStyle: const TextStyle(color: Color(0xFF5E81F3)),
+                        labelStyle: TextStyle(color: theme.primaryColor),
                         filled: true,
-                        fillColor: const Color(0xFF2A2A2A),
+                        fillColor: theme.scaffoldBackgroundColor,
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
+                          borderSide: BorderSide(color: theme.dividerColor),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
-                          borderSide: const BorderSide(color: Color(0xFF5E81F3)),
+                          borderSide: BorderSide(color: theme.primaryColor),
                         ),
                       ),
                       items: _categories
@@ -329,19 +337,19 @@ class _DocumentEditDialogState extends State<DocumentEditDialog> {
                     TextField(
                       controller: _descriptionController,
                       maxLines: 3,
-                      style: const TextStyle(color: Colors.white),
+                      style: TextStyle(color: theme.textTheme.bodyLarge?.color),
                       decoration: InputDecoration(
                         labelText: 'Description (Optional)',
-                        labelStyle: const TextStyle(color: Color(0xFF5E81F3)),
+                        labelStyle: TextStyle(color: theme.primaryColor),
                         filled: true,
-                        fillColor: const Color(0xFF2A2A2A),
+                        fillColor: theme.scaffoldBackgroundColor,
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
+                          borderSide: BorderSide(color: theme.dividerColor),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
-                          borderSide: const BorderSide(color: Color(0xFF5E81F3)),
+                          borderSide: BorderSide(color: theme.primaryColor),
                         ),
                       ),
                     ),
@@ -351,7 +359,7 @@ class _DocumentEditDialogState extends State<DocumentEditDialog> {
                     Text(
                       'DATES',
                       style: TextStyle(
-                        color: Colors.grey[600],
+                        color: theme.textTheme.bodySmall?.color,
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 1.2,
@@ -393,7 +401,7 @@ class _DocumentEditDialogState extends State<DocumentEditDialog> {
                     Text(
                       'REMINDERS',
                       style: TextStyle(
-                        color: Colors.grey[600],
+                        color: theme.textTheme.bodySmall?.color,
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 1.2,
@@ -405,7 +413,7 @@ class _DocumentEditDialogState extends State<DocumentEditDialog> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF2A2A2A),
+                        color: theme.scaffoldBackgroundColor,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Column(
@@ -416,33 +424,34 @@ class _DocumentEditDialogState extends State<DocumentEditDialog> {
                                 width: 40,
                                 height: 40,
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF5E81F3).withOpacity(0.1),
+                                  color:
+                                      theme.primaryColor.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
-                                child: const Icon(
+                                child: Icon(
                                   Icons.notifications_active,
-                                  color: Color(0xFF5E81F3),
+                                  color: theme.primaryColor,
                                   size: 20,
                                 ),
                               ),
                               const SizedBox(width: 12),
-                              const Expanded(
+                              Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       'Enable Reminders',
                                       style: TextStyle(
-                                        color: Colors.white,
+                                        color: theme.textTheme.bodyLarge?.color,
                                         fontSize: 15,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                    SizedBox(height: 2),
+                                    const SizedBox(height: 2),
                                     Text(
                                       'Get notified before expiry/due date',
                                       style: TextStyle(
-                                        color: Colors.grey,
+                                        color: theme.textTheme.bodySmall?.color,
                                         fontSize: 12,
                                       ),
                                     ),
@@ -451,43 +460,46 @@ class _DocumentEditDialogState extends State<DocumentEditDialog> {
                               ),
                               Switch(
                                 value: _hasReminder,
-                                onChanged: (_expiryDate != null || _dueDate != null)
+                                onChanged: (_expiryDate != null ||
+                                        _dueDate != null)
                                     ? (value) {
                                         setState(() => _hasReminder = value);
                                       }
                                     : null,
-                                activeColor: const Color(0xFF5E81F3),
+                                activeThumbColor: theme.primaryColor,
                               ),
                             ],
                           ),
                           if (_hasReminder) ...[
                             const SizedBox(height: 12),
-                            const Divider(color: Colors.white10),
+                            Divider(color: theme.dividerColor),
                             const SizedBox(height: 12),
                             GestureDetector(
                               onTap: _editCustomIntervals,
                               child: Container(
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF1E1E1E),
+                                  color: theme.cardColor,
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Row(
                                   children: [
-                                    const Icon(
+                                    Icon(
                                       Icons.schedule,
-                                      color: Color(0xFF5E81F3),
+                                      color: theme.primaryColor,
                                       size: 20,
                                     ),
                                     const SizedBox(width: 12),
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
-                                          const Text(
+                                          Text(
                                             'Custom Intervals',
                                             style: TextStyle(
-                                              color: Colors.white,
+                                              color: theme
+                                                  .textTheme.bodyLarge?.color,
                                               fontSize: 14,
                                               fontWeight: FontWeight.w500,
                                             ),
@@ -496,18 +508,21 @@ class _DocumentEditDialogState extends State<DocumentEditDialog> {
                                           Text(
                                             _customReminderIntervals.isEmpty
                                                 ? 'Using default intervals'
-                                                : _customReminderIntervals.map((d) => '${d}d').join(', '),
-                                            style: const TextStyle(
-                                              color: Colors.grey,
+                                                : _customReminderIntervals
+                                                    .map((d) => '${d}d')
+                                                    .join(', '),
+                                            style: TextStyle(
+                                              color: theme
+                                                  .textTheme.bodySmall?.color,
                                               fontSize: 12,
                                             ),
                                           ),
                                         ],
                                       ),
                                     ),
-                                    const Icon(
+                                    Icon(
                                       Icons.chevron_right,
-                                      color: Colors.grey,
+                                      color: theme.textTheme.bodySmall?.color,
                                       size: 20,
                                     ),
                                   ],
@@ -549,7 +564,7 @@ class _DocumentEditDialogState extends State<DocumentEditDialog> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: const Color(0xFF2A2A2A),
+                color: theme.scaffoldBackgroundColor,
                 borderRadius: const BorderRadius.only(
                   bottomLeft: Radius.circular(12),
                   bottomRight: Radius.circular(12),
@@ -562,7 +577,9 @@ class _DocumentEditDialogState extends State<DocumentEditDialog> {
                     onPressed: () => Navigator.of(context).pop(),
                     child: Text(
                       'Cancel',
-                      style: TextStyle(color: Colors.white.withOpacity(0.6)),
+                      style: TextStyle(
+                          color: theme.textTheme.bodyLarge?.color
+                              ?.withValues(alpha: 0.6)),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -571,9 +588,10 @@ class _DocumentEditDialogState extends State<DocumentEditDialog> {
                     icon: const Icon(Icons.check),
                     label: const Text('Save Changes'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF5E81F3),
+                      backgroundColor: theme.primaryColor,
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 12),
                     ),
                   ),
                 ],
@@ -592,12 +610,14 @@ class _DocumentEditDialogState extends State<DocumentEditDialog> {
     IconData icon,
     Color iconColor,
   ) {
+    final theme = Theme.of(context);
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: const Color(0xFF2A2A2A),
+          color: theme.scaffoldBackgroundColor,
           borderRadius: BorderRadius.circular(8),
         ),
         child: Row(
@@ -606,7 +626,7 @@ class _DocumentEditDialogState extends State<DocumentEditDialog> {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: iconColor.withOpacity(0.1),
+                color: iconColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
@@ -622,18 +642,18 @@ class _DocumentEditDialogState extends State<DocumentEditDialog> {
                 children: [
                   Text(
                     label,
-                    style: const TextStyle(
-                      color: Colors.grey,
+                    style: TextStyle(
+                      color: theme.textTheme.bodySmall?.color,
                       fontSize: 12,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    date != null 
+                    date != null
                         ? DateFormat('MMM dd, yyyy').format(date)
                         : 'Not set',
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: theme.textTheme.bodyLarge?.color,
                       fontSize: 15,
                       fontWeight: FontWeight.w500,
                     ),
@@ -643,7 +663,8 @@ class _DocumentEditDialogState extends State<DocumentEditDialog> {
             ),
             if (date != null)
               IconButton(
-                icon: const Icon(Icons.clear, color: Colors.grey, size: 20),
+                icon: Icon(Icons.clear,
+                    color: theme.textTheme.bodySmall?.color, size: 20),
                 onPressed: () {
                   setState(() {
                     if (label == 'Issue Date') {
@@ -657,7 +678,8 @@ class _DocumentEditDialogState extends State<DocumentEditDialog> {
                 },
               )
             else
-              const Icon(Icons.chevron_right, color: Colors.grey, size: 20),
+              Icon(Icons.chevron_right,
+                  color: theme.textTheme.bodySmall?.color, size: 20),
           ],
         ),
       ),
@@ -722,18 +744,19 @@ class _CustomIntervalsDialogState extends State<_CustomIntervalsDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Dialog(
-      backgroundColor: const Color(0xFF2A2A2A),
+      backgroundColor: theme.cardColor,
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Custom Reminder Intervals',
               style: TextStyle(
-                color: Colors.white,
+                color: theme.textTheme.bodyLarge?.color,
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
@@ -745,12 +768,13 @@ class _CustomIntervalsDialogState extends State<_CustomIntervalsDialog> {
                   child: TextField(
                     controller: _controller,
                     keyboardType: TextInputType.number,
-                    style: const TextStyle(color: Colors.white),
+                    style: TextStyle(color: theme.textTheme.bodyLarge?.color),
                     decoration: InputDecoration(
                       hintText: 'Days before',
-                      hintStyle: TextStyle(color: Colors.grey[600]),
+                      hintStyle:
+                          TextStyle(color: theme.textTheme.bodySmall?.color),
                       filled: true,
-                      fillColor: const Color(0xFF1E1E1E),
+                      fillColor: theme.scaffoldBackgroundColor,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                         borderSide: BorderSide.none,
@@ -762,7 +786,7 @@ class _CustomIntervalsDialogState extends State<_CustomIntervalsDialog> {
                 ElevatedButton(
                   onPressed: _addInterval,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF5E81F3),
+                    backgroundColor: theme.primaryColor,
                     padding: const EdgeInsets.all(16),
                   ),
                   child: const Icon(Icons.add),
@@ -776,9 +800,12 @@ class _CustomIntervalsDialogState extends State<_CustomIntervalsDialog> {
                 runSpacing: 8,
                 children: _intervals.map((interval) {
                   return Chip(
-                    label: Text('$interval days', style: const TextStyle(color: Colors.white)),
-                    backgroundColor: const Color(0xFF1E1E1E),
-                    deleteIcon: const Icon(Icons.close, size: 18, color: Colors.white),
+                    label: Text('$interval days',
+                        style:
+                            TextStyle(color: theme.textTheme.bodyLarge?.color)),
+                    backgroundColor: theme.scaffoldBackgroundColor,
+                    deleteIcon: Icon(Icons.close,
+                        size: 18, color: theme.textTheme.bodyLarge?.color),
                     onDeleted: () => _removeInterval(interval),
                   );
                 }).toList(),
@@ -789,12 +816,14 @@ class _CustomIntervalsDialogState extends State<_CustomIntervalsDialog> {
               children: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+                  child: const Text('Cancel',
+                      style: TextStyle(color: Colors.grey)),
                 ),
                 const SizedBox(width: 8),
                 ElevatedButton(
                   onPressed: _save,
-                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF5E81F3)),
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF5E81F3)),
                   child: const Text('Save'),
                 ),
               ],

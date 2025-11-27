@@ -9,6 +9,8 @@ import 'package:documate/services/firebase_auth_service.dart';
 import 'package:documate/widgets/bottom_nav_bar.dart';
 import 'package:documate/models/document_model.dart';
 import 'package:documate/main.dart' as main_app;
+import 'package:documate/theme/theme_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
 class NewHomeScreen extends StatefulWidget {
@@ -24,7 +26,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
 
   final List<Widget> _screens = [
     const HomeContent(),
-    const SearchScreen(),
+    const SearchScreen(autoFocus: true),
     const AddDocumentScreen(),
     const ProfileScreen(),
   ];
@@ -43,8 +45,9 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: PageView.builder(
         controller: _pageController,
         physics: const BouncingScrollPhysics(),
@@ -146,7 +149,9 @@ class _HomeContentState extends State<HomeContent> with WidgetsBindingObserver {
   }
 
   Future<void> _loadDocuments() async {
-    setState(() => _isLoading = true);
+    if (mounted) {
+      setState(() => _isLoading = true);
+    }
 
     try {
       final docsMap = await main_app.storageService.getAllDocuments();
@@ -200,54 +205,52 @@ class _HomeContentState extends State<HomeContent> with WidgetsBindingObserver {
         'Other': 0,
       };
 
-      // Add custom categories to counts
-      for (final customCat in customCategories) {
-        final name = customCat['name'] as String;
-        if (!counts.containsKey(name)) {
-          counts[name] = 0;
+      // Initialize counts for custom categories
+      for (var category in customCategories) {
+        counts[category['name']] = 0;
+      }
+
+      for (var doc in docs) {
+        final category = doc['category'] as String;
+        if (counts.containsKey(category)) {
+          counts[category] = (counts[category] ?? 0) + 1;
+        } else {
+          counts['Other'] = (counts['Other'] ?? 0) + 1;
         }
       }
 
-      for (final doc in docs) {
-        final category = doc['category'] as String? ?? 'Other';
-        counts[category] = (counts[category] ?? 0) + 1;
+      // Load unread notifications count
+      final notifications = await main_app.storageService.getSetting(
+        'notifications',
+        defaultValue: [],
+      ) as List;
+      final unreadCount = notifications.where((n) => n['read'] == false).length;
+
+      if (mounted) {
+        setState(() {
+          _recentDocuments = recentDocs;
+          _expiringDocuments = expiringDocs;
+          _documentCounts = counts;
+          _customCategories = List<Map<String, dynamic>>.from(customCategories);
+          _notificationCount = unreadCount;
+          _isLoading = false;
+        });
       }
-
-      // Calculate notification count (expiring + overdue)
-      final overdueCount = docs.where((doc) {
-        if (doc['expiryDate'] != null) {
-          try {
-            final expiryDate = DateTime.parse(doc['expiryDate'] as String);
-            return expiryDate.isBefore(now);
-          } catch (e) {
-            return false;
-          }
-        }
-        return false;
-      }).length;
-
-      setState(() {
-        _recentDocuments = recentDocs;
-        _expiringDocuments = expiringDocs.take(3).toList();
-        _documentCounts = counts;
-        _customCategories = customCategories.cast<Map<String, dynamic>>();
-        _notificationCount = expiringDocs.length + overdueCount;
-        _isLoading = false;
-      });
     } catch (e) {
       print('Error loading documents: $e');
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
-  void _openDocument(Map<String, dynamic> documentData) {
+  void _openDocument(Map<String, dynamic> document) {
     try {
-      final document = DocumentModel.fromJson(documentData);
       Navigator.of(context)
           .push(
             MaterialPageRoute(
               builder: (context) => DocumentDetailsScreen(
-                document: document,
+                document: DocumentModel.fromJson(document),
                 storageService: main_app.storageService,
               ),
             ),
@@ -265,6 +268,7 @@ class _HomeContentState extends State<HomeContent> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -276,11 +280,11 @@ class _HomeContentState extends State<HomeContent> with WidgetsBindingObserver {
               children: [
                 CircleAvatar(
                   radius: 20,
-                  backgroundColor: const Color(0xFF5E81F3).withOpacity(0.2),
+                  backgroundColor: theme.primaryColor.withOpacity(0.2),
                   backgroundImage:
                       _photoUrl != null ? NetworkImage(_photoUrl!) : null,
                   child: _photoUrl == null
-                      ? const Icon(Icons.person, color: Color(0xFF5E81F3))
+                      ? Icon(Icons.person, color: theme.primaryColor)
                       : null,
                 ),
                 const SizedBox(width: 12),
@@ -288,21 +292,14 @@ class _HomeContentState extends State<HomeContent> with WidgetsBindingObserver {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'Welcome back,',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFF9CA3AF),
-                          fontWeight: FontWeight.w500,
-                        ),
+                        style: theme.textTheme.bodyMedium,
                       ),
                       Text(
                         _displayName,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          color: Colors.white,
+                        style: theme.textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.bold,
-                          letterSpacing: -0.015,
                         ),
                       ),
                     ],
@@ -326,12 +323,12 @@ class _HomeContentState extends State<HomeContent> with WidgetsBindingObserver {
                         width: 40,
                         height: 40,
                         decoration: BoxDecoration(
-                          color: const Color(0xFF1E1E1E),
+                          color: theme.cardColor,
                           borderRadius: BorderRadius.circular(20),
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.notifications_outlined,
-                          color: Color(0xFFE5E5E5),
+                          color: theme.iconTheme.color,
                           size: 22,
                         ),
                       ),
@@ -341,8 +338,8 @@ class _HomeContentState extends State<HomeContent> with WidgetsBindingObserver {
                           top: 0,
                           child: Container(
                             padding: const EdgeInsets.all(4),
-                            decoration: const BoxDecoration(
-                              color: Color(0xFFEF4444),
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.error,
                               shape: BoxShape.circle,
                             ),
                             constraints: const BoxConstraints(
@@ -385,7 +382,7 @@ class _HomeContentState extends State<HomeContent> with WidgetsBindingObserver {
               },
               child: Container(
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1E1E1E),
+                  color: theme.cardColor,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 padding: const EdgeInsets.symmetric(
@@ -396,13 +393,13 @@ class _HomeContentState extends State<HomeContent> with WidgetsBindingObserver {
                   children: [
                     Icon(
                       Icons.search,
-                      color: Colors.white.withOpacity(0.4),
+                      color: theme.iconTheme.color?.withOpacity(0.4),
                     ),
                     const SizedBox(width: 12),
                     Text(
                       'Search documents...',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.4),
+                        color: theme.hintColor,
                         fontSize: 14,
                       ),
                     ),
@@ -424,12 +421,12 @@ class _HomeContentState extends State<HomeContent> with WidgetsBindingObserver {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                const Text(
+                                Text(
                                   'Expiring Soon',
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.white,
+                                    color: theme.textTheme.bodyLarge?.color,
                                   ),
                                 ),
                                 TextButton(
@@ -444,12 +441,12 @@ class _HomeContentState extends State<HomeContent> with WidgetsBindingObserver {
                                       ),
                                     );
                                   },
-                                  child: const Text(
+                                  child: Text(
                                     'View All',
                                     style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w600,
-                                      color: Color(0xFFEF4444),
+                                      color: theme.colorScheme.error,
                                     ),
                                   ),
                                 ),
@@ -467,11 +464,11 @@ class _HomeContentState extends State<HomeContent> with WidgetsBindingObserver {
                                   margin: const EdgeInsets.only(bottom: 12),
                                   padding: const EdgeInsets.all(16),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFEF4444)
+                                    color: theme.colorScheme.error
                                         .withOpacity(0.1),
                                     borderRadius: BorderRadius.circular(12),
                                     border: Border.all(
-                                      color: const Color(0xFFEF4444)
+                                      color: theme.colorScheme.error
                                           .withOpacity(0.3),
                                     ),
                                   ),
@@ -481,14 +478,14 @@ class _HomeContentState extends State<HomeContent> with WidgetsBindingObserver {
                                         width: 48,
                                         height: 48,
                                         decoration: BoxDecoration(
-                                          color: const Color(0xFFEF4444)
+                                          color: theme.colorScheme.error
                                               .withOpacity(0.2),
                                           borderRadius:
                                               BorderRadius.circular(10),
                                         ),
-                                        child: const Icon(
+                                        child: Icon(
                                           Icons.warning,
-                                          color: Color(0xFFEF4444),
+                                          color: theme.colorScheme.error,
                                           size: 24,
                                         ),
                                       ),
@@ -500,10 +497,11 @@ class _HomeContentState extends State<HomeContent> with WidgetsBindingObserver {
                                           children: [
                                             Text(
                                               doc['name'] as String,
-                                              style: const TextStyle(
+                                              style: TextStyle(
                                                 fontSize: 15,
                                                 fontWeight: FontWeight.bold,
-                                                color: Colors.white,
+                                                color: theme
+                                                    .textTheme.bodyLarge?.color,
                                               ),
                                               maxLines: 1,
                                               overflow: TextOverflow.ellipsis,
@@ -511,9 +509,9 @@ class _HomeContentState extends State<HomeContent> with WidgetsBindingObserver {
                                             const SizedBox(height: 4),
                                             Text(
                                               'Expires in $daysUntil day${daysUntil != 1 ? 's' : ''}',
-                                              style: const TextStyle(
+                                              style: TextStyle(
                                                 fontSize: 13,
-                                                color: Color(0xFFEF4444),
+                                                color: theme.colorScheme.error,
                                               ),
                                             ),
                                           ],
@@ -521,7 +519,8 @@ class _HomeContentState extends State<HomeContent> with WidgetsBindingObserver {
                                       ),
                                       Icon(
                                         Icons.chevron_right,
-                                        color: Colors.white.withOpacity(0.5),
+                                        color: theme.iconTheme.color
+                                            ?.withOpacity(0.5),
                                       ),
                                     ],
                                   ),
@@ -535,12 +534,12 @@ class _HomeContentState extends State<HomeContent> with WidgetsBindingObserver {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text(
+                              Text(
                                 'Recently Added',
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.white,
+                                  color: theme.textTheme.bodyLarge?.color,
                                 ),
                               ),
                               if (_recentDocuments.isNotEmpty)
@@ -556,12 +555,12 @@ class _HomeContentState extends State<HomeContent> with WidgetsBindingObserver {
                                       ),
                                     );
                                   },
-                                  child: const Text(
+                                  child: Text(
                                     'See All',
                                     style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w600,
-                                      color: Color(0xFF5E81F3),
+                                      color: theme.primaryColor,
                                     ),
                                   ),
                                 ),
@@ -576,13 +575,13 @@ class _HomeContentState extends State<HomeContent> with WidgetsBindingObserver {
                                   Icon(
                                     Icons.description_outlined,
                                     size: 64,
-                                    color: Colors.grey[700],
+                                    color: theme.disabledColor,
                                   ),
                                   const SizedBox(height: 16),
                                   Text(
                                     'No documents yet',
                                     style: TextStyle(
-                                      color: Colors.grey[600],
+                                      color: theme.textTheme.bodySmall?.color,
                                       fontSize: 16,
                                     ),
                                   ),
@@ -590,7 +589,7 @@ class _HomeContentState extends State<HomeContent> with WidgetsBindingObserver {
                                   Text(
                                     'Tap the + button to add your first document',
                                     style: TextStyle(
-                                      color: Colors.grey[700],
+                                      color: theme.textTheme.bodySmall?.color,
                                       fontSize: 12,
                                     ),
                                   ),
@@ -606,7 +605,7 @@ class _HomeContentState extends State<HomeContent> with WidgetsBindingObserver {
                                     _recentDocuments[0]['name'] as String,
                                     'Recently added',
                                     Icons.description,
-                                    const Color(0xFF5E81F3),
+                                    theme.primaryColor,
                                     onTap: () =>
                                         _openDocument(_recentDocuments[0]),
                                   ),
@@ -629,12 +628,12 @@ class _HomeContentState extends State<HomeContent> with WidgetsBindingObserver {
                           const SizedBox(height: 24),
 
                           // Categories Section
-                          const Text(
+                          Text(
                             'Categories',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                              color: theme.textTheme.bodyLarge?.color,
                             ),
                           ),
                           const SizedBox(height: 16),
@@ -657,43 +656,47 @@ class _HomeContentState extends State<HomeContent> with WidgetsBindingObserver {
     Color color, {
     VoidCallback? onTap,
   }) {
+    final theme = Theme.of(context);
+    final isCompact = context.watch<ThemeProvider>().compactView;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding:
+            isCompact ? const EdgeInsets.all(12) : const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: const Color(0xFF1E1E1E),
+          color: theme.cardColor,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width: 40,
-              height: 40,
+              width: isCompact ? 32 : 40,
+              height: isCompact ? 32 : 40,
               decoration: BoxDecoration(
                 color: color.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Icon(icon, color: color, size: 24),
+              child: Icon(icon, color: color, size: isCompact ? 20 : 24),
             ),
-            const SizedBox(height: 10),
+            SizedBox(height: isCompact ? 8 : 10),
             Text(
               title,
-              style: const TextStyle(
-                fontSize: 14,
+              style: TextStyle(
+                fontSize: isCompact ? 13 : 14,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: theme.textTheme.bodyLarge?.color,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: isCompact ? 2 : 4),
             Text(
               subtitle,
               style: TextStyle(
-                fontSize: 12,
-                color: Colors.white.withOpacity(0.5),
+                fontSize: isCompact ? 11 : 12,
+                color: theme.textTheme.bodySmall?.color,
               ),
             ),
           ],
@@ -709,43 +712,48 @@ class _HomeContentState extends State<HomeContent> with WidgetsBindingObserver {
     Color color, {
     VoidCallback? onTap,
   }) {
+    final theme = Theme.of(context);
+    // Get compact view setting from ThemeProvider
+    final isCompact = context.watch<ThemeProvider>().compactView;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding:
+            isCompact ? const EdgeInsets.all(12) : const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: const Color(0xFF1E1E1E),
+          color: theme.cardColor,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
           children: [
             Container(
-              width: 48,
-              height: 48,
+              width: isCompact ? 40 : 48,
+              height: isCompact ? 40 : 48,
               decoration: BoxDecoration(
                 color: color.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Icon(icon, color: color, size: 30),
+              child: Icon(icon, color: color, size: isCompact ? 24 : 30),
             ),
-            const SizedBox(width: 16),
+            SizedBox(width: isCompact ? 12 : 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
-                      fontSize: 15,
+                    style: TextStyle(
+                      fontSize: isCompact ? 14 : 15,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: theme.textTheme.bodyLarge?.color,
                     ),
                   ),
                   Text(
                     count,
                     style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.white.withOpacity(0.5),
+                      fontSize: isCompact ? 12 : 14,
+                      color: theme.textTheme.bodySmall?.color,
                     ),
                   ),
                 ],
@@ -753,7 +761,8 @@ class _HomeContentState extends State<HomeContent> with WidgetsBindingObserver {
             ),
             Icon(
               Icons.chevron_right,
-              color: Colors.white.withOpacity(0.5),
+              color: theme.iconTheme.color?.withOpacity(0.5),
+              size: isCompact ? 20 : 24,
             ),
           ],
         ),

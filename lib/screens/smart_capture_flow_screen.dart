@@ -43,8 +43,10 @@ class _SmartCaptureFlowScreenState extends State<SmartCaptureFlowScreen> {
   final OCRService _ocrService = OCRService();
   final MLClassificationService _mlService = MLClassificationService();
   // Use global initialized services instead of creating new instances
-  late final NotificationService _notificationService = main_app.notificationService;
-  late final SearchIndexService _searchIndexService = main_app.searchIndexService;
+  late final NotificationService _notificationService =
+      main_app.notificationService;
+  late final SearchIndexService _searchIndexService =
+      main_app.searchIndexService;
 
   bool _isProcessing = false;
   String? _frontImagePath;
@@ -60,7 +62,14 @@ class _SmartCaptureFlowScreenState extends State<SmartCaptureFlowScreen> {
   String _selectedCategory = 'Other';
   List<String> _tags = [];
   List<String> _suggestedTags = [];
-  List<String> _availableCategories = ['Identity', 'Bills', 'Medical', 'Insurance', 'Legal', 'Other'];
+  List<String> _availableCategories = [
+    'Identity',
+    'Bills',
+    'Medical',
+    'Insurance',
+    'Legal',
+    'Other'
+  ];
   DateTime? _issueDate;
   DateTime? _expiryDate;
   DateTime? _dueDate;
@@ -116,7 +125,7 @@ class _SmartCaptureFlowScreenState extends State<SmartCaptureFlowScreen> {
     try {
       // Get available cameras
       final cameras = await availableCameras();
-      
+
       // Use the smart document scanner with ML Kit
       final String? imagePath = await Navigator.of(context).push<String>(
         MaterialPageRoute(
@@ -137,7 +146,7 @@ class _SmartCaptureFlowScreenState extends State<SmartCaptureFlowScreen> {
             final result = await _showBackSideCaptureDialog();
             if (result == 'back' || result == 'more') {
               await _captureDocument(isFront: false);
-              
+
               // If "more" was selected, keep asking
               if (result == 'more') {
                 while (mounted) {
@@ -156,7 +165,9 @@ class _SmartCaptureFlowScreenState extends State<SmartCaptureFlowScreen> {
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(context, false),
-                          child: Text('Done', style: TextStyle(color: Colors.white.withOpacity(0.6))),
+                          child: Text('Done',
+                              style: TextStyle(
+                                  color: Colors.white.withOpacity(0.6))),
                         ),
                         ElevatedButton(
                           onPressed: () => Navigator.pop(context, true),
@@ -168,7 +179,7 @@ class _SmartCaptureFlowScreenState extends State<SmartCaptureFlowScreen> {
                       ],
                     ),
                   );
-                  
+
                   if (continueCapture == true) {
                     await _captureDocument(isFront: false);
                   } else {
@@ -235,14 +246,14 @@ class _SmartCaptureFlowScreenState extends State<SmartCaptureFlowScreen> {
 
       // Detect dates smartly
       final detectedDates = SmartDateDetector.detectDates(ocrText);
-      
+
       // If dates detected, ask user to confirm
       if (detectedDates.isNotEmpty && mounted) {
         final dateResult = await SmartDateDetector.showDateSelectionDialog(
           context: context,
           detectedDates: detectedDates,
         );
-        
+
         if (dateResult != null) {
           _issueDate = dateResult.issueDate;
           _expiryDate = dateResult.expiryDate;
@@ -263,10 +274,10 @@ class _SmartCaptureFlowScreenState extends State<SmartCaptureFlowScreen> {
 
       // Auto-fill category
       _selectedCategory = classification.category;
-      
+
       // Generate smart tags
       _suggestedTags = _extractSmartTags(ocrText, classification.category);
-      
+
       // Auto-add high-confidence tags
       if (classification.confidence > 75) {
         _tags = classification.suggestedTags;
@@ -383,33 +394,72 @@ class _SmartCaptureFlowScreenState extends State<SmartCaptureFlowScreen> {
   List<String> _extractSmartTags(String text, String category) {
     final tags = <String>{};
     final lowerText = text.toLowerCase();
-    
+
     // Common important keywords
     final keywords = {
-      'passport', 'license', 'id', 'identity', 'card',
-      'insurance', 'policy', 'coverage', 'claim',
-      'bill', 'invoice', 'payment', 'receipt', 'due',
-      'medical', 'health', 'prescription', 'doctor', 'hospital',
-      'legal', 'contract', 'agreement', 'deed', 'will',
-      'tax', 'return', 'form', 'official',
-      'bank', 'statement', 'account', 'credit', 'debit',
-      'employment', 'salary', 'payslip', 'work',
-      'education', 'degree', 'diploma',
-      'property', 'lease', 'rent', 'mortgage',
-      'travel', 'visa', 'ticket', 'booking',
-      'vehicle', 'registration', 'driving',
+      'passport',
+      'license',
+      'id',
+      'identity',
+      'card',
+      'insurance',
+      'policy',
+      'coverage',
+      'claim',
+      'bill',
+      'invoice',
+      'payment',
+      'receipt',
+      'due',
+      'medical',
+      'health',
+      'prescription',
+      'doctor',
+      'hospital',
+      'legal',
+      'contract',
+      'agreement',
+      'deed',
+      'will',
+      'tax',
+      'return',
+      'form',
+      'official',
+      'bank',
+      'statement',
+      'account',
+      'credit',
+      'debit',
+      'employment',
+      'salary',
+      'payslip',
+      'work',
+      'education',
+      'degree',
+      'diploma',
+      'property',
+      'lease',
+      'rent',
+      'mortgage',
+      'travel',
+      'visa',
+      'ticket',
+      'booking',
+      'vehicle',
+      'registration',
+      'driving',
     };
-    
+
     // Extract matching keywords
     for (final keyword in keywords) {
       if (lowerText.contains(keyword)) {
         tags.add(keyword.capitalize());
       }
     }
-    
+
     // Add category-specific tags
     tags.add(category);
-    
+
     // Extract dates as tags
     final dateRegex = RegExp(r'\d{1,2}[/-]\d{1,2}[/-]\d{2,4}');
     if (dateRegex.hasMatch(text)) {
@@ -418,14 +468,14 @@ class _SmartCaptureFlowScreenState extends State<SmartCaptureFlowScreen> {
         tags.add(year.toString());
       }
     }
-    
+
     // Extract numbers that might be important (IDs, amounts)
     final numberRegex = RegExp(r'\b\d{6,}\b');
     final numbers = numberRegex.allMatches(text);
     if (numbers.length == 1) {
       tags.add('ID: ${numbers.first.group(0)}');
     }
-    
+
     // Limit to 8 suggestions
     return tags.take(8).toList();
   }
@@ -488,7 +538,7 @@ class _SmartCaptureFlowScreenState extends State<SmartCaptureFlowScreen> {
       try {
         final backupEnabled = await widget.cloudSyncService.isBackupEnabled();
         print('📊 Backup enabled: $backupEnabled');
-        
+
         if (backupEnabled) {
           print('🔄 Starting automatic backup...');
           final success = await widget.cloudSyncService.uploadBackup();
@@ -535,9 +585,10 @@ class _SmartCaptureFlowScreenState extends State<SmartCaptureFlowScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     if (_isProcessing || !_frontCaptured) {
       return Scaffold(
-        backgroundColor: DocuMateTheme.darkTheme.scaffoldBackgroundColor,
+        backgroundColor: theme.scaffoldBackgroundColor,
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -548,7 +599,7 @@ class _SmartCaptureFlowScreenState extends State<SmartCaptureFlowScreen> {
                 _frontCaptured
                     ? 'Processing document...'
                     : 'Capturing document...',
-                style: const TextStyle(color: Colors.white),
+                style: TextStyle(color: theme.textTheme.bodyLarge?.color),
               ),
             ],
           ),
@@ -557,7 +608,7 @@ class _SmartCaptureFlowScreenState extends State<SmartCaptureFlowScreen> {
     }
 
     return Scaffold(
-      backgroundColor: DocuMateTheme.darkTheme.scaffoldBackgroundColor,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('Confirm Document Details'),
         backgroundColor: Colors.transparent,
@@ -585,15 +636,15 @@ class _SmartCaptureFlowScreenState extends State<SmartCaptureFlowScreen> {
           // Name field
           TextField(
             controller: _nameController,
-            style: const TextStyle(color: Colors.white),
+            style: TextStyle(color: theme.textTheme.bodyLarge?.color),
             decoration: InputDecoration(
               labelText: 'Document Name *',
-              labelStyle: TextStyle(color: Colors.grey[400]),
+              labelStyle: TextStyle(color: theme.textTheme.bodySmall?.color),
               enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.grey[700]!),
+                borderSide: BorderSide(color: theme.dividerColor),
               ),
-              focusedBorder: const OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.blue),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: theme.primaryColor),
               ),
             ),
           ),
@@ -603,25 +654,25 @@ class _SmartCaptureFlowScreenState extends State<SmartCaptureFlowScreen> {
           // Category dropdown
           Container(
             decoration: BoxDecoration(
-              color: const Color(0xFF1E1E1E),
+              color: theme.cardColor,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: const Color(0xFF5E81F3).withOpacity(0.3),
+                color: theme.primaryColor.withValues(alpha: 0.3),
                 width: 1.5,
               ),
             ),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             child: DropdownButtonFormField<String>(
               initialValue: _selectedCategory,
-              dropdownColor: const Color(0xFF2A2A2A),
-              style: const TextStyle(
-                color: Colors.white,
+              dropdownColor: theme.cardColor,
+              style: TextStyle(
+                color: theme.textTheme.bodyLarge?.color,
                 fontSize: 16,
               ),
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Category',
                 labelStyle: TextStyle(
-                  color: Color(0xFF5E81F3),
+                  color: theme.primaryColor,
                   fontSize: 14,
                 ),
                 border: InputBorder.none,
@@ -732,7 +783,9 @@ class _SmartCaptureFlowScreenState extends State<SmartCaptureFlowScreen> {
 
   Widget _buildReminderSection() {
     final hasRelevantDate = _expiryDate != null || _dueDate != null;
-    final shouldAutoEnable = hasRelevantDate && _classification != null && _classification!.confidence > 70;
+    final shouldAutoEnable = hasRelevantDate &&
+        _classification != null &&
+        _classification!.confidence > 70;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -777,7 +830,6 @@ class _SmartCaptureFlowScreenState extends State<SmartCaptureFlowScreen> {
               ),
             ],
           ),
-          
           if (!hasRelevantDate) ...[
             const SizedBox(height: 12),
             Container(
@@ -789,7 +841,8 @@ class _SmartCaptureFlowScreenState extends State<SmartCaptureFlowScreen> {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.info_outline, color: Colors.orange, size: 18),
+                  const Icon(Icons.info_outline,
+                      color: Colors.orange, size: 18),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -1002,9 +1055,8 @@ class _SmartCaptureFlowScreenState extends State<SmartCaptureFlowScreen> {
 
   Widget _buildTagsSection() {
     // Filter suggested tags to exclude already added tags
-    final availableSuggestions = _suggestedTags
-        .where((tag) => !_tags.contains(tag))
-        .toList();
+    final availableSuggestions =
+        _suggestedTags.where((tag) => !_tags.contains(tag)).toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1013,7 +1065,10 @@ class _SmartCaptureFlowScreenState extends State<SmartCaptureFlowScreen> {
           children: [
             Text(
               'Tags',
-              style: TextStyle(color: Colors.grey[400], fontSize: 14, fontWeight: FontWeight.w600),
+              style: TextStyle(
+                  color: Colors.grey[400],
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600),
             ),
             if (_tags.isNotEmpty)
               Container(
@@ -1025,32 +1080,37 @@ class _SmartCaptureFlowScreenState extends State<SmartCaptureFlowScreen> {
                 ),
                 child: Text(
                   '${_tags.length}',
-                  style: const TextStyle(color: Colors.blue, fontSize: 11, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      color: Colors.blue,
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold),
                 ),
               ),
           ],
         ),
         const SizedBox(height: 12),
-        
+
         // Added tags
         if (_tags.isNotEmpty) ...[
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: _tags.map((tag) => Chip(
-                  label: Text(tag),
-                  onDeleted: () {
-                    setState(() => _tags.remove(tag));
-                  },
-                  backgroundColor: const Color(0xFF5E81F3).withOpacity(0.2),
-                  labelStyle: const TextStyle(color: Color(0xFF5E81F3)),
-                  deleteIconColor: const Color(0xFF5E81F3),
-                  deleteIcon: const Icon(Icons.close, size: 18),
-                )).toList(),
+            children: _tags
+                .map((tag) => Chip(
+                      label: Text(tag),
+                      onDeleted: () {
+                        setState(() => _tags.remove(tag));
+                      },
+                      backgroundColor: const Color(0xFF5E81F3).withOpacity(0.2),
+                      labelStyle: const TextStyle(color: Color(0xFF5E81F3)),
+                      deleteIconColor: const Color(0xFF5E81F3),
+                      deleteIcon: const Icon(Icons.close, size: 18),
+                    ))
+                .toList(),
           ),
           const SizedBox(height: 12),
         ],
-        
+
         // Suggested tags
         if (availableSuggestions.isNotEmpty) ...[
           Text(
@@ -1077,14 +1137,15 @@ class _SmartCaptureFlowScreenState extends State<SmartCaptureFlowScreen> {
                       });
                     },
                     backgroundColor: Colors.green.withOpacity(0.1),
-                    labelStyle: const TextStyle(color: Colors.green, fontSize: 12),
+                    labelStyle:
+                        const TextStyle(color: Colors.green, fontSize: 12),
                     side: BorderSide(color: Colors.green.withOpacity(0.3)),
                   )),
             ],
           ),
           const SizedBox(height: 12),
         ],
-        
+
         // Manual add button
         OutlinedButton.icon(
           onPressed: _addTag,

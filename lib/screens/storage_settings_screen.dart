@@ -35,19 +35,29 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
     _loadSettings();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Reload settings when screen becomes visible again
+    // This ensures the toggle state is correct when navigating back
+    _loadSettings();
+  }
+
   Future<void> _loadSettings() async {
     final enabled = await widget.cloudSyncService.isBackupEnabled();
     final signedIn = await widget.cloudSyncService.isSignedIn();
 
-    setState(() {
-      _backupEnabled = enabled;
-      if (signedIn) {
-        _userEmail = widget.cloudSyncService.getCurrentUserEmail();
-      }
-    });
+    if (mounted) {
+      setState(() {
+        _backupEnabled = enabled;
+        if (signedIn) {
+          _userEmail = widget.cloudSyncService.getCurrentUserEmail();
+        }
+      });
 
-    if (_backupEnabled && signedIn) {
-      _loadBackupInfo();
+      if (_backupEnabled && signedIn) {
+        _loadBackupInfo();
+      }
     }
   }
 
@@ -281,14 +291,25 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
       ),
     );
 
-    // If restore was successful, pop back to force home screen reload
+    // If restore was successful, reload settings to ensure toggle state is correct
     if (result == true && mounted) {
-      // Wait a bit for the success message
-      await Future.delayed(const Duration(milliseconds: 500));
-      // Pop back to home screen - it will reload data
-      if (mounted) {
-        Navigator.of(context).popUntil((route) => route.isFirst);
-      }
+      // Reload settings to ensure backup toggle shows enabled state
+      await _loadSettings();
+
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Row(
+            children: [
+              Icon(Icons.check_circle, color: Colors.white),
+              SizedBox(width: 12),
+              Text('✓ Backup enabled and data restored'),
+            ],
+          ),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 3),
+        ),
+      );
     }
   }
 
@@ -421,31 +442,124 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
     }
   }
 
+  Future<void> _deleteBackup() async {
+    // Confirm with user
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1E1E1E),
+        title:
+            const Text('Delete Backup?', style: TextStyle(color: Colors.white)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Are you sure you want to delete your backup from Google Drive? This action cannot be undone.',
+              style: TextStyle(color: Colors.white70),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.red.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: Colors.red.withOpacity(0.3),
+                ),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.warning, color: Colors.red, size: 20),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'This will delete all backed up documents and images from your Google Drive.',
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.9),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Delete Backup'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      setState(() => _isLoading = true);
+      try {
+        final success = await widget.cloudSyncService.deleteBackup();
+        if (success && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('✓ Backup deleted successfully'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          _loadBackupInfo();
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Delete failed: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } finally {
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final documentCount = widget.storageService.getDocumentCount();
+    final theme = Theme.of(context);
+    final documentCount = widget.storageService.getAllDocumentIds().length;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text(
+        title: Text(
           'Storage & Backup',
           style: TextStyle(
-            color: Colors.white,
+            color: theme.textTheme.bodyLarge?.color,
             fontWeight: FontWeight.bold,
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: theme.textTheme.bodyLarge?.color),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
       body: _isLoading
-          ? const Center(
+          ? Center(
               child: CircularProgressIndicator(
-                color: Color(0xFF5E81F3),
+                color: theme.primaryColor,
               ),
             )
           : SingleChildScrollView(
@@ -474,10 +588,10 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
                       SwitchListTile(
                         value: _backupEnabled,
                         onChanged: _toggleBackup,
-                        title: const Text(
+                        title: Text(
                           'Enable Backup',
                           style: TextStyle(
-                            color: Colors.white,
+                            color: theme.textTheme.bodyLarge?.color,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -486,16 +600,16 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
                               ? 'Automatically backs up to Google Drive'
                               : 'Store data locally only',
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.6),
+                            color: theme.textTheme.bodySmall?.color,
                             fontSize: 14,
                           ),
                         ),
-                        activeThumbColor: const Color(0xFF5E81F3),
+                        activeThumbColor: theme.primaryColor,
                         contentPadding: EdgeInsets.zero,
                       ),
                       if (_backupEnabled) ...[
                         const SizedBox(height: 16),
-                        const Divider(color: Colors.white12),
+                        Divider(color: theme.dividerColor),
                         const SizedBox(height: 16),
                         if (_userEmail != null)
                           _buildInfoRow('Google Account', _userEmail!),
@@ -523,9 +637,9 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
                                 icon: const Icon(Icons.cloud_upload, size: 18),
                                 label: const Text('Backup Now'),
                                 style: OutlinedButton.styleFrom(
-                                  foregroundColor: const Color(0xFF5E81F3),
-                                  side: const BorderSide(
-                                    color: Color(0xFF5E81F3),
+                                  foregroundColor: theme.primaryColor,
+                                  side: BorderSide(
+                                    color: theme.primaryColor,
                                     width: 2,
                                   ),
                                   shape: RoundedRectangleBorder(
@@ -544,10 +658,11 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
                                     const Icon(Icons.cloud_download, size: 18),
                                 label: const Text('Restore'),
                                 style: OutlinedButton.styleFrom(
-                                  foregroundColor:
-                                      Colors.white.withOpacity(0.8),
+                                  foregroundColor: theme
+                                      .textTheme.bodyLarge?.color
+                                      ?.withOpacity(0.8),
                                   side: BorderSide(
-                                    color: Colors.white.withOpacity(0.3),
+                                    color: theme.dividerColor,
                                     width: 2,
                                   ),
                                   shape: RoundedRectangleBorder(
@@ -560,6 +675,24 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
                             ),
                           ],
                         ),
+                        if (_backupInfo != null &&
+                            _backupInfo!['exists'] == true) ...[
+                          const SizedBox(height: 12),
+                          SizedBox(
+                            width: double.infinity,
+                            child: TextButton.icon(
+                              onPressed: _deleteBackup,
+                              icon: const Icon(Icons.delete_forever, size: 18),
+                              label: const Text('Delete Backup from Drive'),
+                              style: TextButton.styleFrom(
+                                foregroundColor:
+                                    theme.colorScheme.error.withOpacity(0.8),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 12),
+                              ),
+                            ),
+                          ),
+                        ],
                       ],
                     ],
                   ),
@@ -570,16 +703,16 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1E1E1E),
+                      color: theme.cardColor,
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Column(
                       children: [
                         Row(
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.security,
-                              color: Color(0xFF5E81F3),
+                              color: theme.primaryColor,
                               size: 24,
                             ),
                             const SizedBox(width: 12),
@@ -588,7 +721,8 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.white.withOpacity(0.9),
+                                color: theme.textTheme.bodyLarge?.color
+                                    ?.withOpacity(0.9),
                               ),
                             ),
                           ],
@@ -598,7 +732,7 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
                           'All your data is encrypted on your device before being stored or uploaded. The encryption key never leaves your device, ensuring complete privacy. Even Google cannot read your backup files.',
                           style: TextStyle(
                             fontSize: 14,
-                            color: Colors.white.withOpacity(0.6),
+                            color: theme.textTheme.bodySmall?.color,
                             height: 1.5,
                           ),
                         ),
@@ -616,10 +750,12 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
     required IconData icon,
     required List<Widget> children,
   }) {
+    final theme = Theme.of(context);
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E),
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -629,16 +765,16 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
             children: [
               Icon(
                 icon,
-                color: const Color(0xFF5E81F3),
+                color: theme.primaryColor,
                 size: 24,
               ),
               const SizedBox(width: 12),
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: theme.textTheme.bodyLarge?.color,
                 ),
               ),
             ],
@@ -651,6 +787,8 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
   }
 
   Widget _buildInfoRow(String label, String value) {
+    final theme = Theme.of(context);
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
@@ -660,15 +798,15 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
             label,
             style: TextStyle(
               fontSize: 14,
-              color: Colors.white.withOpacity(0.6),
+              color: theme.textTheme.bodySmall?.color,
             ),
           ),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: Colors.white,
+              color: theme.textTheme.bodyLarge?.color,
             ),
           ),
         ],
@@ -810,11 +948,13 @@ class _RestoreAnimationDialogState extends State<_RestoreAnimationDialog>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Dialog(
-      backgroundColor: const Color(0xFF1E1E1E),
+      backgroundColor: theme.cardColor,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -828,12 +968,12 @@ class _RestoreAnimationDialogState extends State<_RestoreAnimationDialog>
                     height: 80,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: const Color(0xFF5E81F3).withOpacity(0.2),
+                      color: theme.primaryColor.withOpacity(0.2),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.cloud_download,
                       size: 40,
-                      color: Color(0xFF5E81F3),
+                      color: theme.primaryColor,
                     ),
                   ),
                 ),
@@ -858,19 +998,19 @@ class _RestoreAnimationDialogState extends State<_RestoreAnimationDialog>
                 height: 80,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.orange.withOpacity(0.2),
+                  color: theme.colorScheme.error.withOpacity(0.2),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.warning,
                   size: 40,
-                  color: Colors.orange,
+                  color: theme.colorScheme.error,
                 ),
               ),
             const SizedBox(height: 24),
             Text(
               _statusMessage,
               style: TextStyle(
-                color: Colors.white.withOpacity(0.9),
+                color: theme.textTheme.bodyLarge?.color?.withOpacity(0.9),
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
               ),
@@ -883,28 +1023,28 @@ class _RestoreAnimationDialogState extends State<_RestoreAnimationDialog>
                 width: 200,
                 child: LinearProgressIndicator(
                   value: _currentImage / _totalImages,
-                  backgroundColor: Colors.white.withOpacity(0.1),
-                  valueColor:
-                      const AlwaysStoppedAnimation<Color>(Color(0xFF5E81F3)),
+                  backgroundColor:
+                      theme.textTheme.bodyLarge?.color?.withOpacity(0.1),
+                  valueColor: AlwaysStoppedAnimation<Color>(theme.primaryColor),
                 ),
               ),
               const SizedBox(height: 8),
               Text(
                 '$_currentImage / $_totalImages images',
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.6),
+                  color: theme.textTheme.bodySmall?.color,
                   fontSize: 12,
                 ),
               ),
             ],
             if (!_isComplete && !_hasError && _totalImages == 0) ...[
               const SizedBox(height: 24),
-              const SizedBox(
+              SizedBox(
                 width: 30,
                 height: 30,
                 child: CircularProgressIndicator(
                   strokeWidth: 3,
-                  color: Color(0xFF5E81F3),
+                  color: theme.primaryColor,
                 ),
               ),
             ],

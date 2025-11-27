@@ -4,8 +4,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
 
 import 'package:documate/theme/app_theme.dart';
+import 'package:documate/theme/theme_provider.dart';
 import 'package:documate/screens/welcome_screen.dart';
 import 'package:documate/screens/home_screen.dart';
 import 'package:documate/screens/new_home_screen.dart';
@@ -16,6 +18,7 @@ import 'package:documate/screens/auth/register_screen.dart';
 import 'package:documate/screens/auth/forgot_password_screen.dart';
 import 'package:documate/screens/storage_onboarding_screen.dart';
 import 'package:documate/screens/storage_privacy_screen.dart';
+import 'package:documate/screens/permission_screen.dart';
 import 'package:documate/screens/storage_settings_screen.dart';
 import 'package:documate/screens/notification_settings_screen.dart';
 import 'package:documate/screens/smart_capture_flow_screen.dart';
@@ -142,37 +145,61 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      navigatorKey: navigatorKey,
-      title: 'DocuMate',
-      debugShowCheckedModeBanner: false,
-      theme: DocuMateTheme.darkTheme,
-      home: const SplashScreen(),
-      routes: {
-        '/home': (context) => const NewHomeScreen(),
-        '/old-home': (context) => const HomeScreen(),
-        '/welcome': (context) => const WelcomeScreen(),
-        '/onboarding': (context) => const OnboardingScreen(),
-        '/login': (context) => const LoginScreen(),
-        '/register': (context) => const RegisterScreen(),
-        '/forgot-password': (context) => const ForgotPasswordScreen(),
-        '/storage-onboarding': (context) => StorageOnboardingScreen(
-              storageService: storageService,
-              cloudSyncService: cloudSyncService,
-            ),
-        '/storage-privacy': (context) => const StoragePrivacyScreen(),
-        '/storage-settings': (context) => StorageSettingsScreen(
-              storageService: storageService,
-              cloudSyncService: cloudSyncService,
-            ),
-        '/notification-settings': (context) => NotificationSettingsScreen(
-              storageService: storageService,
-            ),
-        '/smart-capture': (context) => SmartCaptureFlowScreen(
-              storageService: storageService,
-              cloudSyncService: cloudSyncService,
-            ),
+    return ChangeNotifierProvider(
+      create: (context) {
+        final themeProvider = ThemeProvider();
+        // Load preferences asynchronously
+        themeProvider.loadPreferences();
+        return themeProvider;
       },
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, child) {
+          // Determine which theme to use based on theme mode
+          ThemeData lightTheme;
+          ThemeData darkTheme;
+
+          // Apply accent color to themes
+          final accentColor = themeProvider.accentColor;
+          lightTheme = DocuMateTheme.lightThemeWithAccent(accentColor);
+          darkTheme = DocuMateTheme.darkThemeWithAccent(accentColor);
+
+          return MaterialApp(
+            navigatorKey: navigatorKey,
+            title: 'DocuMate',
+            debugShowCheckedModeBanner: false,
+            theme: lightTheme,
+            darkTheme: darkTheme,
+            themeMode: themeProvider.themeMode,
+            home: const SplashScreen(),
+            routes: {
+              '/home': (context) => const NewHomeScreen(),
+              '/old-home': (context) => const HomeScreen(),
+              '/welcome': (context) => const WelcomeScreen(),
+              '/onboarding': (context) => const OnboardingScreen(),
+              '/login': (context) => const LoginScreen(),
+              '/register': (context) => const RegisterScreen(),
+              '/forgot-password': (context) => const ForgotPasswordScreen(),
+              '/storage-onboarding': (context) => StorageOnboardingScreen(
+                    storageService: storageService,
+                    cloudSyncService: cloudSyncService,
+                  ),
+              '/permission-screen': (context) => const PermissionScreen(),
+              '/storage-privacy': (context) => const StoragePrivacyScreen(),
+              '/storage-settings': (context) => StorageSettingsScreen(
+                    storageService: storageService,
+                    cloudSyncService: cloudSyncService,
+                  ),
+              '/notification-settings': (context) => NotificationSettingsScreen(
+                    storageService: storageService,
+                  ),
+              '/smart-capture': (context) => SmartCaptureFlowScreen(
+                    storageService: storageService,
+                    cloudSyncService: cloudSyncService,
+                  ),
+            },
+          );
+        },
+      ),
     );
   }
 }

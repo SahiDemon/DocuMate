@@ -84,6 +84,7 @@ class _AccountInformationScreenState extends State<AccountInformationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final email = _user?.email ?? 'No email';
     final displayName = _user?.displayName ?? 'Not set';
     final photoUrl = _user?.photoURL;
@@ -93,24 +94,24 @@ class _AccountInformationScreenState extends State<AccountInformationScreen> {
     final uid = _user?.uid ?? 'Unknown';
 
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text(
+        title: Text(
           'Account Information',
           style: TextStyle(
-            color: Colors.white,
+            color: theme.textTheme.bodyLarge?.color,
             fontWeight: FontWeight.bold,
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: theme.textTheme.bodyLarge?.color),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(child: CircularProgressIndicator(color: theme.primaryColor))
           : SingleChildScrollView(
               padding: const EdgeInsets.all(24),
               child: Column(
@@ -122,13 +123,12 @@ class _AccountInformationScreenState extends State<AccountInformationScreen> {
                       children: [
                         CircleAvatar(
                           radius: 60,
-                          backgroundColor:
-                              const Color(0xFF5E81F3).withOpacity(0.2),
+                          backgroundColor: theme.primaryColor.withOpacity(0.2),
                           backgroundImage:
                               photoUrl != null ? NetworkImage(photoUrl) : null,
                           child: photoUrl == null
-                              ? const Icon(Icons.person,
-                                  size: 60, color: Color(0xFF5E81F3))
+                              ? Icon(Icons.person,
+                                  size: 60, color: theme.primaryColor)
                               : null,
                         ),
                         if (emailVerified)
@@ -157,7 +157,7 @@ class _AccountInformationScreenState extends State<AccountInformationScreen> {
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1E1E1E),
+                      color: theme.cardColor,
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Column(
@@ -166,11 +166,11 @@ class _AccountInformationScreenState extends State<AccountInformationScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
+                            Text(
                               'Display Name',
                               style: TextStyle(
                                 fontSize: 12,
-                                color: Color(0xFF9CA3AF),
+                                color: theme.textTheme.bodySmall?.color,
                                 fontWeight: FontWeight.w600,
                                 letterSpacing: 1.2,
                               ),
@@ -178,7 +178,7 @@ class _AccountInformationScreenState extends State<AccountInformationScreen> {
                             if (!_isEditingName)
                               IconButton(
                                 icon: const Icon(Icons.edit, size: 20),
-                                color: const Color(0xFF5E81F3),
+                                color: theme.primaryColor,
                                 onPressed: () =>
                                     setState(() => _isEditingName = true),
                               ),
@@ -191,20 +191,22 @@ class _AccountInformationScreenState extends State<AccountInformationScreen> {
                               Expanded(
                                 child: TextField(
                                   controller: _displayNameController,
-                                  style: const TextStyle(color: Colors.white),
+                                  style: TextStyle(
+                                      color: theme.textTheme.bodyLarge?.color),
                                   decoration: InputDecoration(
                                     hintText: 'Enter your name',
                                     hintStyle: TextStyle(
-                                        color: Colors.white.withOpacity(0.3)),
+                                        color: theme.textTheme.bodyLarge?.color
+                                            ?.withOpacity(0.3)),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(8),
-                                      borderSide: const BorderSide(
-                                          color: Color(0xFF5E81F3)),
+                                      borderSide:
+                                          BorderSide(color: theme.primaryColor),
                                     ),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(8),
-                                      borderSide: const BorderSide(
-                                          color: Color(0xFF5E81F3), width: 2),
+                                      borderSide: BorderSide(
+                                          color: theme.primaryColor, width: 2),
                                     ),
                                   ),
                                 ),
@@ -231,10 +233,10 @@ class _AccountInformationScreenState extends State<AccountInformationScreen> {
                         else
                           Text(
                             displayName,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                              color: theme.textTheme.bodyLarge?.color,
                             ),
                           ),
                       ],
@@ -282,17 +284,17 @@ class _AccountInformationScreenState extends State<AccountInformationScreen> {
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1E1E1E),
+                      color: theme.cardColor,
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'SIGN-IN METHOD',
                           style: TextStyle(
                             fontSize: 12,
-                            color: Color(0xFF9CA3AF),
+                            color: theme.textTheme.bodySmall?.color,
                             fontWeight: FontWeight.w600,
                             letterSpacing: 1.2,
                           ),
@@ -321,20 +323,20 @@ class _AccountInformationScreenState extends State<AccountInformationScreen> {
                             child: Row(
                               children: [
                                 Icon(providerIcon,
-                                    color: const Color(0xFF5E81F3), size: 24),
+                                    color: theme.primaryColor, size: 24),
                                 const SizedBox(width: 12),
                                 Text(
                                   providerName,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 16,
-                                    color: Colors.white,
+                                    color: theme.textTheme.bodyLarge?.color,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
                               ],
                             ),
                           );
-                        }).toList(),
+                        }),
                       ],
                     ),
                   ),
@@ -351,10 +353,12 @@ class _AccountInformationScreenState extends State<AccountInformationScreen> {
     bool verified = false,
     bool copyable = false,
   }) {
+    final theme = Theme.of(context);
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E),
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -365,9 +369,9 @@ class _AccountInformationScreenState extends State<AccountInformationScreen> {
             children: [
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
-                  color: Color(0xFF9CA3AF),
+                  color: theme.textTheme.bodySmall?.color,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 1.2,
                 ),
@@ -400,14 +404,14 @@ class _AccountInformationScreenState extends State<AccountInformationScreen> {
           const SizedBox(height: 8),
           Row(
             children: [
-              Icon(icon, color: const Color(0xFF5E81F3), size: 20),
+              Icon(icon, color: theme.primaryColor, size: 20),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   value,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
-                    color: Colors.white,
+                    color: theme.textTheme.bodyLarge?.color,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -415,7 +419,7 @@ class _AccountInformationScreenState extends State<AccountInformationScreen> {
               if (copyable)
                 IconButton(
                   icon: const Icon(Icons.copy, size: 18),
-                  color: const Color(0xFF5E81F3),
+                  color: theme.primaryColor,
                   onPressed: () {
                     Clipboard.setData(ClipboardData(text: value));
                     ScaffoldMessenger.of(context).showSnackBar(

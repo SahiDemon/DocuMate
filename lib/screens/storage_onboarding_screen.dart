@@ -114,17 +114,17 @@ class _StorageOnboardingScreenState extends State<StorageOnboardingScreen>
 
         // 4. Check for existing backup
         final backupInfo = await widget.cloudSyncService.getBackupInfo();
-        
+
         setState(() => _isLoading = false);
 
         if (backupInfo != null && backupInfo['exists'] == true && mounted) {
           // Show restore dialog if backup exists
           final shouldRestore = await _showRestoreDialog(backupInfo);
-          
+
           if (shouldRestore == true) {
             // Restore with animation
             final restored = await _showRestoreAnimation();
-            
+
             if (!restored && mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
@@ -215,8 +215,9 @@ class _StorageOnboardingScreenState extends State<StorageOnboardingScreen>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -241,15 +242,15 @@ class _StorageOnboardingScreenState extends State<StorageOnboardingScreen>
                     shape: BoxShape.circle,
                     gradient: RadialGradient(
                       colors: [
-                        const Color(0xFF5E81F3).withOpacity(0.1),
+                        theme.primaryColor.withValues(alpha: 0.1),
                         Colors.transparent,
                       ],
                     ),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.cloud_done,
                     size: 100,
-                    color: Color(0xFF5E81F3),
+                    color: theme.primaryColor,
                   ),
                 ),
               ),
@@ -257,13 +258,13 @@ class _StorageOnboardingScreenState extends State<StorageOnboardingScreen>
               const SizedBox(height: 24),
 
               // Title
-              const Text(
+              Text(
                 'Where do you want to\nstore your data?',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 30,
                   fontWeight: FontWeight.w800,
-                  color: Colors.white,
+                  color: theme.textTheme.bodyLarge?.color,
                   height: 1.2,
                   letterSpacing: -0.5,
                 ),
@@ -277,7 +278,7 @@ class _StorageOnboardingScreenState extends State<StorageOnboardingScreen>
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 16,
-                  color: Colors.white.withOpacity(0.6),
+                  color: theme.textTheme.bodySmall?.color,
                 ),
               ),
 
@@ -307,10 +308,10 @@ class _StorageOnboardingScreenState extends State<StorageOnboardingScreen>
                   'https://lh3.googleusercontent.com/aida-public/AB6AXuDkfSxmm6VGtRH18uYZWgM3JHuO17UEoEYt-nDrDj2lNr626lACEca1cmj_qcRJHqLIPItC2r4h7T6JphPV7htdB3WN70Ou2paGmRuseBgoCWZG3hwSXP7n5uKcKAHKQyT2K-B5wRULcbSceZbeuyAzMTl6vR94Gy_ciqt9D-zLXPFIzDjCihi96sY8SXkwrGIX04oZ9z4MyTkACF_Q8jbf5U3D4H37WS3_nr8FXHiEucdbHjY2t0ffAOYkcnEJikSJTUGlgTnYP-U',
                   width: 28,
                   height: 28,
-                  errorBuilder: (context, error, stackTrace) => const Icon(
+                  errorBuilder: (context, error, stackTrace) => Icon(
                     Icons.cloud_upload,
                     size: 28,
-                    color: Colors.white,
+                    color: theme.textTheme.bodyLarge?.color,
                   ),
                 ),
                 title: 'Local + Backup to Google Drive',
@@ -332,15 +333,15 @@ class _StorageOnboardingScreenState extends State<StorageOnboardingScreen>
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _handleContinue,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF5E81F3),
+                    backgroundColor: theme.primaryColor,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
                     elevation: 8,
-                    shadowColor: const Color(0xFF3E63DD).withOpacity(0.3),
+                    shadowColor: theme.primaryColor.withValues(alpha: 0.3),
                     disabledBackgroundColor:
-                        const Color(0xFF5E81F3).withOpacity(0.5),
+                        theme.primaryColor.withValues(alpha: 0.5),
                   ),
                   child: _isLoading
                       ? const SizedBox(
@@ -386,6 +387,7 @@ class _StorageOnboardingScreenState extends State<StorageOnboardingScreen>
     required bool isSelected,
     required VoidCallback onTap,
   }) {
+    final theme = Theme.of(context);
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -394,13 +396,11 @@ class _StorageOnboardingScreenState extends State<StorageOnboardingScreen>
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: isSelected
-              ? const Color(0xFF5E81F3).withOpacity(0.1)
-              : const Color(0xFF1E1E1E),
+              ? theme.primaryColor.withValues(alpha: 0.1)
+              : theme.cardColor,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: isSelected
-                ? const Color(0xFF5E81F3)
-                : Colors.white.withOpacity(0.2),
+            color: isSelected ? theme.primaryColor : theme.dividerColor,
             width: 2,
           ),
         ),
@@ -412,8 +412,8 @@ class _StorageOnboardingScreenState extends State<StorageOnboardingScreen>
               height: 48,
               decoration: BoxDecoration(
                 color: isSelected
-                    ? const Color(0xFF5E81F3).withOpacity(0.2)
-                    : Colors.white.withOpacity(0.1),
+                    ? theme.primaryColor.withValues(alpha: 0.2)
+                    : theme.textTheme.bodyLarge?.color?.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Center(
@@ -422,8 +422,9 @@ class _StorageOnboardingScreenState extends State<StorageOnboardingScreen>
                       icon,
                       size: 28,
                       color: isSelected
-                          ? const Color(0xFF5E81F3)
-                          : Colors.white.withOpacity(0.6),
+                          ? theme.primaryColor
+                          : theme.textTheme.bodyLarge?.color
+                              ?.withValues(alpha: 0.6),
                     ),
               ),
             ),
@@ -441,8 +442,9 @@ class _StorageOnboardingScreenState extends State<StorageOnboardingScreen>
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       color: isSelected
-                          ? Colors.white
-                          : Colors.white.withOpacity(0.8),
+                          ? theme.textTheme.bodyLarge?.color
+                          : theme.textTheme.bodyLarge?.color
+                              ?.withValues(alpha: 0.8),
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -451,8 +453,9 @@ class _StorageOnboardingScreenState extends State<StorageOnboardingScreen>
                     style: TextStyle(
                       fontSize: 14,
                       color: isSelected
-                          ? Colors.white.withOpacity(0.6)
-                          : Colors.white.withOpacity(0.5),
+                          ? theme.textTheme.bodySmall?.color
+                          : theme.textTheme.bodySmall?.color
+                              ?.withValues(alpha: 0.8),
                     ),
                   ),
                 ],
@@ -468,21 +471,19 @@ class _StorageOnboardingScreenState extends State<StorageOnboardingScreen>
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: isSelected
-                      ? const Color(0xFF5E81F3)
-                      : Colors.white.withOpacity(0.4),
+                  color: isSelected ? theme.primaryColor : theme.dividerColor,
                   width: 2,
                 ),
-                color: const Color(0xFF121212),
+                color: theme.scaffoldBackgroundColor,
               ),
               child: isSelected
                   ? Center(
                       child: Container(
                         width: 10,
                         height: 10,
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Color(0xFF5E81F3),
+                          color: theme.primaryColor,
                         ),
                       ),
                     )
@@ -499,32 +500,33 @@ class _StorageOnboardingScreenState extends State<StorageOnboardingScreen>
         ? DateTime.parse(backupInfo['lastModified']).toString().split('.')[0]
         : 'Unknown';
 
+    final theme = Theme.of(context);
     return showDialog<bool>(
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF1E1E1E),
+        backgroundColor: theme.cardColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFF5E81F3).withOpacity(0.2),
+                color: theme.primaryColor.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.cloud_download,
-                color: Color(0xFF5E81F3),
+                color: theme.primaryColor,
                 size: 28,
               ),
             ),
             const SizedBox(width: 16),
-            const Expanded(
+            Expanded(
               child: Text(
                 'Backup Found!',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: theme.textTheme.bodyLarge?.color,
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
@@ -539,7 +541,7 @@ class _StorageOnboardingScreenState extends State<StorageOnboardingScreen>
             Text(
               'We found a previous backup in your Google Drive.',
               style: TextStyle(
-                color: Colors.white.withOpacity(0.8),
+                color: theme.textTheme.bodyLarge?.color?.withValues(alpha: 0.8),
                 fontSize: 15,
               ),
             ),
@@ -547,10 +549,10 @@ class _StorageOnboardingScreenState extends State<StorageOnboardingScreen>
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFF5E81F3).withOpacity(0.1),
+                color: theme.primaryColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: const Color(0xFF5E81F3).withOpacity(0.3),
+                  color: theme.primaryColor.withValues(alpha: 0.3),
                 ),
               ),
               child: Column(
@@ -558,12 +560,13 @@ class _StorageOnboardingScreenState extends State<StorageOnboardingScreen>
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.access_time, color: Color(0xFF5E81F3), size: 16),
+                      Icon(Icons.access_time,
+                          color: theme.primaryColor, size: 16),
                       const SizedBox(width: 8),
                       Text(
                         'Last backup:',
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.6),
+                          color: theme.textTheme.bodySmall?.color,
                           fontSize: 12,
                         ),
                       ),
@@ -572,8 +575,8 @@ class _StorageOnboardingScreenState extends State<StorageOnboardingScreen>
                   const SizedBox(height: 4),
                   Text(
                     lastModified,
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: theme.textTheme.bodyLarge?.color,
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                     ),
@@ -585,10 +588,10 @@ class _StorageOnboardingScreenState extends State<StorageOnboardingScreen>
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.green.withOpacity(0.1),
+                color: Colors.green.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: Colors.green.withOpacity(0.3),
+                  color: Colors.green.withValues(alpha: 0.3),
                 ),
               ),
               child: Row(
@@ -600,7 +603,8 @@ class _StorageOnboardingScreenState extends State<StorageOnboardingScreen>
                     child: Text(
                       'Your documents, settings, and images will be restored from Google Drive.',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.8),
+                        color: theme.textTheme.bodyLarge?.color
+                            ?.withValues(alpha: 0.8),
                         fontSize: 12,
                       ),
                     ),
@@ -612,7 +616,7 @@ class _StorageOnboardingScreenState extends State<StorageOnboardingScreen>
             Text(
               'Would you like to restore your documents and settings?',
               style: TextStyle(
-                color: Colors.white.withOpacity(0.8),
+                color: theme.textTheme.bodyLarge?.color?.withValues(alpha: 0.8),
                 fontSize: 14,
               ),
             ),
@@ -623,7 +627,7 @@ class _StorageOnboardingScreenState extends State<StorageOnboardingScreen>
             onPressed: () => Navigator.of(context).pop(false),
             child: Text(
               'Skip',
-              style: TextStyle(color: Colors.white.withOpacity(0.6)),
+              style: TextStyle(color: theme.textTheme.bodySmall?.color),
             ),
           ),
           ElevatedButton.icon(
@@ -631,7 +635,7 @@ class _StorageOnboardingScreenState extends State<StorageOnboardingScreen>
             icon: const Icon(Icons.cloud_download, size: 20),
             label: const Text('Restore Now'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF5E81F3),
+              backgroundColor: theme.primaryColor,
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -645,12 +649,13 @@ class _StorageOnboardingScreenState extends State<StorageOnboardingScreen>
 
   Future<bool> _showRestoreAnimation() async {
     return await showDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => _RestoreAnimationDialog(
-        cloudSyncService: widget.cloudSyncService,
-      ),
-    ) ?? false;
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => _RestoreAnimationDialog(
+            cloudSyncService: widget.cloudSyncService,
+          ),
+        ) ??
+        false;
   }
 }
 
@@ -662,7 +667,8 @@ class _RestoreAnimationDialog extends StatefulWidget {
   });
 
   @override
-  State<_RestoreAnimationDialog> createState() => _RestoreAnimationDialogState();
+  State<_RestoreAnimationDialog> createState() =>
+      _RestoreAnimationDialogState();
 }
 
 class _RestoreAnimationDialogState extends State<_RestoreAnimationDialog>
@@ -751,7 +757,7 @@ class _RestoreAnimationDialogState extends State<_RestoreAnimationDialog>
         }
       }
     } catch (e) {
-      print('Error restoring: $e');
+      debugPrint('Error restoring: $e');
       if (mounted) {
         setState(() {
           _statusMessage = 'Error: $e';
@@ -767,6 +773,7 @@ class _RestoreAnimationDialogState extends State<_RestoreAnimationDialog>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Dialog(
       backgroundColor: Colors.transparent,
       child: ScaleTransition(
@@ -774,7 +781,7 @@ class _RestoreAnimationDialogState extends State<_RestoreAnimationDialog>
         child: Container(
           padding: const EdgeInsets.all(32),
           decoration: BoxDecoration(
-            color: const Color(0xFF1E1E1E),
+            color: theme.cardColor,
             borderRadius: BorderRadius.circular(24),
           ),
           child: Column(
@@ -787,18 +794,20 @@ class _RestoreAnimationDialogState extends State<_RestoreAnimationDialog>
                   height: 80,
                   decoration: BoxDecoration(
                     color: _hasError
-                        ? const Color(0xFFEF4444).withOpacity(0.2)
+                        ? theme.colorScheme.error.withValues(alpha: 0.2)
                         : _isComplete
-                            ? const Color(0xFF10B981).withOpacity(0.2)
-                            : const Color(0xFF5E81F3).withOpacity(0.2),
+                            ? Colors.green.withValues(alpha: 0.2)
+                            : theme.primaryColor.withValues(alpha: 0.2),
                     shape: BoxShape.circle,
                   ),
                   child: _hasError
-                      ? const Icon(Icons.error, color: Color(0xFFEF4444), size: 40)
+                      ? Icon(Icons.error,
+                          color: theme.colorScheme.error, size: 40)
                       : _isComplete
-                          ? const Icon(Icons.check_circle, color: Color(0xFF10B981), size: 40)
-                          : const CircularProgressIndicator(
-                              color: Color(0xFF5E81F3),
+                          ? const Icon(Icons.check_circle,
+                              color: Colors.green, size: 40)
+                          : CircularProgressIndicator(
+                              color: theme.primaryColor,
                               strokeWidth: 3,
                             ),
                 ),
@@ -806,8 +815,8 @@ class _RestoreAnimationDialogState extends State<_RestoreAnimationDialog>
               const SizedBox(height: 24),
               Text(
                 _statusMessage,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: theme.textTheme.bodyLarge?.color,
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
                 ),
@@ -820,15 +829,17 @@ class _RestoreAnimationDialogState extends State<_RestoreAnimationDialog>
                   width: 200,
                   child: LinearProgressIndicator(
                     value: _currentImage / _totalImages,
-                    backgroundColor: Colors.white.withOpacity(0.1),
-                    valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF5E81F3)),
+                    backgroundColor: theme.textTheme.bodyLarge?.color
+                        ?.withValues(alpha: 0.1),
+                    valueColor:
+                        AlwaysStoppedAnimation<Color>(theme.primaryColor),
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   '$_currentImage / $_totalImages images',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.6),
+                    color: theme.textTheme.bodySmall?.color,
                     fontSize: 12,
                   ),
                 ),

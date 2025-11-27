@@ -25,20 +25,22 @@ class SupportDeveloperScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text(
+        title: Text(
           'Support Developer',
           style: TextStyle(
-            color: Colors.white,
+            color: theme.textTheme.bodyLarge?.color,
             fontWeight: FontWeight.bold,
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: theme.textTheme.bodyLarge?.color),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
@@ -52,36 +54,39 @@ class SupportDeveloperScreen extends StatelessWidget {
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF5E81F3), Color(0xFF8B5CF6)],
+                gradient: LinearGradient(
+                  colors: [
+                    theme.primaryColor,
+                    theme.primaryColor.withOpacity(0.7),
+                  ],
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF5E81F3).withOpacity(0.3),
+                    color: theme.primaryColor.withOpacity(0.3),
                     blurRadius: 20,
                     offset: const Offset(0, 10),
                   ),
                 ],
               ),
-              child: const CircleAvatar(
+              child: CircleAvatar(
                 radius: 60,
-                backgroundColor: Color(0xFF1E1E1E),
+                backgroundColor: theme.cardColor,
                 child: Icon(
                   Icons.code,
                   size: 60,
-                  color: Color(0xFF5E81F3),
+                  color: theme.primaryColor,
                 ),
               ),
             ),
             const SizedBox(height: 24),
 
             // Developer Name
-            const Text(
-              'Sahidu',
+            Text(
+              'Sahindu',
               style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: theme.textTheme.bodyLarge?.color,
               ),
             ),
             const SizedBox(height: 8),
@@ -89,7 +94,7 @@ class SupportDeveloperScreen extends StatelessWidget {
               'Creator of DocuMate',
               style: TextStyle(
                 fontSize: 16,
-                color: Colors.white.withOpacity(0.6),
+                color: theme.textTheme.bodySmall?.color,
               ),
             ),
             const SizedBox(height: 32),
@@ -102,13 +107,13 @@ class SupportDeveloperScreen extends StatelessWidget {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    const Color(0xFF5E81F3).withOpacity(0.2),
-                    const Color(0xFF8B5CF6).withOpacity(0.2),
+                    theme.primaryColor.withOpacity(0.2),
+                    theme.primaryColor.withOpacity(0.1),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: const Color(0xFF5E81F3).withOpacity(0.3),
+                  color: theme.primaryColor.withOpacity(0.3),
                   width: 2,
                 ),
               ),
@@ -125,7 +130,7 @@ class SupportDeveloperScreen extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white.withOpacity(0.9),
+                      color: theme.textTheme.bodyLarge?.color?.withOpacity(0.9),
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -134,7 +139,7 @@ class SupportDeveloperScreen extends StatelessWidget {
                     'If you enjoy this app, please consider supporting its development. Your support helps keep the app free and constantly improving!',
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.white.withOpacity(0.7),
+                      color: theme.textTheme.bodySmall?.color,
                       height: 1.5,
                     ),
                     textAlign: TextAlign.center,
@@ -145,7 +150,7 @@ class SupportDeveloperScreen extends StatelessWidget {
             const SizedBox(height: 32),
 
             // Support Options Section
-            const Align(
+            Align(
               alignment: Alignment.centerLeft,
               child: Text(
                 'SUPPORT OPTIONS',
@@ -153,7 +158,7 @@ class SupportDeveloperScreen extends StatelessWidget {
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 1.2,
-                  color: Color(0xFF9CA3AF),
+                  color: theme.textTheme.bodySmall?.color,
                 ),
               ),
             ),
@@ -184,7 +189,7 @@ class SupportDeveloperScreen extends StatelessWidget {
             const SizedBox(height: 32),
 
             // Connect Section
-            const Align(
+            Align(
               alignment: Alignment.centerLeft,
               child: Text(
                 'CONNECT',
@@ -192,7 +197,7 @@ class SupportDeveloperScreen extends StatelessWidget {
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 1.2,
-                  color: Color(0xFF9CA3AF),
+                  color: theme.textTheme.bodySmall?.color,
                 ),
               ),
             ),
@@ -214,7 +219,7 @@ class SupportDeveloperScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: const Color(0xFF1E1E1E),
+                color: theme.cardColor,
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Column(
@@ -222,15 +227,14 @@ class SupportDeveloperScreen extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.star,
-                          color: Color(0xFF5E81F3), size: 24),
+                      Icon(Icons.star, color: theme.primaryColor, size: 24),
                       const SizedBox(width: 12),
-                      const Text(
+                      Text(
                         'Other Ways to Support',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: theme.textTheme.bodyLarge?.color,
                         ),
                       ),
                     ],
@@ -253,15 +257,15 @@ class SupportDeveloperScreen extends StatelessWidget {
                   'Made with ',
                   style: TextStyle(
                     fontSize: 14,
-                    color: Colors.white.withOpacity(0.5),
+                    color: theme.textTheme.bodySmall?.color?.withOpacity(0.5),
                   ),
                 ),
                 const Icon(Icons.favorite, color: Colors.red, size: 16),
                 Text(
-                  ' by Sahidu',
+                  ' by Sahindu',
                   style: TextStyle(
                     fontSize: 14,
-                    color: Colors.white.withOpacity(0.5),
+                    color: theme.textTheme.bodySmall?.color?.withOpacity(0.5),
                   ),
                 ),
               ],
@@ -271,7 +275,7 @@ class SupportDeveloperScreen extends StatelessWidget {
               'Version 1.0.0',
               style: TextStyle(
                 fontSize: 12,
-                color: Colors.white.withOpacity(0.3),
+                color: theme.textTheme.bodySmall?.color?.withOpacity(0.3),
               ),
             ),
           ],
@@ -289,9 +293,11 @@ class SupportDeveloperScreen extends StatelessWidget {
     required String url,
     required String displayUrl,
   }) {
+    final theme = Theme.of(context);
+
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E),
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: color.withOpacity(0.3),
@@ -309,7 +315,7 @@ class SupportDeveloperScreen extends StatelessWidget {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text('Could not open link: $e'),
-                  backgroundColor: Colors.red,
+                  backgroundColor: theme.colorScheme.error,
                 ),
               );
             }
@@ -333,10 +339,10 @@ class SupportDeveloperScreen extends StatelessWidget {
                     children: [
                       Text(
                         title,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: theme.textTheme.bodyLarge?.color,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -344,7 +350,7 @@ class SupportDeveloperScreen extends StatelessWidget {
                         description,
                         style: TextStyle(
                           fontSize: 13,
-                          color: Colors.white.withOpacity(0.6),
+                          color: theme.textTheme.bodySmall?.color,
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -363,7 +369,7 @@ class SupportDeveloperScreen extends StatelessWidget {
                           ),
                           IconButton(
                             icon: const Icon(Icons.copy, size: 16),
-                            color: Colors.white.withOpacity(0.5),
+                            color: theme.iconTheme.color?.withOpacity(0.5),
                             padding: EdgeInsets.zero,
                             constraints: const BoxConstraints(),
                             onPressed: () =>
@@ -396,9 +402,11 @@ class SupportDeveloperScreen extends StatelessWidget {
     required String url,
     required String displayUrl,
   }) {
+    final theme = Theme.of(context);
+
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E),
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Material(
@@ -412,7 +420,7 @@ class SupportDeveloperScreen extends StatelessWidget {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text('Could not open link: $e'),
-                  backgroundColor: Colors.red,
+                  backgroundColor: theme.colorScheme.error,
                 ),
               );
             }
@@ -436,10 +444,10 @@ class SupportDeveloperScreen extends StatelessWidget {
                     children: [
                       Text(
                         title,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: theme.textTheme.bodyLarge?.color,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -447,7 +455,7 @@ class SupportDeveloperScreen extends StatelessWidget {
                         description,
                         style: TextStyle(
                           fontSize: 13,
-                          color: Colors.white.withOpacity(0.6),
+                          color: theme.textTheme.bodySmall?.color,
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -464,7 +472,7 @@ class SupportDeveloperScreen extends StatelessWidget {
                 ),
                 Icon(
                   Icons.arrow_forward_ios,
-                  color: Colors.white.withOpacity(0.3),
+                  color: theme.iconTheme.color?.withOpacity(0.3),
                   size: 16,
                 ),
               ],
@@ -476,24 +484,37 @@ class SupportDeveloperScreen extends StatelessWidget {
   }
 
   Widget _buildSupportTip(String tip) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Icon(Icons.check_circle, color: Color(0xFF5E81F3), size: 20),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              tip,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.white.withOpacity(0.7),
+    // We need context here, but this method doesn't have it.
+    // However, since this is a StatelessWidget, we can't easily access context without passing it.
+    // But wait, we are inside a class that extends StatelessWidget.
+    // The build method has context.
+    // Let's refactor this to use a Builder or pass context.
+    // Actually, since we are replacing the whole file content or a large chunk, we can just use Builder or assume context is available if we change the signature.
+    // But changing signature might break calls.
+    // Let's see where it's called. It's called in build().
+    // So we can just change the signature to accept context.
+
+    return Builder(builder: (context) {
+      final theme = Theme.of(context);
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(Icons.check_circle, color: theme.primaryColor, size: 20),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                tip,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: theme.textTheme.bodySmall?.color,
+                ),
               ),
             ),
-          ),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
+    });
   }
 }

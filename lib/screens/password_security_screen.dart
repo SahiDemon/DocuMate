@@ -157,25 +157,26 @@ class _PasswordSecurityScreenState extends State<PasswordSecurityScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text(
+        title: Text(
           'Password & Security',
           style: TextStyle(
-            color: Colors.white,
+            color: theme.textTheme.bodyLarge?.color,
             fontWeight: FontWeight.bold,
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: theme.textTheme.bodyLarge?.color),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(child: CircularProgressIndicator(color: theme.primaryColor))
           : SingleChildScrollView(
               padding: const EdgeInsets.all(24),
               child: Column(
@@ -184,33 +185,46 @@ class _PasswordSecurityScreenState extends State<PasswordSecurityScreen> {
                   if (!_isPasswordProvider) ...[
                     // Google Sign-In User
                     Container(
-                      padding: const EdgeInsets.all(20),
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(32),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF1E1E1E),
+                        color: theme.cardColor,
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
-                            Icons.g_mobiledata,
-                            size: 60,
-                            color: Colors.white.withOpacity(0.5),
+                          Container(
+                            width: 80,
+                            height: 80,
+                            decoration: BoxDecoration(
+                              color: theme.textTheme.bodyLarge?.color
+                                  ?.withOpacity(0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.g_mobiledata,
+                              size: 50,
+                              color: theme.textTheme.bodyLarge?.color
+                                  ?.withOpacity(0.7),
+                            ),
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 24),
                           Text(
                             'Signed in with Google',
                             style: TextStyle(
-                              fontSize: 18,
+                              fontSize: 20,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white.withOpacity(0.9),
+                              color: theme.textTheme.bodyLarge?.color
+                                  ?.withOpacity(0.9),
                             ),
                           ),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 12),
                           Text(
                             'Password management is handled by Google',
                             style: TextStyle(
                               fontSize: 14,
-                              color: Colors.white.withOpacity(0.6),
+                              color: theme.textTheme.bodySmall?.color,
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -224,7 +238,7 @@ class _PasswordSecurityScreenState extends State<PasswordSecurityScreen> {
                       Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF1E1E1E),
+                          color: theme.cardColor,
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Column(
@@ -232,9 +246,9 @@ class _PasswordSecurityScreenState extends State<PasswordSecurityScreen> {
                           children: [
                             Row(
                               children: [
-                                const Icon(
+                                Icon(
                                   Icons.lock,
-                                  color: Color(0xFF5E81F3),
+                                  color: theme.primaryColor,
                                   size: 24,
                                 ),
                                 const SizedBox(width: 12),
@@ -243,7 +257,8 @@ class _PasswordSecurityScreenState extends State<PasswordSecurityScreen> {
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.white.withOpacity(0.9),
+                                    color: theme.textTheme.bodyLarge?.color
+                                        ?.withOpacity(0.9),
                                   ),
                                 ),
                               ],
@@ -253,7 +268,7 @@ class _PasswordSecurityScreenState extends State<PasswordSecurityScreen> {
                               'Keep your account secure with a strong password',
                               style: TextStyle(
                                 fontSize: 14,
-                                color: Colors.white.withOpacity(0.6),
+                                color: theme.textTheme.bodySmall?.color,
                               ),
                             ),
                             const SizedBox(height: 16),
@@ -265,7 +280,7 @@ class _PasswordSecurityScreenState extends State<PasswordSecurityScreen> {
                                 icon: const Icon(Icons.edit),
                                 label: const Text('Change Password'),
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF5E81F3),
+                                  backgroundColor: theme.primaryColor,
                                   foregroundColor: Colors.white,
                                   padding:
                                       const EdgeInsets.symmetric(vertical: 14),
@@ -283,10 +298,10 @@ class _PasswordSecurityScreenState extends State<PasswordSecurityScreen> {
                                 icon: const Icon(Icons.email),
                                 label: const Text('Send Reset Email'),
                                 style: OutlinedButton.styleFrom(
-                                  foregroundColor:
-                                      Colors.white.withOpacity(0.8),
-                                  side: BorderSide(
-                                      color: Colors.white.withOpacity(0.3)),
+                                  foregroundColor: theme
+                                      .textTheme.bodyLarge?.color
+                                      ?.withOpacity(0.8),
+                                  side: BorderSide(color: theme.dividerColor),
                                   padding:
                                       const EdgeInsets.symmetric(vertical: 14),
                                   shape: RoundedRectangleBorder(
@@ -303,7 +318,7 @@ class _PasswordSecurityScreenState extends State<PasswordSecurityScreen> {
                       Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF1E1E1E),
+                          color: theme.cardColor,
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Column(
@@ -317,12 +332,13 @@ class _PasswordSecurityScreenState extends State<PasswordSecurityScreen> {
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.white.withOpacity(0.9),
+                                    color: theme.textTheme.bodyLarge?.color
+                                        ?.withOpacity(0.9),
                                   ),
                                 ),
                                 IconButton(
-                                  icon: const Icon(Icons.close,
-                                      color: Colors.white),
+                                  icon: Icon(Icons.close,
+                                      color: theme.textTheme.bodyLarge?.color),
                                   onPressed: () {
                                     setState(() {
                                       _isChangingPassword = false;
@@ -340,13 +356,14 @@ class _PasswordSecurityScreenState extends State<PasswordSecurityScreen> {
                             TextField(
                               controller: _currentPasswordController,
                               obscureText: !_showCurrentPassword,
-                              style: const TextStyle(color: Colors.white),
+                              style: TextStyle(
+                                  color: theme.textTheme.bodyLarge?.color),
                               decoration: InputDecoration(
                                 labelText: 'Current Password',
                                 labelStyle: TextStyle(
-                                    color: Colors.white.withOpacity(0.6)),
+                                    color: theme.textTheme.bodySmall?.color),
                                 filled: true,
-                                fillColor: const Color(0xFF121212),
+                                fillColor: theme.scaffoldBackgroundColor,
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                   borderSide: BorderSide.none,
@@ -356,7 +373,7 @@ class _PasswordSecurityScreenState extends State<PasswordSecurityScreen> {
                                     _showCurrentPassword
                                         ? Icons.visibility_off
                                         : Icons.visibility,
-                                    color: Colors.white.withOpacity(0.5),
+                                    color: theme.textTheme.bodySmall?.color,
                                   ),
                                   onPressed: () => setState(() =>
                                       _showCurrentPassword =
@@ -370,13 +387,14 @@ class _PasswordSecurityScreenState extends State<PasswordSecurityScreen> {
                             TextField(
                               controller: _newPasswordController,
                               obscureText: !_showNewPassword,
-                              style: const TextStyle(color: Colors.white),
+                              style: TextStyle(
+                                  color: theme.textTheme.bodyLarge?.color),
                               decoration: InputDecoration(
                                 labelText: 'New Password',
                                 labelStyle: TextStyle(
-                                    color: Colors.white.withOpacity(0.6)),
+                                    color: theme.textTheme.bodySmall?.color),
                                 filled: true,
-                                fillColor: const Color(0xFF121212),
+                                fillColor: theme.scaffoldBackgroundColor,
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                   borderSide: BorderSide.none,
@@ -386,7 +404,7 @@ class _PasswordSecurityScreenState extends State<PasswordSecurityScreen> {
                                     _showNewPassword
                                         ? Icons.visibility_off
                                         : Icons.visibility,
-                                    color: Colors.white.withOpacity(0.5),
+                                    color: theme.textTheme.bodySmall?.color,
                                   ),
                                   onPressed: () => setState(() =>
                                       _showNewPassword = !_showNewPassword),
@@ -399,13 +417,14 @@ class _PasswordSecurityScreenState extends State<PasswordSecurityScreen> {
                             TextField(
                               controller: _confirmPasswordController,
                               obscureText: !_showConfirmPassword,
-                              style: const TextStyle(color: Colors.white),
+                              style: TextStyle(
+                                  color: theme.textTheme.bodyLarge?.color),
                               decoration: InputDecoration(
                                 labelText: 'Confirm New Password',
                                 labelStyle: TextStyle(
-                                    color: Colors.white.withOpacity(0.6)),
+                                    color: theme.textTheme.bodySmall?.color),
                                 filled: true,
-                                fillColor: const Color(0xFF121212),
+                                fillColor: theme.scaffoldBackgroundColor,
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                   borderSide: BorderSide.none,
@@ -415,7 +434,7 @@ class _PasswordSecurityScreenState extends State<PasswordSecurityScreen> {
                                     _showConfirmPassword
                                         ? Icons.visibility_off
                                         : Icons.visibility,
-                                    color: Colors.white.withOpacity(0.5),
+                                    color: theme.textTheme.bodySmall?.color,
                                   ),
                                   onPressed: () => setState(() =>
                                       _showConfirmPassword =
@@ -430,7 +449,7 @@ class _PasswordSecurityScreenState extends State<PasswordSecurityScreen> {
                               child: ElevatedButton(
                                 onPressed: _changePassword,
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF5E81F3),
+                                  backgroundColor: theme.primaryColor,
                                   foregroundColor: Colors.white,
                                   padding:
                                       const EdgeInsets.symmetric(vertical: 14),
@@ -453,7 +472,7 @@ class _PasswordSecurityScreenState extends State<PasswordSecurityScreen> {
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1E1E1E),
+                      color: theme.cardColor,
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Column(
@@ -461,15 +480,16 @@ class _PasswordSecurityScreenState extends State<PasswordSecurityScreen> {
                       children: [
                         Row(
                           children: [
-                            const Icon(Icons.security,
-                                color: Color(0xFF5E81F3), size: 24),
+                            Icon(Icons.security,
+                                color: theme.primaryColor, size: 24),
                             const SizedBox(width: 12),
                             Text(
                               'Security Tips',
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.white.withOpacity(0.9),
+                                color: theme.textTheme.bodyLarge?.color
+                                    ?.withOpacity(0.9),
                               ),
                             ),
                           ],
@@ -490,6 +510,7 @@ class _PasswordSecurityScreenState extends State<PasswordSecurityScreen> {
   }
 
   Widget _buildSecurityTip(String tip) {
+    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
@@ -502,7 +523,7 @@ class _PasswordSecurityScreenState extends State<PasswordSecurityScreen> {
               tip,
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.white.withOpacity(0.7),
+                color: theme.textTheme.bodyLarge?.color?.withOpacity(0.7),
               ),
             ),
           ),

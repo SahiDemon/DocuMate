@@ -74,7 +74,7 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen>
               });
             }
           } catch (e) {
-            print('Error parsing date for document: ${doc['name']}');
+            debugPrint('Error parsing date for document: ${doc['name']}');
           }
         }
 
@@ -97,7 +97,7 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen>
               });
             }
           } catch (e) {
-            print('Error parsing due date for document: ${doc['name']}');
+            debugPrint('Error parsing due date for document: ${doc['name']}');
           }
         }
       }
@@ -125,7 +125,7 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen>
         _isLoading = false;
       });
     } catch (e) {
-      print('Error loading notifications: $e');
+      debugPrint('Error loading notifications: $e');
       setState(() => _isLoading = false);
     }
   }
@@ -155,35 +155,36 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1E1E1E),
+        backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text(
+        title: Text(
           'Notifications',
           style: TextStyle(
-            color: Colors.white,
+            color: theme.textTheme.bodyLarge?.color,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: theme.textTheme.bodyLarge?.color),
           onPressed: () => Navigator.of(context).pop(),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh, color: Colors.white),
+            icon: Icon(Icons.refresh, color: theme.textTheme.bodyLarge?.color),
             tooltip: 'Refresh',
             onPressed: _loadNotifications,
           ),
         ],
         bottom: TabBar(
           controller: _tabController,
-          indicatorColor: const Color(0xFF5E81F3),
-          labelColor: const Color(0xFF5E81F3),
-          unselectedLabelColor: Colors.grey,
+          indicatorColor: theme.primaryColor,
+          labelColor: theme.primaryColor,
+          unselectedLabelColor: theme.textTheme.bodySmall?.color,
           tabs: [
             Tab(
               child: Row(
@@ -256,8 +257,8 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen>
                     const SizedBox(width: 4),
                     Container(
                       padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF5E81F3),
+                      decoration: BoxDecoration(
+                        color: theme.primaryColor,
                         shape: BoxShape.circle,
                       ),
                       constraints: const BoxConstraints(
@@ -361,6 +362,7 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen>
   }
 
   Widget _buildScheduledTab() {
+    final theme = Theme.of(context);
     if (_upcomingNotifications.isEmpty) {
       return _buildEmptyState(
         icon: Icons.notifications_off_outlined,
@@ -379,10 +381,10 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen>
           margin: const EdgeInsets.only(bottom: 12),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: const Color(0xFF1E1E1E),
+            color: theme.cardColor,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: const Color(0xFF5E81F3).withOpacity(0.3),
+              color: theme.primaryColor.withValues(alpha: 0.3),
             ),
           ),
           child: Row(
@@ -391,12 +393,12 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen>
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF5E81F3).withOpacity(0.2),
+                  color: theme.primaryColor.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.schedule,
-                  color: Color(0xFF5E81F3),
+                  color: theme.primaryColor,
                   size: 24,
                 ),
               ),
@@ -407,19 +409,19 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen>
                   children: [
                     Text(
                       notification['title'] as String? ?? 'Notification',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: theme.textTheme.bodyLarge?.color,
                       ),
                     ),
                     if (notification['body'] != null) ...[
                       const SizedBox(height: 4),
                       Text(
                         notification['body'] as String,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13,
-                          color: Colors.grey,
+                          color: theme.textTheme.bodySmall?.color,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -443,16 +445,17 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen>
     required DateTime date,
     VoidCallback? onTap,
   }) {
+    final theme = Theme.of(context);
     return GestureDetector(
       onTap: onTap,
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: const Color(0xFF1E1E1E),
+          color: theme.cardColor,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: iconColor.withOpacity(0.3),
+            color: iconColor.withValues(alpha: 0.3),
           ),
         ),
         child: Row(
@@ -461,7 +464,7 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen>
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: iconColor.withOpacity(0.2),
+                color: iconColor.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
@@ -477,10 +480,10 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen>
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: theme.textTheme.bodyLarge?.color,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -496,9 +499,9 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen>
                   const SizedBox(height: 4),
                   Text(
                     DateFormat('MMM dd, yyyy').format(date),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
-                      color: Colors.grey,
+                      color: theme.textTheme.bodySmall?.color,
                     ),
                   ),
                 ],
@@ -506,7 +509,7 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen>
             ),
             Icon(
               Icons.chevron_right,
-              color: Colors.white.withOpacity(0.5),
+              color: theme.textTheme.bodySmall?.color?.withValues(alpha: 0.5),
             ),
           ],
         ),
@@ -519,6 +522,7 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen>
     required String title,
     required String message,
   }) {
+    final theme = Theme.of(context);
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -531,8 +535,8 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen>
           const SizedBox(height: 16),
           Text(
             title,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: theme.textTheme.bodyLarge?.color,
               fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
@@ -541,7 +545,7 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen>
           Text(
             message,
             style: TextStyle(
-              color: Colors.grey[600],
+              color: theme.textTheme.bodySmall?.color,
               fontSize: 14,
             ),
           ),

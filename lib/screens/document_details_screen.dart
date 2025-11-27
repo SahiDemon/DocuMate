@@ -45,7 +45,7 @@ class _DocumentDetailsScreenState extends State<DocumentDetailsScreen> {
           });
         }
       } catch (e) {
-        print('Error loading linked document: $e');
+        debugPrint('Error loading linked document: $e');
       }
     }
   }
@@ -75,11 +75,16 @@ class _DocumentDetailsScreenState extends State<DocumentDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pushReplacementNamed('/home'),
+        ),
         title: Text(_document.name),
         actions: [
           IconButton(
@@ -111,6 +116,7 @@ class _DocumentDetailsScreenState extends State<DocumentDetailsScreen> {
   }
 
   Widget _buildImageCarousel() {
+    final theme = Theme.of(context);
     final images = _allImages;
 
     return Stack(
@@ -161,8 +167,8 @@ class _DocumentDetailsScreenState extends State<DocumentDetailsScreen> {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: _currentImageIndex == index
-                        ? Colors.blue
-                        : Colors.grey.withOpacity(0.5),
+                        ? theme.primaryColor
+                        : Colors.grey.withValues(alpha: 0.5),
                   ),
                 ),
               ),
@@ -177,7 +183,7 @@ class _DocumentDetailsScreenState extends State<DocumentDetailsScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.6),
+                color: Colors.black.withValues(alpha: 0.6),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Text(
@@ -191,9 +197,10 @@ class _DocumentDetailsScreenState extends State<DocumentDetailsScreen> {
   }
 
   Widget _buildDetailsSection() {
+    final theme = Theme.of(context);
     return Container(
       decoration: BoxDecoration(
-        color: DocuMateTheme.darkTheme.scaffoldBackgroundColor,
+        color: Theme.of(context).cardColor,
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(24),
           topRight: Radius.circular(24),
@@ -247,8 +254,9 @@ class _DocumentDetailsScreenState extends State<DocumentDetailsScreen> {
               children: _document.tags!
                   .map((tag) => Chip(
                         label: Text(tag),
-                        backgroundColor: Colors.blue.withOpacity(0.2),
-                        labelStyle: const TextStyle(color: Colors.blue),
+                        backgroundColor:
+                            theme.primaryColor.withValues(alpha: 0.2),
+                        labelStyle: TextStyle(color: theme.primaryColor),
                       ))
                   .toList(),
             ),
@@ -265,7 +273,7 @@ class _DocumentDetailsScreenState extends State<DocumentDetailsScreen> {
                   padding: const EdgeInsets.all(16),
                   margin: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.grey[900],
+                    color: theme.scaffoldBackgroundColor,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: SelectableText(
@@ -285,11 +293,13 @@ class _DocumentDetailsScreenState extends State<DocumentDetailsScreen> {
 
   Widget _buildInfoRow(String label, String value, IconData icon,
       {Color? valueColor}) {
+    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: Colors.grey),
+          Icon(icon,
+              size: 20, color: theme.iconTheme.color?.withValues(alpha: 0.7)),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -297,13 +307,13 @@ class _DocumentDetailsScreenState extends State<DocumentDetailsScreen> {
               children: [
                 Text(
                   label,
-                  style: const TextStyle(color: Colors.grey, fontSize: 12),
+                  style: theme.textTheme.bodySmall?.copyWith(fontSize: 12),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   value,
-                  style: TextStyle(
-                    color: valueColor ?? Colors.white,
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: valueColor ?? theme.textTheme.bodyLarge?.color,
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
                   ),
@@ -317,33 +327,34 @@ class _DocumentDetailsScreenState extends State<DocumentDetailsScreen> {
   }
 
   Widget _buildReminderSection() {
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.blue.withOpacity(0.1),
+        color: theme.primaryColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.blue.withOpacity(0.3)),
+        border: Border.all(color: theme.primaryColor.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.notifications, color: Colors.blue),
+              Icon(Icons.notifications, color: theme.primaryColor),
               const SizedBox(width: 8),
-              const Text(
+              Text(
                 'Reminders',
-                style: TextStyle(
+                style: theme.textTheme.titleMedium?.copyWith(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: theme.textTheme.titleMedium?.color,
                 ),
               ),
               const Spacer(),
               Switch(
                 value: _document.hasReminder,
                 onChanged: _toggleReminder,
-                activeThumbColor: Colors.blue,
+                activeThumbColor: theme.primaryColor,
               ),
             ],
           ),
@@ -351,7 +362,7 @@ class _DocumentDetailsScreenState extends State<DocumentDetailsScreen> {
             const SizedBox(height: 8),
             Text(
               'Next reminder: ${_formatDate(_document.reminderDate!)}',
-              style: const TextStyle(color: Colors.grey, fontSize: 12),
+              style: theme.textTheme.bodySmall?.copyWith(fontSize: 12),
             ),
           ],
         ],
@@ -378,11 +389,10 @@ class _DocumentDetailsScreenState extends State<DocumentDetailsScreen> {
     if (value && (_document.expiryDate != null || _document.dueDate != null)) {
       // Get custom intervals if they exist
       List<int>? customIntervals;
-      if (_document.metadata != null && 
+      if (_document.metadata != null &&
           _document.metadata!.containsKey('customReminderIntervals')) {
         customIntervals = List<int>.from(
-          _document.metadata!['customReminderIntervals'] as List
-        );
+            _document.metadata!['customReminderIntervals'] as List);
       }
 
       final scheduledIds = await _notificationService.scheduleDocumentReminders(
@@ -393,12 +403,13 @@ class _DocumentDetailsScreenState extends State<DocumentDetailsScreen> {
       // Update document with notification IDs
       final metadata = Map<String, dynamic>.from(_document.metadata ?? {});
       metadata['notificationIds'] = scheduledIds;
-      
+
       setState(() {
         _document = _document.copyWith(metadata: metadata);
       });
-      
-      await widget.storageService.saveDocument(_document.id, _document.toJson());
+
+      await widget.storageService
+          .saveDocument(_document.id, _document.toJson());
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -430,7 +441,7 @@ class _DocumentDetailsScreenState extends State<DocumentDetailsScreen> {
 
     if (result != null) {
       setState(() => _document = result);
-      
+
       // Show success message
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -535,6 +546,7 @@ class _FullScreenImageViewerState extends State<_FullScreenImageViewer> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       backgroundColor: Colors.black,
       body: GestureDetector(
@@ -591,14 +603,15 @@ class _FullScreenImageViewerState extends State<_FullScreenImageViewer> {
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      Colors.black.withOpacity(0.7),
+                      Colors.black.withValues(alpha: 0.7),
                       Colors.transparent,
                     ],
                   ),
                 ),
                 child: SafeArea(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                     child: Row(
                       children: [
                         IconButton(
@@ -624,7 +637,7 @@ class _FullScreenImageViewerState extends State<_FullScreenImageViewer> {
                                 Text(
                                   'Page ${_currentIndex + 1} of ${widget.images.length}',
                                   style: TextStyle(
-                                    color: Colors.white.withOpacity(0.7),
+                                    color: Colors.white.withValues(alpha: 0.7),
                                     fontSize: 12,
                                   ),
                                 ),
@@ -647,10 +660,10 @@ class _FullScreenImageViewerState extends State<_FullScreenImageViewer> {
                   alignment: Alignment.bottomCenter,
                   child: Container(
                     margin: const EdgeInsets.only(bottom: 32),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.6),
+                      color: Colors.black.withValues(alpha: 0.6),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(
@@ -663,8 +676,8 @@ class _FullScreenImageViewerState extends State<_FullScreenImageViewer> {
                           height: 8,
                           decoration: BoxDecoration(
                             color: _currentIndex == index
-                                ? const Color(0xFF5E81F3)
-                                : Colors.white.withOpacity(0.5),
+                                ? theme.primaryColor
+                                : Colors.white.withValues(alpha: 0.5),
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),

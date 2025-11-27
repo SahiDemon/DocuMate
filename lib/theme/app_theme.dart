@@ -257,6 +257,261 @@ class DocuMateTheme {
     ),
   );
 
+  // Light theme
+  static ThemeData lightTheme = ThemeData(
+    useMaterial3: true,
+    brightness: Brightness.light,
+    primaryColor: accentBlue,
+    scaffoldBackgroundColor: const Color(0xFFF5F5F5),
+    colorScheme: const ColorScheme.light(
+      primary: accentBlue,
+      secondary: accentPurple,
+      surface: Colors.white,
+      onPrimary: Colors.white,
+      onSecondary: Colors.white,
+      onSurface: Color(0xFF1E1E1E),
+      error: error,
+    ),
+    cardTheme: CardThemeData(
+      color: Colors.white,
+      elevation: 2,
+      shadowColor: Colors.black.withOpacity(0.1),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+    ),
+    appBarTheme: const AppBarTheme(
+      backgroundColor: Colors.white,
+      elevation: 0,
+      centerTitle: false,
+      iconTheme: IconThemeData(color: Color(0xFF1E1E1E)),
+      titleTextStyle: TextStyle(
+        fontFamily: fontName,
+        fontWeight: FontWeight.bold,
+        fontSize: 20,
+        letterSpacing: 0.25,
+        color: Color(0xFF1E1E1E),
+      ),
+    ),
+    textTheme: const TextTheme(
+      displayLarge: TextStyle(
+        fontFamily: fontName,
+        fontWeight: FontWeight.bold,
+        fontSize: 40,
+        letterSpacing: 0.5,
+        height: 1.1,
+        color: Color(0xFF1E1E1E),
+      ),
+      displayMedium: TextStyle(
+        fontFamily: fontName,
+        fontWeight: FontWeight.bold,
+        fontSize: 32,
+        letterSpacing: 0.4,
+        height: 1.1,
+        color: Color(0xFF1E1E1E),
+      ),
+      displaySmall: TextStyle(
+        fontFamily: fontName,
+        fontWeight: FontWeight.bold,
+        fontSize: 28,
+        letterSpacing: 0.3,
+        color: Color(0xFF1E1E1E),
+      ),
+      headlineLarge: TextStyle(
+        fontFamily: fontName,
+        fontWeight: FontWeight.bold,
+        fontSize: 24,
+        letterSpacing: 0.27,
+        color: Color(0xFF1E1E1E),
+      ),
+      headlineMedium: TextStyle(
+        fontFamily: fontName,
+        fontWeight: FontWeight.bold,
+        fontSize: 20,
+        letterSpacing: 0.25,
+        color: Color(0xFF1E1E1E),
+      ),
+      headlineSmall: TextStyle(
+        fontFamily: fontName,
+        fontWeight: FontWeight.w600,
+        fontSize: 18,
+        letterSpacing: 0.2,
+        color: Color(0xFF1E1E1E),
+      ),
+      titleLarge: TextStyle(
+        fontFamily: fontName,
+        fontWeight: FontWeight.w600,
+        fontSize: 16,
+        letterSpacing: 0.18,
+        color: Color(0xFF1E1E1E),
+      ),
+      titleMedium: TextStyle(
+        fontFamily: fontName,
+        fontWeight: FontWeight.w500,
+        fontSize: 14,
+        letterSpacing: 0.15,
+        color: Color(0xFF1E1E1E),
+      ),
+      titleSmall: TextStyle(
+        fontFamily: fontName,
+        fontWeight: FontWeight.w500,
+        fontSize: 12,
+        letterSpacing: 0.1,
+        color: Color(0xFF666666),
+      ),
+      bodyLarge: TextStyle(
+        fontFamily: fontName,
+        fontWeight: FontWeight.w400,
+        fontSize: 16,
+        letterSpacing: 0.15,
+        color: Color(0xFF1E1E1E),
+      ),
+      bodyMedium: TextStyle(
+        fontFamily: fontName,
+        fontWeight: FontWeight.w400,
+        fontSize: 14,
+        letterSpacing: 0.2,
+        color: Color(0xFF666666),
+      ),
+      bodySmall: TextStyle(
+        fontFamily: fontName,
+        fontWeight: FontWeight.w400,
+        fontSize: 12,
+        letterSpacing: 0.2,
+        color: Color(0xFF999999),
+      ),
+      labelLarge: TextStyle(
+        fontFamily: fontName,
+        fontWeight: FontWeight.w500,
+        fontSize: 14,
+        letterSpacing: 0.1,
+        color: Color(0xFF1E1E1E),
+      ),
+      labelMedium: TextStyle(
+        fontFamily: fontName,
+        fontWeight: FontWeight.w500,
+        fontSize: 12,
+        letterSpacing: 0.1,
+        color: Color(0xFF666666),
+      ),
+      labelSmall: TextStyle(
+        fontFamily: fontName,
+        fontWeight: FontWeight.w500,
+        fontSize: 10,
+        letterSpacing: 0.1,
+        color: Color(0xFF999999),
+      ),
+    ),
+    fontFamily: fontName,
+    iconTheme: const IconThemeData(
+      color: Color(0xFF666666),
+      size: 24,
+    ),
+    floatingActionButtonTheme: FloatingActionButtonThemeData(
+      backgroundColor: accentBlue,
+      foregroundColor: Colors.white,
+      elevation: 6,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: accentBlue,
+        foregroundColor: Colors.white,
+        elevation: 2,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        textStyle: const TextStyle(
+          fontFamily: fontName,
+          fontWeight: FontWeight.w500,
+          fontSize: 14,
+          letterSpacing: 0.1,
+        ),
+      ),
+    ),
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: const Color(0xFFF5F5F5),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Color(0xFFE0E0E0), width: 1),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: accentBlue, width: 2),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: error, width: 1),
+      ),
+      labelStyle: const TextStyle(
+        fontFamily: fontName,
+        fontWeight: FontWeight.w400,
+        fontSize: 14,
+        letterSpacing: 0.2,
+        color: Color(0xFF666666),
+      ),
+      hintStyle: const TextStyle(
+        fontFamily: fontName,
+        fontWeight: FontWeight.w400,
+        fontSize: 12,
+        letterSpacing: 0.2,
+        color: Color(0xFF999999),
+      ),
+    ),
+  );
+
+  /// Generate a dark theme with a custom accent color
+  static ThemeData darkThemeWithAccent(Color accentColor) {
+    return darkTheme.copyWith(
+      primaryColor: accentColor,
+      colorScheme: darkTheme.colorScheme.copyWith(primary: accentColor),
+      floatingActionButtonTheme: darkTheme.floatingActionButtonTheme.copyWith(
+        backgroundColor: accentColor,
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: darkTheme.elevatedButtonTheme.style?.copyWith(
+          backgroundColor: WidgetStateProperty.all(accentColor),
+        ),
+      ),
+      inputDecorationTheme: darkTheme.inputDecorationTheme.copyWith(
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: accentColor, width: 2),
+        ),
+      ),
+    );
+  }
+
+  /// Generate a light theme with a custom accent color
+  static ThemeData lightThemeWithAccent(Color accentColor) {
+    return lightTheme.copyWith(
+      primaryColor: accentColor,
+      colorScheme: lightTheme.colorScheme.copyWith(primary: accentColor),
+      floatingActionButtonTheme: lightTheme.floatingActionButtonTheme.copyWith(
+        backgroundColor: accentColor,
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: lightTheme.elevatedButtonTheme.style?.copyWith(
+          backgroundColor: WidgetStateProperty.all(accentColor),
+        ),
+      ),
+      inputDecorationTheme: lightTheme.inputDecorationTheme.copyWith(
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: accentColor, width: 2),
+        ),
+      ),
+    );
+  }
+
   // Helper method to get category color
   static Color getCategoryColor(String category) {
     switch (category.toLowerCase()) {

@@ -3,11 +3,12 @@ import 'dart:math' as math;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:documate/screens/onboarding_screen.dart';
 import 'package:documate/screens/new_home_screen.dart';
-import 'package:documate/main.dart' show storageService, notificationService;
+import 'package:documate/main.dart' show storageService;
 import 'package:documate/services/firebase_auth_service.dart';
 import 'package:documate/services/cloud_sync_service.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:intl/intl.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -85,20 +86,26 @@ class _SplashScreenState extends State<SplashScreen>
       defaultValue: false,
     ) as bool;
 
-    // Request notification permission on first launch (after onboarding)
+    // Request permissions on first launch (after onboarding)
     if (hasSeenOnboarding && storageOnboardingComplete) {
       final permissionRequested = await storageService.getSetting(
-        'notification_permission_requested',
+        'permissions_requested_v2',
         defaultValue: false,
       ) as bool;
 
       if (!permissionRequested) {
-        final granted = await notificationService.requestPermission();
-        await storageService.saveSetting(
-            'notification_permission_requested', true);
-        print(granted
-            ? '✓ Notification permission granted'
-            : '⚠️ Notification permission denied');
+        // Request necessary permissions
+        // We request multiple permissions at once for better UX
+        Map<Permission, PermissionStatus> statuses = await [
+          Permission.camera,
+          Permission.notification,
+          Permission.storage, // For older Android
+          Permission.photos, // For Android 13+
+        ].request();
+
+        print('Permissions requested: $statuses');
+
+        await storageService.saveSetting('permissions_requested_v2', true);
       }
     }
 
@@ -120,10 +127,10 @@ class _SplashScreenState extends State<SplashScreen>
       } else if (isLoggedIn && currentUser != null) {
         // Returning user who is already logged in - go directly to home
         print('✓ Returning user: ${currentUser.email ?? "Anonymous"}');
-        
+
         // CHECK FOR BACKUP AND OFFER TO RESTORE
         // Restore check is now handled in StorageOnboardingScreen
-        
+
         nextScreen = const NewHomeScreen();
       } else {
         // User completed onboarding but not logged in - show login screen

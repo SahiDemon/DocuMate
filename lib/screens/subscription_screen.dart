@@ -5,20 +5,21 @@ class SubscriptionScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text(
+        title: Text(
           'Subscription',
           style: TextStyle(
-            color: Colors.white,
+            color: theme.textTheme.bodyLarge?.color,
             fontWeight: FontWeight.bold,
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: theme.textTheme.bodyLarge?.color),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
@@ -32,15 +33,18 @@ class SubscriptionScreen extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(32),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
+                gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [Color(0xFF5E81F3), Color(0xFF8B5CF6)],
+                  colors: [
+                    theme.primaryColor,
+                    theme.colorScheme.secondary,
+                  ],
                 ),
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF5E81F3).withOpacity(0.3),
+                    color: theme.primaryColor.withValues(alpha: 0.3),
                     blurRadius: 20,
                     offset: const Offset(0, 10),
                   ),
@@ -68,7 +72,7 @@ class SubscriptionScreen extends StatelessWidget {
                     'All Features Included',
                     style: TextStyle(
                       fontSize: 16,
-                      color: Colors.white.withOpacity(0.9),
+                      color: Colors.white.withValues(alpha: 0.9),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -77,7 +81,7 @@ class SubscriptionScreen extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 20, vertical: 10),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(30),
                     ),
                     child: const Text(
@@ -98,31 +102,31 @@ class SubscriptionScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: const Color(0xFF1E1E1E),
+                color: theme.cardColor,
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'What\'s Included',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: theme.textTheme.bodyLarge?.color,
                     ),
                   ),
                   const SizedBox(height: 20),
-                  _buildFeatureItem('Unlimited document storage'),
-                  _buildFeatureItem('Advanced OCR text recognition'),
-                  _buildFeatureItem('Google Drive cloud backup'),
-                  _buildFeatureItem('AES-256 encryption'),
-                  _buildFeatureItem('Smart notifications'),
-                  _buildFeatureItem('Category management'),
-                  _buildFeatureItem('Fast document search'),
-                  _buildFeatureItem('PDF generation'),
-                  _buildFeatureItem('Document sharing'),
-                  _buildFeatureItem('Priority support'),
+                  _buildFeatureItem(context, 'Unlimited document storage'),
+                  _buildFeatureItem(context, 'Advanced OCR text recognition'),
+                  _buildFeatureItem(context, 'Google Drive cloud backup'),
+                  _buildFeatureItem(context, 'AES-256 encryption'),
+                  _buildFeatureItem(context, 'Smart notifications'),
+                  _buildFeatureItem(context, 'Category management'),
+                  _buildFeatureItem(context, 'Fast document search'),
+                  _buildFeatureItem(context, 'PDF generation'),
+                  _buildFeatureItem(context, 'Document sharing'),
+                  _buildFeatureItem(context, 'Priority support'),
                 ],
               ),
             ),
@@ -132,18 +136,18 @@ class SubscriptionScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: const Color(0xFF1E1E1E),
+                color: theme.cardColor,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: const Color(0xFF5E81F3).withOpacity(0.3),
+                  color: theme.primaryColor.withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),
               child: Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.info_outline,
-                    color: Color(0xFF5E81F3),
+                    color: theme.primaryColor,
                     size: 32,
                   ),
                   const SizedBox(width: 16),
@@ -152,7 +156,8 @@ class SubscriptionScreen extends StatelessWidget {
                       'DocuMate is completely free with all features unlocked. No subscriptions, no hidden fees!',
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.white.withOpacity(0.8),
+                        color: theme.textTheme.bodyLarge?.color
+                            ?.withValues(alpha: 0.8),
                         height: 1.5,
                       ),
                     ),
@@ -166,7 +171,7 @@ class SubscriptionScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: const Color(0xFF1E1E1E),
+                color: theme.cardColor,
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Column(
@@ -174,15 +179,15 @@ class SubscriptionScreen extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.rocket_launch,
-                          color: Color(0xFF5E81F3), size: 24),
+                      Icon(Icons.rocket_launch,
+                          color: theme.primaryColor, size: 24),
                       const SizedBox(width: 12),
-                      const Text(
+                      Text(
                         'Coming Soon',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: theme.textTheme.bodyLarge?.color,
                         ),
                       ),
                     ],
@@ -196,7 +201,8 @@ class SubscriptionScreen extends StatelessWidget {
                     '• AI-powered document insights',
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.white.withOpacity(0.7),
+                      color: theme.textTheme.bodyLarge?.color
+                          ?.withValues(alpha: 0.7),
                       height: 1.6,
                     ),
                   ),
@@ -209,7 +215,8 @@ class SubscriptionScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildFeatureItem(String feature) {
+  Widget _buildFeatureItem(BuildContext context, String feature) {
+    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Row(
@@ -217,13 +224,13 @@ class SubscriptionScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
-              color: const Color(0xFF5E81F3).withOpacity(0.2),
+              color: theme.primaryColor.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
-            child: const Icon(
+            child: Icon(
               Icons.check,
               size: 16,
-              color: Color(0xFF5E81F3),
+              color: theme.primaryColor,
             ),
           ),
           const SizedBox(width: 12),
@@ -232,7 +239,7 @@ class SubscriptionScreen extends StatelessWidget {
               feature,
               style: TextStyle(
                 fontSize: 15,
-                color: Colors.white.withOpacity(0.9),
+                color: theme.textTheme.bodyLarge?.color?.withValues(alpha: 0.9),
               ),
             ),
           ),

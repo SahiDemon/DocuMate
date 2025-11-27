@@ -3,6 +3,8 @@ import 'package:documate/services/storage_service.dart';
 import 'package:documate/services/notification_service.dart';
 import 'package:documate/screens/notifications_center_screen.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
+import 'package:documate/theme/theme_provider.dart';
 
 class NotificationSettingsScreen extends StatefulWidget {
   final StorageService storageService;
@@ -43,7 +45,7 @@ class _NotificationSettingsScreenState
   Future<void> _requestPermission() async {
     final status = await Permission.notification.request();
     setState(() => _hasPermission = status.isGranted);
-    
+
     if (status.isGranted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -168,7 +170,8 @@ class _NotificationSettingsScreenState
   }
 
   Future<void> _saveReminderIntervals(List<int> intervals) async {
-    await widget.storageService.saveSetting('default_reminder_intervals', intervals);
+    await widget.storageService
+        .saveSetting('default_reminder_intervals', intervals);
     setState(() => _defaultReminderIntervals = intervals);
   }
 
@@ -198,7 +201,7 @@ class _NotificationSettingsScreenState
 
   Future<void> _editReminderIntervals() async {
     final intervals = List<int>.from(_defaultReminderIntervals);
-    
+
     await showDialog(
       context: context,
       builder: (context) => _ReminderIntervalsDialog(
@@ -212,33 +215,40 @@ class _NotificationSettingsScreenState
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     if (_isLoading) {
       return Scaffold(
-        backgroundColor: const Color(0xFF121212),
+        backgroundColor: theme.scaffoldBackgroundColor,
         appBar: AppBar(
-          title: const Text('Notification Settings'),
-          backgroundColor: const Color(0xFF1E1E1E),
+          title: Text('Notification Settings',
+              style: TextStyle(color: theme.textTheme.bodyLarge?.color)),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          iconTheme: IconThemeData(color: theme.textTheme.bodyLarge?.color),
         ),
-        body: const Center(child: CircularProgressIndicator()),
+        body:
+            Center(child: CircularProgressIndicator(color: theme.primaryColor)),
       );
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Notification Settings',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(
+              color: theme.textTheme.bodyLarge?.color,
+              fontWeight: FontWeight.bold),
         ),
-        backgroundColor: const Color(0xFF1E1E1E),
+        backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: theme.textTheme.bodyLarge?.color),
           onPressed: () => Navigator.of(context).pop(),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_active, color: Color(0xFF5E81F3)),
+            icon: Icon(Icons.notifications_active, color: theme.primaryColor),
             tooltip: 'View Notifications',
             onPressed: () {
               Navigator.of(context).push(
@@ -261,23 +271,23 @@ class _NotificationSettingsScreenState
               padding: const EdgeInsets.all(16),
               margin: const EdgeInsets.only(bottom: 16),
               decoration: BoxDecoration(
-                color: const Color(0xFFEF4444).withOpacity(0.1),
+                color: theme.colorScheme.error.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: const Color(0xFFEF4444).withOpacity(0.3),
+                  color: theme.colorScheme.error.withOpacity(0.3),
                 ),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Row(
+                  Row(
                     children: [
-                      Icon(Icons.warning_amber, color: Color(0xFFEF4444)),
-                      SizedBox(width: 8),
+                      Icon(Icons.warning_amber, color: theme.colorScheme.error),
+                      const SizedBox(width: 8),
                       Text(
                         'Permission Required',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: theme.textTheme.bodyLarge?.color,
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
@@ -285,10 +295,10 @@ class _NotificationSettingsScreenState
                     ],
                   ),
                   const SizedBox(height: 8),
-                  const Text(
+                  Text(
                     'Notification permission is required to receive document reminders.',
                     style: TextStyle(
-                      color: Colors.white70,
+                      color: theme.textTheme.bodySmall?.color,
                       fontSize: 14,
                     ),
                   ),
@@ -298,7 +308,7 @@ class _NotificationSettingsScreenState
                     icon: const Icon(Icons.check_circle),
                     label: const Text('Grant Permission'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFEF4444),
+                      backgroundColor: theme.colorScheme.error,
                       foregroundColor: Colors.white,
                       minimumSize: const Size(double.infinity, 40),
                     ),
@@ -310,13 +320,13 @@ class _NotificationSettingsScreenState
           // Enable Notifications Card
           _buildCard(
             icon: Icons.notifications_active,
-            iconColor: const Color(0xFF5E81F3),
+            iconColor: theme.primaryColor,
             title: 'Enable Notifications',
             subtitle: 'Receive reminders for document expiry and due dates',
             trailing: Switch(
               value: _notificationsEnabled,
               onChanged: _saveNotificationsEnabled,
-              activeColor: const Color(0xFF5E81F3),
+              activeThumbColor: theme.primaryColor,
             ),
           ),
 
@@ -331,7 +341,7 @@ class _NotificationSettingsScreenState
             trailing: Switch(
               value: _soundEnabled,
               onChanged: _notificationsEnabled ? _saveSoundEnabled : null,
-              activeColor: const Color(0xFF10B981),
+              activeThumbColor: const Color(0xFF10B981),
             ),
             enabled: _notificationsEnabled,
           ),
@@ -347,7 +357,7 @@ class _NotificationSettingsScreenState
             trailing: Switch(
               value: _vibrationEnabled,
               onChanged: _notificationsEnabled ? _saveVibrationEnabled : null,
-              activeColor: const Color(0xFFF97316),
+              activeThumbColor: const Color(0xFFF97316),
             ),
             enabled: _notificationsEnabled,
           ),
@@ -360,7 +370,7 @@ class _NotificationSettingsScreenState
             child: Text(
               'SCHEDULE',
               style: TextStyle(
-                color: Colors.grey[600],
+                color: theme.textTheme.bodySmall?.color,
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
                 letterSpacing: 1.2,
@@ -380,7 +390,9 @@ class _NotificationSettingsScreenState
                 Text(
                   _notificationTime.format(context),
                   style: TextStyle(
-                    color: _notificationsEnabled ? const Color(0xFF5E81F3) : Colors.grey,
+                    color: _notificationsEnabled
+                        ? theme.primaryColor
+                        : theme.disabledColor,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
@@ -388,7 +400,9 @@ class _NotificationSettingsScreenState
                 const SizedBox(width: 8),
                 Icon(
                   Icons.chevron_right,
-                  color: _notificationsEnabled ? Colors.white.withOpacity(0.5) : Colors.grey,
+                  color: _notificationsEnabled
+                      ? theme.textTheme.bodySmall?.color
+                      : theme.disabledColor,
                 ),
               ],
             ),
@@ -403,10 +417,13 @@ class _NotificationSettingsScreenState
             icon: Icons.calendar_today,
             iconColor: const Color(0xFFEC4899),
             title: 'Default Reminder Intervals',
-            subtitle: 'When to remind before expiry: ${_defaultReminderIntervals.map((d) => '${d}d').join(', ')}',
+            subtitle:
+                'When to remind before expiry: ${_defaultReminderIntervals.map((d) => '${d}d').join(', ')}',
             trailing: Icon(
               Icons.edit,
-              color: _notificationsEnabled ? const Color(0xFF5E81F3) : Colors.grey,
+              color: _notificationsEnabled
+                  ? theme.primaryColor
+                  : theme.disabledColor,
             ),
             onTap: _notificationsEnabled ? _editReminderIntervals : null,
             enabled: _notificationsEnabled,
@@ -418,18 +435,18 @@ class _NotificationSettingsScreenState
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFF5E81F3).withOpacity(0.1),
+              color: theme.primaryColor.withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: const Color(0xFF5E81F3).withOpacity(0.3),
+                color: theme.primaryColor.withOpacity(0.3),
               ),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(
+                Icon(
                   Icons.info_outline,
-                  color: Color(0xFF5E81F3),
+                  color: theme.primaryColor,
                   size: 24,
                 ),
                 const SizedBox(width: 12),
@@ -437,10 +454,10 @@ class _NotificationSettingsScreenState
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'About Reminders',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: theme.textTheme.bodyLarge?.color,
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
                         ),
@@ -449,7 +466,7 @@ class _NotificationSettingsScreenState
                       Text(
                         'These intervals apply to all documents by default. You can customize reminders for individual documents when adding or editing them.',
                         style: TextStyle(
-                          color: Colors.grey[400],
+                          color: theme.textTheme.bodySmall?.color,
                           fontSize: 13,
                         ),
                       ),
@@ -473,15 +490,17 @@ class _NotificationSettingsScreenState
     VoidCallback? onTap,
     bool enabled = true,
   }) {
+    final theme = Theme.of(context);
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: const Color(0xFF1E1E1E),
+          color: theme.cardColor,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: Colors.white.withOpacity(0.05),
+            color: theme.dividerColor,
           ),
         ),
         child: Row(
@@ -495,7 +514,7 @@ class _NotificationSettingsScreenState
               ),
               child: Icon(
                 icon,
-                color: enabled ? iconColor : Colors.grey,
+                color: enabled ? iconColor : theme.disabledColor,
                 size: 24,
               ),
             ),
@@ -507,7 +526,9 @@ class _NotificationSettingsScreenState
                   Text(
                     title,
                     style: TextStyle(
-                      color: enabled ? Colors.white : Colors.grey,
+                      color: enabled
+                          ? theme.textTheme.bodyLarge?.color
+                          : theme.disabledColor,
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
                     ),
@@ -516,7 +537,9 @@ class _NotificationSettingsScreenState
                   Text(
                     subtitle,
                     style: TextStyle(
-                      color: enabled ? Colors.grey[400] : Colors.grey[600],
+                      color: enabled
+                          ? theme.textTheme.bodySmall?.color
+                          : theme.disabledColor,
                       fontSize: 13,
                     ),
                   ),
@@ -542,7 +565,8 @@ class _ReminderIntervalsDialog extends StatefulWidget {
   });
 
   @override
-  State<_ReminderIntervalsDialog> createState() => _ReminderIntervalsDialogState();
+  State<_ReminderIntervalsDialog> createState() =>
+      _ReminderIntervalsDialogState();
 }
 
 class _ReminderIntervalsDialogState extends State<_ReminderIntervalsDialog> {
@@ -611,8 +635,10 @@ class _ReminderIntervalsDialogState extends State<_ReminderIntervalsDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Dialog(
-      backgroundColor: const Color(0xFF2A2A2A),
+      backgroundColor: theme.cardColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
@@ -622,10 +648,10 @@ class _ReminderIntervalsDialogState extends State<_ReminderIntervalsDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Reminder Intervals',
               style: TextStyle(
-                color: Colors.white,
+                color: theme.textTheme.bodyLarge?.color,
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
@@ -634,7 +660,7 @@ class _ReminderIntervalsDialogState extends State<_ReminderIntervalsDialog> {
             Text(
               'Set how many days before expiry/due date to receive reminders',
               style: TextStyle(
-                color: Colors.grey[400],
+                color: theme.textTheme.bodySmall?.color,
                 fontSize: 14,
               ),
             ),
@@ -647,18 +673,20 @@ class _ReminderIntervalsDialogState extends State<_ReminderIntervalsDialog> {
                   child: TextField(
                     controller: _controller,
                     keyboardType: TextInputType.number,
-                    style: const TextStyle(color: Colors.white),
+                    style: TextStyle(color: theme.textTheme.bodyLarge?.color),
                     decoration: InputDecoration(
                       hintText: 'Days before',
-                      hintStyle: TextStyle(color: Colors.grey[600]),
+                      hintStyle:
+                          TextStyle(color: theme.textTheme.bodySmall?.color),
                       filled: true,
-                      fillColor: const Color(0xFF1E1E1E),
+                      fillColor: theme.scaffoldBackgroundColor,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                         borderSide: BorderSide.none,
                       ),
                       suffixText: 'days',
-                      suffixStyle: TextStyle(color: Colors.grey[600]),
+                      suffixStyle:
+                          TextStyle(color: theme.textTheme.bodySmall?.color),
                     ),
                   ),
                 ),
@@ -666,9 +694,10 @@ class _ReminderIntervalsDialogState extends State<_ReminderIntervalsDialog> {
                 ElevatedButton(
                   onPressed: _addInterval,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF5E81F3),
+                    backgroundColor: theme.primaryColor,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -685,7 +714,7 @@ class _ReminderIntervalsDialogState extends State<_ReminderIntervalsDialog> {
               Text(
                 'Current Intervals',
                 style: TextStyle(
-                  color: Colors.grey[400],
+                  color: theme.textTheme.bodySmall?.color,
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
                 ),
@@ -698,13 +727,13 @@ class _ReminderIntervalsDialogState extends State<_ReminderIntervalsDialog> {
                   return Chip(
                     label: Text(
                       '$interval days',
-                      style: const TextStyle(color: Colors.white),
+                      style: TextStyle(color: theme.textTheme.bodyLarge?.color),
                     ),
-                    backgroundColor: const Color(0xFF1E1E1E),
-                    deleteIcon: const Icon(
+                    backgroundColor: theme.scaffoldBackgroundColor,
+                    deleteIcon: Icon(
                       Icons.close,
                       size: 18,
-                      color: Colors.white,
+                      color: theme.textTheme.bodySmall?.color,
                     ),
                     onDeleted: () => _removeInterval(interval),
                   );
@@ -720,18 +749,19 @@ class _ReminderIntervalsDialogState extends State<_ReminderIntervalsDialog> {
               children: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text(
+                  child: Text(
                     'Cancel',
-                    style: TextStyle(color: Colors.grey),
+                    style: TextStyle(color: theme.textTheme.bodySmall?.color),
                   ),
                 ),
                 const SizedBox(width: 8),
                 ElevatedButton(
                   onPressed: _save,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF5E81F3),
+                    backgroundColor: theme.primaryColor,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 12),
                   ),
                   child: const Text('Save'),
                 ),
