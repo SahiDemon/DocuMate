@@ -219,14 +219,21 @@ class _StorageOnboardingScreenState extends State<StorageOnboardingScreen>
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            children: [
-              const SizedBox(height: 40),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: IntrinsicHeight(
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 40),
 
-              // Cloud icon with float animation
-              AnimatedBuilder(
+                        // Cloud icon with float animation
+                        AnimatedBuilder(
                 animation: _floatAnimation,
                 builder: (context, child) {
                   return Transform.translate(
@@ -371,8 +378,13 @@ class _StorageOnboardingScreenState extends State<StorageOnboardingScreen>
               ),
 
               const SizedBox(height: 16),
-            ],
-          ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
         ),
       ),
     );
